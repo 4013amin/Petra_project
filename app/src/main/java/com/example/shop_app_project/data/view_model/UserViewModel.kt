@@ -14,7 +14,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.PorductModel
 import com.example.shop_app_project.data.models.register.login_model
-import com.example.shop_app_project.data.utils.Utils_ret
+import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -35,37 +35,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     private val sharedPreferences =
         application.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
-    fun sendRegister(username: String, password: String, phone: String, location: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = try {
-                Utils_ret.api.registerUser(username, password, phone, location)
-            } catch (e: IOException) {
-                Log.e("UserViewModel", "Network error occurred during registration.", e)
-                registrationResult.value = "Network error occurred."
-                return@launch
-            } catch (e: HttpException) {
-                Log.e("UserViewModel", "HTTP error occurred during registration: ${e.code()}", e)
-                registrationResult.value = "HTTP error occurred: ${e.code()}"
-                return@launch
-            }
 
-            if (response.isSuccessful && response.body() != null) {
-                Log.d("UserViewModel", "Registration successful.")
-                registrationResult.value = "Registration successful."
-
-                //shared
-                var editor = sharedPreferences.edit()
-                editor.putString("username", username)
-                editor.putString("password", password)
-                editor.putString("phone", phone)
-                editor.putString("location", location)
-                editor.apply()
-
-            } else {
-                Log.e("UserViewModel", "Registration failed: ${response.errorBody()}")
-            }
-        }
-    }
 
     //checkLogin
     fun checkCredentials(): Boolean {
@@ -74,38 +44,12 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         return savedCredentials.first.isNotBlank() && savedCredentials.second.isNotBlank()
     }
 
-    fun sendLogin(username: String, address: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = try {
-                val user = login_model(
-                    username = username,
-                    address = address, "", "", "", "",
-                )
-                Utils_ret.api.loginUser(user)
-            } catch (e: IOException) {
-                Log.e("UserViewModel", "Network error occurred during login.", e)
-                login_result.value = "Network error occurred."
-                return@launch
-            } catch (e: HttpException) {
-                Log.e("UserViewModel", "HTTP error occurred during login: ${e.code()}", e)
-                login_result.value = "HTTP error occurred: ${e.code()}"
-                return@launch
-            }
 
-            if (response.isSuccessful && response.body() != null) {
-                Log.d("UserViewModel", "Login successful.")
-                registrationResult.value = "Login successful."
-
-            } else {
-                Log.e("UserViewModel", "Login failed: ${response.errorBody()}")
-            }
-        }
-    }
 
     fun getAllProducts() {
         viewModelScope.launch(Dispatchers.IO) {
             val response = try {
-                Utils_ret.api.getProducts()
+                UtilsRetrofit.api.getAllProducts()
             } catch (e: IOException) {
                 Log.e("UserViewModel", "Network error occurred while fetching products.", e)
                 registrationResult.value = "Network error occurred."
@@ -130,16 +74,16 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
 
-            getCategories()
+//            getCategories()
         }
     }
 
 
-    //send Categories request
+//    send Categories request
     fun getCategories() {
         viewModelScope.launch(Dispatchers.IO) {
             val response = try {
-                Utils_ret.api.getCategories()
+                UtilsRetrofit.api.getCategories()
             } catch (e: IOException) {
                 Log.e("UserViewModel", "Network error occurred while fetching products.", e)
                 return@launch

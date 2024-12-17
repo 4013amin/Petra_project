@@ -73,6 +73,7 @@ import com.example.shop_app_project.data.view_model.ShoppingCartViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import androidx.compose.material3.*
+import com.example.shop_app_project.data.models.product.PorductModel
 
 
 var gson = Gson()
@@ -112,7 +113,7 @@ fun SearchPage(navController: NavController, shoppingCartViewModel: ShoppingCart
                 // Content below the SearchBar
 //                CategoryFilter()
                 Spacer(modifier = Modifier.height(16.dp))
-                ProductGrid(shoppingCartViewModel, navController)
+//                ProductGrid(shoppingCartViewModel, navController)
             }
         }
     )
@@ -144,95 +145,37 @@ fun SearchBar(modifier: Modifier) {
 }
 
 
-@Composable
-fun ProductGrid(
-    cartViewModel: ShoppingCartViewModel,
-    navController: NavController
-) {
-    val products = listOf(
-        ProductModel(
-            "Dog Food",
-            "wdadwd",
-            2500,
-            R.drawable.tools,
-            listOf(R.drawable.dog, R.drawable.dog, R.drawable.dog)
-        ),
-        ProductModel(
-            "Dog Food",
-            "wdadwd",
-            2500,
-            R.drawable.tools,
-            listOf(R.drawable.dog, R.drawable.dog, R.drawable.dog)
-        ),
-        ProductModel(
-            "Dog Food",
-            "wdadwd",
-            2500,
-            R.drawable.tools,
-            listOf(R.drawable.dog, R.drawable.dog, R.drawable.dog)
-        ),
-        ProductModel(
-            "Dog Food",
-            "wdadwd",
-            2500,
-            R.drawable.tools,
-            listOf(R.drawable.dog, R.drawable.dog, R.drawable.dog)
-        ),
-        ProductModel(
-            "Dog Food",
-            "wdadwd",
-            2500,
-            R.drawable.tools,
-            listOf(R.drawable.dog, R.drawable.dog, R.drawable.dog)
-        ),
-        ProductModel(
-            "Dog Food",
-            "wdadwd",
-            2500,
-            R.drawable.tools,
-            listOf(R.drawable.dog, R.drawable.dog, R.drawable.dog)
-        ),
-        ProductModel(
-            "Dog Food",
-            "wdadwd",
-            2500,
-            R.drawable.tools,
-            listOf(R.drawable.dog, R.drawable.dog, R.drawable.dog)
-        ),
-        ProductModel(
-            "Dog Food",
-            "wdadwd",
-            2500,
-            R.drawable.tools,
-            listOf(R.drawable.dog, R.drawable.dog, R.drawable.dog)
-        ),
-    )
-
-    // Create a grid layout with 2 columns
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(products) { product ->
-            ProductItemSearchPage(
-                name = product.name,
-                description = product.description,
-                price = product.price,
-                image = product.image,
-                addToCart = {
-                    // Add to cart functionality
-                },
-                onClick = {
-                    navController.navigate("singleProduct")
-                }
-            )
-        }
-    }
-}
+//@Composable
+//fun ProductGrid(
+//    cartViewModel: ShoppingCartViewModel,
+//    navController: NavController
+//) {
+//    val products by U
+//    // Create a grid layout with 2 columns
+//    LazyVerticalGrid(
+//        columns = GridCells.Fixed(2),
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(10.dp),
+//        horizontalArrangement = Arrangement.spacedBy(8.dp),
+//        verticalArrangement = Arrangement.spacedBy(8.dp)
+//    ) {
+//        items(products) { product ->
+//            ProductItemSearchPage(
+//                name = product.name,
+//                description = product.description,
+//                price = product.price,
+//                image = product.image,
+//                addToCart = {
+//                    // Add to cart functionality
+//                },
+//                onClick = {
+//                    navController.navigate("singleProduct")
+//                }
+//            )
+//        }
+//    }
+//}
 
 
 @Composable
@@ -337,174 +280,172 @@ fun ProductItemSearchPage(
 }
 
 
-//cardPage
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CartPage(cartViewModel: ShoppingCartViewModel, navController: NavController) {
-    val cartItems by cartViewModel.cartItems.collectAsState()
-    val scope = rememberCoroutineScope()
-    var selectedProduct by remember {
-        mutableStateOf<com.example.shop_app_project.Home_page.Main.ProductModel?>(null)
-    }
-    var showBottomSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Shopping Cart") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        },
-
-        ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            if (cartItems.isEmpty()) {
-                EmptyCartAnimation()
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 80.dp)
-                ) {
-                    items(cartItems) { product ->
-                        CartItem(
-                            product = product,
-                            onRemove = { cartViewModel.removeFromCart(product) },
-                            onClick = {
-                                selectedProduct = product
-                                showBottomSheet = true
-                            }
-                        )
-                    }
-                }
-
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp)
-                ) {
-
-                    Button(
-                        onClick = { cartViewModel.clearCart() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFFFB004)),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color(0xFFFFB004),
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(text = "Clear Cart")
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Button(
-                        onClick = { },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFFFB004)),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color(0xFFFFB004),
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(text = "payment")
-                    }
-
-                }
-            }
-        }
-
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showBottomSheet = false },
-                sheetState = sheetState
-            ) {
-                selectedProduct?.let { product ->
-                    ProductDetailsBottomSheet(product = product, onClose = {
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                showBottomSheet = false
-                            }
-                        }
-                    })
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CartItem(
-    product: com.example.shop_app_project.Home_page.Main.ProductModel,
-    onRemove: () -> Unit,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)  // Padding outside the box for spacing between items
-            .clip(RoundedCornerShape(8.dp))  // Clip to rounded corners
-            .background(Color.White)  // Set background color to white
-            .padding(15.dp)  // Padding inside the box
-            .clickable { onClick() }  // Handle item click
-    ) {
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = rememberImagePainter(data = product.image),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape),  // Make image circular
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = product.name,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFFFB004)
-                )
-                // Add more text fields if needed for other details
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Button(
-                onClick = onRemove,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE0F7FA),
-                    contentColor = Color.Black
-                )
-            ) {
-                Text(text = "Remove", color = Color.Black)
-            }
-        }
-    }
-}
+////cardPage
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun CartPage(cartViewModel: ShoppingCartViewModel, navController: NavController) {
+//    val cartItems by cartViewModel.cartItems.collectAsState()
+//    val scope = rememberCoroutineScope()
+//
+//    var showBottomSheet by remember { mutableStateOf(false) }
+//    val sheetState = rememberModalBottomSheetState()
+//
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(
+//                title = { Text("Shopping Cart") },
+//                navigationIcon = {
+//                    IconButton(onClick = { navController.popBackStack() }) {
+//                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+//                    }
+//                }
+//            )
+//        },
+//
+//        ) { paddingValues ->
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(paddingValues)
+//        ) {
+//            if (cartItems.isEmpty()) {
+//                EmptyCartAnimation()
+//            } else {
+//                LazyColumn(
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .padding(bottom = 80.dp)
+//                ) {
+//                    items(cartItems) { product ->
+//                        CartItem(
+//                            product = product,
+//                            onRemove = { cartViewModel.removeFromCart(product) },
+//                            onClick = {
+//                                selectedProduct = product
+//                                showBottomSheet = true
+//                            }
+//                        )
+//                    }
+//                }
+//
+//                Column(
+//                    modifier = Modifier
+//                        .align(Alignment.BottomCenter)
+//                        .padding(16.dp)
+//                ) {
+//
+//                    Button(
+//                        onClick = { cartViewModel.clearCart() },
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .background(Color(0xFFFFB004)),
+//                        colors = ButtonDefaults.outlinedButtonColors(
+//                            containerColor = Color(0xFFFFB004),
+//                            contentColor = Color.White
+//                        )
+//                    ) {
+//                        Text(text = "Clear Cart")
+//                    }
+//
+//                    Spacer(modifier = Modifier.height(8.dp))
+//
+//                    Button(
+//                        onClick = { },
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .background(Color(0xFFFFB004)),
+//                        colors = ButtonDefaults.outlinedButtonColors(
+//                            containerColor = Color(0xFFFFB004),
+//                            contentColor = Color.White
+//                        )
+//                    ) {
+//                        Text(text = "payment")
+//                    }
+//
+//                }
+//            }
+//        }
+//
+//        if (showBottomSheet) {
+//            ModalBottomSheet(
+//                onDismissRequest = { showBottomSheet = false },
+//                sheetState = sheetState
+//            ) {
+//                selectedProduct?.let { product ->
+//                    ProductDetailsBottomSheet(product = product, onClose = {
+//                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+//                            if (!sheetState.isVisible) {
+//                                showBottomSheet = false
+//                            }
+//                        }
+//                    })
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun CartItem(
+//    product: com.example.shop_app_project.Home_page.Main.ProductModel,
+//    onRemove: () -> Unit,
+//    onClick: () -> Unit
+//) {
+//    Column(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(8.dp)  // Padding outside the box for spacing between items
+//            .clip(RoundedCornerShape(8.dp))  // Clip to rounded corners
+//            .background(Color.White)  // Set background color to white
+//            .padding(15.dp)  // Padding inside the box
+//            .clickable { onClick() }  // Handle item click
+//    ) {
+//
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Image(
+//                painter = rememberImagePainter(data = product.image),
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(64.dp)
+//                    .clip(CircleShape),  // Make image circular
+//                contentScale = ContentScale.Crop
+//            )
+//
+//            Spacer(modifier = Modifier.width(16.dp))
+//
+//            Column(
+//                modifier = Modifier.weight(1f)
+//            ) {
+//                Text(
+//                    text = product.name,
+//                    fontSize = 20.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    color = Color(0xFFFFB004)
+//                )
+//                // Add more text fields if needed for other details
+//            }
+//
+//            Spacer(modifier = Modifier.width(16.dp))
+//
+//            Button(
+//                onClick = onRemove,
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = Color(0xFFE0F7FA),
+//                    contentColor = Color.Black
+//                )
+//            ) {
+//                Text(text = "Remove", color = Color.Black)
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun ProductDetailsBottomSheet(
-    product: com.example.shop_app_project.Home_page.Main.ProductModel,
+    product: PorductModel,
     onClose: () -> Unit
 ) {
     Column(

@@ -34,6 +34,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.shop_app_project.R
 import com.example.shop_app_project.data.view_model.ShoppingCartViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
@@ -61,17 +62,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-data class CategoryModel(
-    val name: String,
-    val imageRes: Int,
-)
-
-data class ProductModel(
-    val title: String,
-    val description: String,
-    val price: Int,
-    val image: Int,
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,60 +70,20 @@ fun UiHomePage(
     cartViewModel: ShoppingCartViewModel,
     navController: NavController,
 ) {
-    val cartItems by cartViewModel.cartItems.collectAsState()
+//    val cartItems by cartViewModel.cartItems.collectAsState()
+    val products by userViewModel.products
+    val category by userViewModel.category
 
-    val categories = listOf(
-        CategoryModel("Cat", R.drawable.cat),
-        CategoryModel("Dog", R.drawable.dog),
-        CategoryModel("Test", R.drawable.logo)
-    )
 
-    val products = listOf(
-        ProductModel("Dog Food", "High-quality dog food", 50, R.drawable.shoptools),
-        ProductModel("Cat Toy", "Fun toy for cats", 20, R.drawable.shoptools2),
-        ProductModel("Bird Cage", "Spacious bird cage", 150, R.drawable.tools),
-        ProductModel("Fish Tank", "Large fish tank", 100, R.drawable.cat_image),
-        ProductModel("Rabbit Hutch", "Comfortable hutch for rabbits", 120, R.drawable.tools)
-    )
+    LaunchedEffect(key1 = true) {
+        userViewModel.getAllProducts()
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Pet Store", color = Color.Black) },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.navigate("search")
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = Color.Black
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        navController.navigate("cart")
-                    }) {
-                        BadgedBox(badge = {
-                            if (cartItems.isNotEmpty()) {
-                                Badge(
-                                    containerColor = Color.Transparent,
-                                    contentColor = Color(0xFF0ED918),
-                                    modifier = Modifier.size(16.dp)
-                                ) {
-                                    Text(text = cartItems.size.toString())
-                                }
-                            }
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingCart,
-                                contentDescription = "Cart",
-                                tint = Color.Black
-                            )
-                        }
-                    }
-                },
+
                 colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color(0xFFFEA500))
             )
         },
@@ -179,9 +129,9 @@ fun UiHomePage(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 ) {
-                    items(categories) { category ->
+                    items(category) { category ->
                         CategoryItem(
-                            imageRes = category.imageRes,
+                            created_at = category.created_at,
                             name = category.name
                         )
                     }
@@ -212,13 +162,11 @@ fun UiHomePage(
                 ) {
                     items(products) { product ->
                         ProductItem(
-                            name = product.title,
+                            name = product.name,
                             description = product.description,
                             price = product.price,
                             image = product.image,
-                            addToCart = {
-                                cartViewModel.addToCart(product)
-                            },
+
                             onClick = {
                                 navController.navigate("singleProduct")
                             }
@@ -250,11 +198,10 @@ fun UiHomePage(
                 ) {
                     items(products) { product ->
                         ProductItem(
-                            name = product.title,
+                            name = product.name,
                             description = product.description,
                             price = product.price,
                             image = product.image,
-                            addToCart = { cartViewModel.addToCart(product) },
                             onClick = {
                                 val productJson = gson.toJson(product)
                                 navController.navigate("singleProduct")
@@ -286,11 +233,10 @@ fun UiHomePage(
                 ) {
                     items(products) { product ->
                         ProductItem(
-                            name = product.title,
+                            name = product.name,
                             description = product.description,
                             price = product.price,
                             image = product.image,
-                            addToCart = { cartViewModel.addToCart(product) },
                             onClick = {
                                 navController.navigate("singleProduct")
                             }
@@ -358,7 +304,7 @@ fun PagerIndicator(
 
 
 @Composable
-fun CategoryItem(imageRes: Int, name: String) {
+fun CategoryItem(created_at: String, name: String) {
     Column(
         modifier = Modifier
             .padding(8.dp)
@@ -370,13 +316,11 @@ fun CategoryItem(imageRes: Int, name: String) {
             .width(120.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = null,
-            modifier = Modifier
-                .size(80.dp)
-                .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
+        Text(
+            text = created_at,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -395,8 +339,7 @@ fun ProductItem(
     name: String,
     description: String,
     price: Int,
-    image: Int,
-    addToCart: () -> Unit,
+    image: String,
     onClick: () -> Unit,
 ) {
     var isSelected by remember { mutableStateOf(false) }
@@ -415,8 +358,8 @@ fun ProductItem(
             .clickable(onClick = onClick)
     ) {
 
-        Image(
-            painter = painterResource(id = image),
+        AsyncImage(
+            model = image,
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -424,6 +367,7 @@ fun ProductItem(
                 .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop
         )
+
 
         Column(
             modifier = Modifier
@@ -462,17 +406,6 @@ fun ProductItem(
                     color = Color(0xFF388E3C),
                 )
 
-                IconButton(
-                    onClick = addToCart,
-                    enabled = !isSelected,
-                    modifier = Modifier.size(24.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ShoppingCart,
-                        contentDescription = "Add to cart",
-                        tint = if (isSelected) Color(0xFF388E3C) else Color(0xFFFEA500)
-                    )
-                }
             }
         }
     }

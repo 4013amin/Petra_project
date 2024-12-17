@@ -15,4 +15,6 @@ interface API {
     @GET("getallProduct/")
     suspend fun getAllProducts(): Response<List<PorductModel>>
 
+    @GET("GetCategories")
+    suspend fun getCategories(): Response<List<Category>>
 }

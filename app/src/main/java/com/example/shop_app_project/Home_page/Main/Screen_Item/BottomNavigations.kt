@@ -23,7 +23,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.shop_app_project.Home_page.Main.Screen_Item.CartPage
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailsPage
 import com.example.shop_app_project.Home_page.Main.Screen_Item.SearchPage
 import com.example.shop_app_project.Home_page.Main.UiHomePage
@@ -61,54 +60,54 @@ fun BottomNavigations(
                 ) {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = navBackStackEntry?.destination?.route
-                    val cartItems by shoppingCartViewModel.cartItems.collectAsState()
+//                    val cartItems by shoppingCartViewModel.cartItems.collectAsState()
 
-                    navItems.filter { it.route != "search" }.forEach { item ->
-                        NavigationBarItem(
-                            icon = {
-                                Box {
-                                    if (item.route == "cart") {
-                                        BadgedBox(badge = {
-                                            if (cartItems.isNotEmpty()) {
-                                                Badge {
-                                                    Text(text = cartItems.size.toString())
-                                                }
-                                            }
-                                        }) {
-                                            Icon(
-                                                imageVector = item.icon,
-                                                contentDescription = item.title,
-                                                modifier = Modifier.size(28.dp)
-                                            )
-                                        }
-                                    } else {
-                                        Icon(
-                                            imageVector = item.icon,
-                                            contentDescription = item.title,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                    }
-                                }
-                            },
-                            label = { Text(item.title) },
-                            selected = currentRoute == item.route,
-                            onClick = {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color(0xFFFE5B52),
-                                unselectedIconColor = Color.Gray,
-                                selectedTextColor = Color(0xFFFE5B52),
-                                unselectedTextColor = Color.Gray
-                            )
-                        )
-                    }
+//                    navItems.filter { it.route != "search" }.forEach { item ->
+//                        NavigationBarItem(
+//                            icon = {
+//                                Box {
+//                                    if (item.route == "cart") {
+//                                        BadgedBox(badge = {
+//                                            if (cartItems.isNotEmpty()) {
+//                                                Badge {
+//                                                    Text(text = cartItems.size.toString())
+//                                                }
+//                                            }
+//                                        }) {
+//                                            Icon(
+//                                                imageVector = item.icon,
+//                                                contentDescription = item.title,
+//                                                modifier = Modifier.size(28.dp)
+//                                            )
+//                                        }
+//                                    } else {
+//                                        Icon(
+//                                            imageVector = item.icon,
+//                                            contentDescription = item.title,
+//                                            modifier = Modifier.size(24.dp)
+//                                        )
+//                                    }
+//                                }
+//                            },
+//                            label = { Text(item.title) },
+//                            selected = currentRoute == item.route,
+//                            onClick = {
+//                                navController.navigate(item.route) {
+//                                    popUpTo(navController.graph.startDestinationId) {
+//                                        saveState = true
+//                                    }
+//                                    launchSingleTop = true
+//                                    restoreState = true
+//                                }
+//                            },
+//                            colors = NavigationBarItemDefaults.colors(
+//                                selectedIconColor = Color(0xFFFE5B52),
+//                                unselectedIconColor = Color.Gray,
+//                                selectedTextColor = Color(0xFFFE5B52),
+//                                unselectedTextColor = Color.Gray
+//                            )
+//                        )
+//                    }
                 }
 
                 FloatingActionButton(
@@ -163,8 +162,6 @@ fun NavGraph(
         composable("singleProduct") {
             ProductDetailsPage(navController , shoppingCartViewModel)
         }
-        composable("cart") {
-            CartPage(shoppingCartViewModel, navController)
-        }
+
     }
 }
