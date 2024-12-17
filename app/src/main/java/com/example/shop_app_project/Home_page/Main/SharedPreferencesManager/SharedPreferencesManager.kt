@@ -2,7 +2,6 @@ package com.example.shop_app_project.Home_page.Main.SharedPreferencesManager
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductModel
 import com.example.shop_app_project.data.models.product.PorductModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

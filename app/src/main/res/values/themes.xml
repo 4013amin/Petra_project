@@ -2,11 +2,14 @@
 
     <style name="Theme.MySplashScreen" parent="Theme.SplashScreen" tools:ignore="ResourceCycle">
         <!-- رنگ پس‌زمینه اسپلش -->
-        <item name="windowSplashScreenBackground">@color/bg_splash</item>
+        <item name="windowSplashScreenBackground">#03A9F4</item>
         <!-- آیکون انیمیشن اسپلش -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/baseline_pets_24</item>
         <!-- تمی که بعد از اسپلش نمایش داده می‌شود -->
         <item name="postSplashScreenTheme">@style/Theme.Shop_App_project</item>
+
+        <item name="android:statusBarColor">#03A9F4</item>
+
     </style>
 
     <style name="Theme.Shop_App_project" parent="android:Theme.Material.Light.NoActionBar" />

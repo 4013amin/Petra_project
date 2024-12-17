@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ButtonDefaults.elevation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
@@ -52,7 +53,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         setContent {
             Shop_App_projectTheme {
-
 
                 val navController = rememberNavController()
                 val userViewModel: UserViewModel = viewModel()
@@ -223,7 +223,10 @@ fun ProductItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .border(
+                2.dp, color = Color(0xFF00BCD4), RoundedCornerShape(8.dp)
+            ),
         shape = RoundedCornerShape(8.dp),
     ) {
         Row(
@@ -254,14 +257,15 @@ fun ProductItem(
                     textAlign = TextAlign.End,
                     modifier = Modifier.padding(bottom = 4.dp),
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    minLines = 1
                 )
                 Text(
-                    text = "$${price}",
+                    text = "$${price} تومان",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Green,
-                    textAlign = TextAlign.End, // راست‌چین کردن متن
+                    textAlign = TextAlign.End,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
             }
@@ -283,6 +287,7 @@ fun ProductItem(
         }
     }
 }
+
 
 @Composable
 fun AnimalBox(imageRes: Int, backgroundColor: Color, text: String) {

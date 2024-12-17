@@ -9,11 +9,17 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface API {
 
     @GET("getallProduct/")
     suspend fun getAllProducts(): Response<List<PorductModel>>
+
+
+    @GET("products/{id}")
+    suspend fun getProductById(@Path("id") productId: Int): Response<PorductModel>
+
 
     @GET("GetCategories")
     suspend fun getCategories(): Response<List<Category>>

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import android.util.Pair
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,14 +37,12 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         application.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
 
-
     //checkLogin
     fun checkCredentials(): Boolean {
         val savedCredentials = getSavedCredentials()
 
         return savedCredentials.first.isNotBlank() && savedCredentials.second.isNotBlank()
     }
-
 
 
     fun getAllProducts() {
@@ -79,7 +78,27 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-//    send Categories request
+    suspend fun getProductById(context: Context, productId: Int): PorductModel? {
+        return try {
+            val response = UtilsRetrofit.api.getProductById(productId)
+            if (response.isSuccessful) {
+                response.body()
+            } else {
+                Toast.makeText(context, "Failed to fetch product", Toast.LENGTH_SHORT).show()
+                null
+            }
+        } catch (e: IOException) {
+            Toast.makeText(context, "Network error", Toast.LENGTH_SHORT).show()
+            null
+        } catch (e: HttpException) {
+            Toast.makeText(context, "Server error: ${e.code()}", Toast.LENGTH_SHORT).show()
+            null
+        }
+    }
+
+
+
+    //    send Categories request
     fun getCategories() {
         viewModelScope.launch(Dispatchers.IO) {
             val response = try {

@@ -3,7 +3,7 @@ package com.example.shop_app_project.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val CustomYellow = Color(0xFFFEA500)
+val CustomYellow = Color(0xFF005C85)
 
 
 val Purple80 = Color(0xFFD0BCFF)
