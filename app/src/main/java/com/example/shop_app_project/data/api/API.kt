@@ -11,4 +11,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface API {
+
+    @GET("getallProduct/")
+    suspend fun getAllProducts(): Response<List<PorductModel>>
+
 }
