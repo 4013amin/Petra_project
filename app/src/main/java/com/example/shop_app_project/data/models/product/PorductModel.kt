@@ -13,5 +13,4 @@ data class PorductModel(
     val pk: Int,
     val stock: Int,
     val updated_at: String,
-
     )

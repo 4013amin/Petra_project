@@ -67,7 +67,7 @@ data class CategoryModel(
 )
 
 data class ProductModel(
-    val name: String,
+    val title: String,
     val description: String,
     val price: Int,
     val image: Int,
@@ -212,7 +212,7 @@ fun UiHomePage(
                 ) {
                     items(products) { product ->
                         ProductItem(
-                            name = product.name,
+                            name = product.title,
                             description = product.description,
                             price = product.price,
                             image = product.image,
@@ -250,7 +250,7 @@ fun UiHomePage(
                 ) {
                     items(products) { product ->
                         ProductItem(
-                            name = product.name,
+                            name = product.title,
                             description = product.description,
                             price = product.price,
                             image = product.image,
@@ -286,7 +286,7 @@ fun UiHomePage(
                 ) {
                     items(products) { product ->
                         ProductItem(
-                            name = product.name,
+                            name = product.title,
                             description = product.description,
                             price = product.price,
                             image = product.image,

@@ -1,20 +1,21 @@
 package com.example.shop_app_project.data.utils
 
-import com.example.shop_app_project.data.api.login
+import com.example.shop_app_project.data.api.API
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 
-object Utils_ret {
+object UtilsRetrofit {
 
-    val api: login by lazy {
+    const val BaseUrl = ""
+
+    val api: API by lazy {
         Retrofit.Builder()
-            .baseUrl(Utils.url)
+            .baseUrl(BaseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(login::class.java)
-
+            .create(API::class.java)
     }
 
-
 }
+
