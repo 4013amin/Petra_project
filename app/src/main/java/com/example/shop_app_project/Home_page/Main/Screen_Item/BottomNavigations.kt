@@ -154,14 +154,13 @@ fun NavGraph(
 ) {
     NavHost(navController = navController, startDestination = "home", modifier = modifier) {
         composable("home") {
-            UiHomePage(cartViewModel = shoppingCartViewModel, navController = navController)
+            UiHomePage( navController = navController)
         }
-        composable("search") {
-            SearchPage(navController = navController, shoppingCartViewModel)
-        }
-        composable("singleProduct") {
-            ProductDetailsPage(navController , shoppingCartViewModel)
-        }
-
+//        composable("search") {
+//            SearchPage(navController = navController, shoppingCartViewModel)
+//        }
+//        composable("singleProduct") {
+//            ProductDetailsPage(navController , shoppingCartViewModel)
+//        }
     }
 }
