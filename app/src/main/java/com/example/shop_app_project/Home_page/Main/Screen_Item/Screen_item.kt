@@ -51,23 +51,21 @@ fun ProductDetailScreen(product: ProductModel) {
     ) {
         Column(
             modifier = Modifier
-                .padding(10.dp),
+                .padding(16.dp),
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.Start
         ) {
-            // Image slider with top spacing
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
+            // Image section
             AsyncImage(
                 model = "http://192.168.1.110:2020/${images}",
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .width(420.dp)
-                    .height(400.dp)
-                    .padding(top = 36.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .clip(RoundedCornerShape(12.dp)),
                 onError = {
                     Log.e("ProductItem", "Error loading image: ${it.result.throwable?.message}")
                 },
@@ -76,54 +74,42 @@ fun ProductDetailScreen(product: ProductModel) {
                 }
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = "نام محصول : ${product.name}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-
-            Text(
-                text = "نام فروشنده : ${product.nameUser}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Text(
-                text = "منطقه :${product.city}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Text(
-                text = "نوع :${product.family}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Price: ${product.price} تومان",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Green
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-
+            // Information section with rows
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.End
+            ) {
+                InfoRow(value = product.name)
+                InfoRow(value = product.nameUser)
+                InfoRow(value = product.city)
+                InfoRow(value = product.family)
+                InfoRow(value = "${product.price} تومان", color = Color.Green)
+                InfoRow(value = product.address)
+                InfoRow(value = product.description)
+                InfoRow(value = product.phone)
+                InfoRow(value = product.created_at)
+                InfoRow(value = product.updated_at)
+            }
         }
+    }
+}
+
+@Composable
+fun InfoRow(value: String, color: Color = Color.Black) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
     }
 }
 
