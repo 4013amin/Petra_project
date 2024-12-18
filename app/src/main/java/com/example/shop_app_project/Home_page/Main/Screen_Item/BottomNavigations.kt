@@ -96,8 +96,6 @@ fun NavGraph(
                 Text("Invalid product ID")
             }
         }
-
-
     }
 }
 

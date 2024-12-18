@@ -1,7 +1,5 @@
 package com.example.shop_app_project.data.models.product
 
-import java.io.Serializable
-
 data class PorductModel(
     val created_at: String,
     val description: String,
@@ -11,5 +9,4 @@ data class PorductModel(
     val id: Int,
     val pk: Int,
     val stock: Int,
-    val updated_at: String,
     )
