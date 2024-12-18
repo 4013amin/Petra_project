@@ -170,3 +170,7 @@ fun PagerIndicator(
 }
 
 
+@Composable
+fun favoritesScreen(){
+    Text(text = "favorites Screen")
+}

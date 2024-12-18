@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -29,6 +32,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
+import com.example.shop_app_project.Home_page.Main.Screen_Item.favoritesScreen
+import com.example.shop_app_project.Home_page.Main.Screen_Item.profileScreen
 
 import com.example.shop_app_project.Home_page.Main.UiHomePage
 import com.example.shop_app_project.R
@@ -44,9 +49,65 @@ data class NavigationsItem(
 
 val navItems = listOf(
     NavigationsItem("home", "Shop", Icons.Default.Home),
-    NavigationsItem("search", "Explore", Icons.Default.Search),
-    NavigationsItem("cart", "Cart", Icons.Default.ShoppingCart),
+
+    NavigationsItem(
+        "profile",
+        "Profile",
+        Icons.Default.Person
+    ),
+    NavigationsItem(
+        "addProduct",
+        "ثبت آگهی",
+        Icons.Default.Add
+    ),
+    NavigationsItem(
+        "favorites",
+        "Favorites",
+        Icons.Default.Favorite
+    )
 )
+
+@Composable
+fun BottomNavigationBar(
+    navController: NavHostController
+) {
+    NavigationBar {
+        val currentBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = currentBackStackEntry?.destination
+
+        navItems.forEach { item ->
+            NavigationBarItem(
+                selected = currentDestination?.route == item.route,
+                onClick = {
+                    navController.navigate(item.route) {
+                        // مسیر اصلی را در صورت لزوم تنظیم کنید
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                icon = {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.title,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                label = {
+                    Text(text = item.title)
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = Color.Gray,
+                    indicatorColor = MaterialTheme.colorScheme.secondary
+                )
+            )
+        }
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +117,9 @@ fun BottomNavigations(
     shoppingCartViewModel: ShoppingCartViewModel,
 ) {
     Scaffold(
+        bottomBar = {
+            BottomNavigationBar(navController = navController)
+        }
     ) { innerPadding ->
         NavGraph(
             navController = navController,
@@ -64,6 +128,7 @@ fun BottomNavigations(
             userViewModel
         )
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,6 +160,16 @@ fun NavGraph(
             } else {
                 Text("Invalid product ID")
             }
+        }
+
+
+        composable("favorites") {
+            favoritesScreen()
+        }
+
+        composable("profile") {
+            profileScreen(navController)
+
         }
     }
 }

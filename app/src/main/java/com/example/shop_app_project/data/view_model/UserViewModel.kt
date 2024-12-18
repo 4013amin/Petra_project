@@ -98,6 +98,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
 
 
+
+
     //    send Categories request
     fun getCategories() {
         viewModelScope.launch(Dispatchers.IO) {
