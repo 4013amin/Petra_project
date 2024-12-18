@@ -32,7 +32,7 @@ import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScre
 
 import com.example.shop_app_project.Home_page.Main.UiHomePage
 import com.example.shop_app_project.R
-import com.example.shop_app_project.data.models.product.PorductModel
+import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.ShoppingCartViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
 
@@ -83,7 +83,7 @@ fun NavGraph(
             val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
             if (productId != null) {
                 val context = LocalContext.current
-                val product = remember { mutableStateOf<PorductModel?>(null) }
+                val product = remember { mutableStateOf<ProductModel?>(null) }
 
                 LaunchedEffect(productId) {
                     product.value = userViewModel.getProductById(context, productId)

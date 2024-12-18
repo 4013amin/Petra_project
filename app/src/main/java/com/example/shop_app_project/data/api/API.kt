@@ -1,7 +1,7 @@
 package com.example.shop_app_project.data.api
 
 import com.example.shop_app_project.data.models.product.Category
-import com.example.shop_app_project.data.models.product.PorductModel
+import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.models.register.login_model
 import retrofit2.Response
 import retrofit2.http.Body
@@ -14,11 +14,11 @@ import retrofit2.http.Path
 interface API {
 
     @GET("getallProduct/")
-    suspend fun getAllProducts(): Response<List<PorductModel>>
+    suspend fun getAllProducts(): Response<List<ProductModel>>
 
 
     @GET("products/{id}")
-    suspend fun getProductById(@Path("id") productId: Int): Response<PorductModel>
+    suspend fun getProductById(@Path("id") productId: Int): Response<ProductModel>
 
 
     @GET("GetCategories")

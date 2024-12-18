@@ -13,7 +13,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.shop_app_project.data.models.product.Category
-import com.example.shop_app_project.data.models.product.PorductModel
+import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.models.register.login_model
 import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +24,7 @@ import java.io.IOException
 class UserViewModel(application: Application) : AndroidViewModel(application) {
     var registrationResult = mutableStateOf("")
     var login_result = mutableStateOf("")
-    var products = mutableStateOf<List<PorductModel>>(arrayListOf())
+    var products = mutableStateOf<List<ProductModel>>(arrayListOf())
     var category = mutableStateOf<List<Category>>(arrayListOf())
 
 
@@ -78,7 +78,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    suspend fun getProductById(context: Context, productId: Int): PorductModel? {
+    suspend fun getProductById(context: Context, productId: Int): ProductModel? {
         return try {
             val response = UtilsRetrofit.api.getProductById(productId)
             if (response.isSuccessful) {

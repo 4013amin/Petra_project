@@ -1,6 +1,7 @@
 package com.example.shop_app_project.Home_page.Main.Screen_Item
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,9 +11,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -28,13 +31,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import androidx.compose.material3.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.shop_app_project.data.models.product.PorductModel
+import coil.compose.AsyncImage
+import com.example.shop_app_project.data.models.product.ProductModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailScreen(product: PorductModel) {
+fun ProductDetailScreen(product: ProductModel) {
     val images = product.image
     Scaffold(
         topBar = {
@@ -48,19 +53,64 @@ fun ProductDetailScreen(product: PorductModel) {
             modifier = Modifier
                 .padding(10.dp),
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.End
         ) {
             // Image slider with top spacing
-            Spacer(modifier = Modifier.height(20.dp)) // Adding space above the image
-            ImageSlider(images = listOf(images))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Spacer(modifier = Modifier.height(40.dp)) // Adding space between image and details
+            AsyncImage(
+                model = "http://192.168.1.110:2020/${images}",
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .width(420.dp)
+                    .height(400.dp)
+                    .padding(top = 36.dp)
+                    .clip(RoundedCornerShape(8.dp)),
 
-            // Product details
+                onError = {
+                    Log.e("ProductItem", "Error loading image: ${it.result.throwable?.message}")
+                },
+                onSuccess = {
+                    Log.d("ProductItem", "Image loaded successfully")
+                }
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
+
             Text(
-                text = "Description: ${product.description}",
+                text = "نام محصول : ${product.name}",
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+
+            Text(
+                text = "نام فروشنده : ${product.nameUser}",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Text(
+                text = "منطقه :${product.city}",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Text(
+                text = "نوع :${product.family}",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -133,19 +183,4 @@ fun PagerIndicator(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun showScreens() {
-    val product = PorductModel(
-        name = "Product Name",
-        id = 1,
-        pk = 1,
-        image = "images/product",
-        created_at = "2024-12-18",
-        description = "This is a product description.",
-        price = 100000,
-        stock = 50,
-    )
 
-    ProductDetailScreen(product = product)
-}
