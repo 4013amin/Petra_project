@@ -55,9 +55,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.R
+import com.example.shop_app_project.data.view_model.UserViewModel
 
 
 @SuppressLint("RememberReturnType")
@@ -221,7 +223,7 @@ fun AcceptTermsScreen(navController: NavController, phone: String, password: Str
     var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     var showError by remember { mutableStateOf(false) }
-
+    val userViewModel: UserViewModel = viewModel()
 
     Column(
         modifier = Modifier
@@ -256,6 +258,7 @@ fun AcceptTermsScreen(navController: NavController, phone: String, password: Str
                         showError = true
                     } else {
                         UserPreferences.saveUser(context, phone, password)
+                        userViewModel.registerUser(phone, password)
                         navController.navigate("home")
                         {
                             popUpTo("register") { inclusive = true }

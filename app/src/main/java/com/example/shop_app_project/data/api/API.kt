@@ -1,5 +1,7 @@
 package com.example.shop_app_project.data.api
 
+import com.example.shop_app_project.data.models.Profile.ProdfileModel
+import com.example.shop_app_project.data.models.Profile.Profile
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.models.register.login_model
@@ -20,6 +22,12 @@ interface API {
     @GET("products/{id}")
     suspend fun getProductById(@Path("id") productId: Int): Response<ProductModel>
 
+    @FormUrlEncoded
+    @POST("registerUser/")
+    suspend fun registerUser(
+        @Field("phone") phone: String,
+        @Field("password") password: String
+        ): Response<ProdfileModel>
 
     @GET("GetCategories")
     suspend fun getCategories(): Response<List<Category>>

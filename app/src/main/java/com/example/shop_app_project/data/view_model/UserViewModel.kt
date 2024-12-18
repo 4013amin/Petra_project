@@ -97,9 +97,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-
-
-
     //    send Categories request
     fun getCategories() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -120,6 +117,27 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
             if (response.isSuccessful && response.body() != null) {
                 category.value = response.body()!!
+            }
+        }
+    }
+
+    //RegisterUser
+    fun registerUser(phone: String, password: String) {
+        viewModelScope.launch {
+            val response = try {
+                UtilsRetrofit.api.registerUser(phone, password)
+            } catch (e: IOException) {
+                Log.e("UserViewModel", "Network error occurred while registering user.", e)
+                registrationResult.value = "Network error occurred."
+                return@launch
+            } catch (e: HttpException) {
+                Log.e(
+                    "UserViewModel",
+                    "HTTP error occurred while registering user: ${e.code()}",
+                    e
+                )
+                registrationResult.value = "HTTP error occurred: ${e.code()}"
+                return@launch
             }
         }
     }
