@@ -44,7 +44,7 @@ data class NavigationsItem(
 val navItems = listOf(
     NavigationsItem("home", "فروشگاه", Icons.Default.Home),
     NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
-    NavigationsItem("favorites", "علاقه‌مندی‌ها", Icons.Default.Favorite),
+    NavigationsItem("favorites", "نشان ها", Icons.Default.Favorite),
     NavigationsItem("forgetPassword", "پروفایل", Icons.Default.Person),
 )
 

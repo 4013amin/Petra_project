@@ -55,11 +55,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.product.ProductModel
+import com.example.shop_app_project.data.view_model.UserViewModel
 import java.time.format.TextStyle
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -200,7 +202,7 @@ fun PagerIndicator(
 @Composable
 fun AddProductForm(navController: NavController) {
     val context = LocalContext.current
-
+    val userViewModel: UserViewModel = viewModel()
     val provinces = mapOf(
         "تهران" to listOf("تهران", "ری", "شمیرانات"),
         "اصفهان" to listOf("اصفهان", "کاشان", "خمینی‌شهر"),
@@ -214,6 +216,7 @@ fun AddProductForm(navController: NavController) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
+    var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -293,7 +296,10 @@ fun AddProductForm(navController: NavController) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    AddProductImages(context = context)
+
+                    AddProductImages(context = context, onImagesSelected = { selectedImages ->
+                        images = selectedImages // Update the images list here
+                    })
                 }
             }
         }
@@ -306,6 +312,7 @@ fun AddProductForm(navController: NavController) {
             Button(
                 onClick = {
                     // Send data to server
+                    userViewModel.sendProduct(images.first(), name, description, price, context)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -317,7 +324,7 @@ fun AddProductForm(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddProductImages(context: Context) {
+fun AddProductImages(context: Context, onImagesSelected: (List<Uri>) -> Unit) {
     // لیستی برای ذخیره تصاویر
     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
@@ -326,6 +333,7 @@ fun AddProductImages(context: Context) {
     ) { uris ->
         if (uris != null && uris.size <= 10) {
             images = uris
+            onImagesSelected(uris) // Pass the selected images back to the parent composable
         } else {
             Toast.makeText(
                 context,
@@ -367,7 +375,6 @@ fun AddProductImages(context: Context) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
 
         Text("تعداد تصاویر انتخابی: ${images.size}/10")
     }

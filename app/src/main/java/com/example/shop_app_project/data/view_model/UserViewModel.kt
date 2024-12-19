@@ -2,24 +2,24 @@ package com.example.shop_app_project.data.view_model
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
 import android.util.Log
-import android.util.Pair
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
-import com.example.shop_app_project.data.models.register.login_model
 import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
 import retrofit2.HttpException
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
@@ -144,10 +144,26 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun sendProduct(image: MultipartBody.Part, name: String, description: String, price: String) {
+    fun encodeImageToBase64(imageUri: Uri, context: Context): String {
+        val inputStream = context.contentResolver.openInputStream(imageUri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        val byteArray = byteArrayOutputStream.toByteArray()
+        return Base64.encodeToString(byteArray, Base64.DEFAULT)
+    }
+
+    fun sendProduct(
+        imageUri: Uri,
+        name: String,
+        description: String,
+        price: String,
+        context: Context
+    ) {
         viewModelScope.launch {
+            val base64Image = encodeImageToBase64(imageUri, context)
             val response = try {
-                UtilsRetrofit.api.sendProduct(image, name, description, price)
+                UtilsRetrofit.api.sendProduct(base64Image, name, description, price)
             } catch (e: IOException) {
                 Log.e("UserViewModel", "Network error occurred while sending product.", e)
                 return@launch
@@ -156,14 +172,11 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 return@launch
             }
 
-//            if (response.isSuccessful) {
-//                Log.d("UserViewModel", "Product sent successfully")
-//            } else {
-//                Log.e("UserViewModel", "Failed to send product: ${response.errorBody()?.string()}")
-//            }
+            if (response.isSuccessful && response.body() != null) {
+                registrationResult.value = "this is ok"
+            }
         }
     }
-
 
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {
