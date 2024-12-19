@@ -18,6 +18,7 @@ import com.example.shop_app_project.data.models.register.login_model
 import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -141,6 +142,28 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+
+    fun sendProduct(image: MultipartBody.Part, name: String, description: String, price: String) {
+        viewModelScope.launch {
+            val response = try {
+                UtilsRetrofit.api.sendProduct(image, name, description, price)
+            } catch (e: IOException) {
+                Log.e("UserViewModel", "Network error occurred while sending product.", e)
+                return@launch
+            } catch (e: HttpException) {
+                Log.e("UserViewModel", "HTTP error occurred while sending product: ${e.code()}", e)
+                return@launch
+            }
+
+//            if (response.isSuccessful) {
+//                Log.d("UserViewModel", "Product sent successfully")
+//            } else {
+//                Log.e("UserViewModel", "Failed to send product: ${response.errorBody()?.string()}")
+//            }
+        }
+    }
+
 
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {

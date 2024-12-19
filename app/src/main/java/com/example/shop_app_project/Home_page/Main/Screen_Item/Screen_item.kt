@@ -1,9 +1,17 @@
 package com.example.shop_app_project.Home_page.Main.Screen_Item
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.net.Uri
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,12 +19,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,10 +44,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import androidx.compose.material3.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.product.ProductModel
+import java.time.format.TextStyle
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -169,8 +195,196 @@ fun PagerIndicator(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddProductForm(navController: NavController) {
+    val context = LocalContext.current
+
+    val provinces = mapOf(
+        "تهران" to listOf("تهران", "ری", "شمیرانات"),
+        "اصفهان" to listOf("اصفهان", "کاشان", "خمینی‌شهر"),
+        "خراسان رضوی" to listOf("مشهد", "نیشابور", "تربت حیدریه")
+    )
+
+    var selectedProvince by remember { mutableStateOf("") }
+    var selectedCity by remember { mutableStateOf("") }
+    val cities = provinces[selectedProvince] ?: emptyList()
+
+    var name by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var price by remember { mutableStateOf("") }
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.rectangle),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 150.dp)
+                .padding(bottom = 80.dp) // برای جلوگیری از پوشاندن دکمه ثبت
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+                color = Color.White
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.End
+                ) {
+
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("نام محصول", textAlign = TextAlign.End) },
+                        placeholder = { Text("نام محصول را وارد کنید", textAlign = TextAlign.End) },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            textAlign = TextAlign.End
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text("توضیحات محصول", textAlign = TextAlign.End) },
+                        placeholder = {
+                            Text(
+                                "توضیحات محصول را وارد کنید",
+                                textAlign = TextAlign.End
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            textAlign = TextAlign.End
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = price,
+                        onValueChange = { price = it },
+                        label = { Text("قیمت محصول", textAlign = TextAlign.End) },
+                        placeholder = {
+                            Text(
+                                "قیمت محصول را وارد کنید",
+                                textAlign = TextAlign.End
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            textAlign = TextAlign.End
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    AddProductImages(context = context)
+                }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+        ) {
+            Button(
+                onClick = {
+                    // Send data to server
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("ذخیره محصول")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddProductImages(context: Context) {
+    // لیستی برای ذخیره تصاویر
+    var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+        if (uris != null && uris.size <= 10) {
+            images = uris
+        } else {
+            Toast.makeText(
+                context,
+                "حداکثر 10 تصویر می‌توانید انتخاب کنید.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(images) { image ->
+                Image(
+                    painter = rememberImagePainter(image),
+                    contentDescription = "Selected Image",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { imagePicker.launch("image/*") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("انتخاب تصاویر")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+        Text("تعداد تصاویر انتخابی: ${images.size}/10")
+    }
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview
+@Composable
+private fun showData() {
+    val context = LocalContext.current
+    val navController = rememberNavController()
+    AddProductForm(navController)
+}
+
 
 @Composable
-fun favoritesScreen(){
+fun favoritesScreen() {
     Text(text = "favorites Screen")
 }

@@ -1,3 +1,5 @@
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -15,16 +17,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
+import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCodeScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
-import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.loginScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.favoritesScreen
-import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.profileScreen
 
 import com.example.shop_app_project.Home_page.Main.UiHomePage
 import com.example.shop_app_project.data.models.product.ProductModel
@@ -38,23 +42,10 @@ data class NavigationsItem(
 )
 
 val navItems = listOf(
-    NavigationsItem("home", "Shop", Icons.Default.Home),
-
-    NavigationsItem(
-        "profile",
-        "Profile",
-        Icons.Default.Person
-    ),
-    NavigationsItem(
-        "addProduct",
-        "ثبت آگهی",
-        Icons.Default.Add
-    ),
-    NavigationsItem(
-        "favorites",
-        "Favorites",
-        Icons.Default.Favorite
-    )
+    NavigationsItem("home", "فروشگاه", Icons.Default.Home),
+    NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
+    NavigationsItem("favorites", "علاقه‌مندی‌ها", Icons.Default.Favorite),
+    NavigationsItem("forgetPassword", "پروفایل", Icons.Default.Person),
 )
 
 @Composable
@@ -65,12 +56,12 @@ fun BottomNavigationBar(
         val currentBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStackEntry?.destination
 
-        navItems.forEach { item ->
+        navItems.reversed().forEach { item ->
             NavigationBarItem(
                 selected = currentDestination?.route == item.route,
                 onClick = {
                     navController.navigate(item.route) {
-                        // مسیر اصلی را در صورت لزوم تنظیم کنید
+
                         popUpTo(navController.graph.startDestinationId) {
                             saveState = true
                         }
@@ -99,6 +90,7 @@ fun BottomNavigationBar(
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomNavigations(
@@ -121,6 +113,7 @@ fun BottomNavigations(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavGraph(
@@ -157,20 +150,25 @@ fun NavGraph(
             favoritesScreen()
         }
 
-        composable("profile") {
-            profileScreen(navController)
-
-        }
-
-        composable("login") {
-            loginScreen(navController)
-        }
-
         composable("forgetPassword") {
             forgetpasswordScreen(navController)
+        }
+
+        composable("addCode") {
+            addCodeScreen(navController)
+        }
+
+        composable("addProduct") {
+            AddProductForm(navController)
         }
     }
 }
 
 
+@Preview
+@Composable
+private fun showBottomNavigation() {
 
+    val navController = rememberNavController()
+    BottomNavigationBar(navController = navController)
+}

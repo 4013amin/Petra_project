@@ -188,26 +188,6 @@ fun forgetpasswordScreen(navController: NavController) {
 
                         }
 
-                        val annotatedString = buildAnnotatedString {
-                            append("حساب کاربری ندارید؟")
-                            pushStringAnnotation(tag = "login", annotation = "login")
-                            withStyle(style = SpanStyle(color = colorResource(id = R.color.blueM))) {
-                                append("ثبت نام ")
-                            }
-                            pop()
-                        }
-
-                        ClickableText(
-                            text = annotatedString,
-                            onClick = { offset ->
-                                annotatedString.getStringAnnotations("login", offset, offset)
-                                    .firstOrNull()?.let {
-                                        navController.navigate("register")
-                                    }
-                            },
-                            modifier = Modifier.padding(top = 16.dp),
-
-                            )
                     }
                 }
             }
