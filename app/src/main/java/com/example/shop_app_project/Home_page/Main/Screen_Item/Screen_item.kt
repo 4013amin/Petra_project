@@ -228,7 +228,7 @@ fun AddProductForm(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 150.dp)
-                .padding(bottom = 80.dp) // برای جلوگیری از پوشاندن دکمه ثبت
+                .padding(bottom = 80.dp)
         ) {
             Surface(
                 modifier = Modifier
@@ -304,7 +304,7 @@ fun AddProductForm(navController: NavController) {
 
 
                     AddProductImages(context = context, onImagesSelected = { selectedImages ->
-                        images = selectedImages // Update the images list here
+                        images = selectedImages
                     })
                 }
             }
@@ -321,24 +321,23 @@ fun AddProductForm(navController: NavController) {
                     .padding(16.dp)
             ) {
                 Button(onClick = {
-
-                    if (images.isNotEmpty()) {
+                    if (name.isNotEmpty() && description.isNotEmpty() && price.isNotEmpty() && phone.isNotEmpty() && images.isNotEmpty()) {
                         userViewModel.sendProduct(
-                            images.first(),
-                            name,
-                            description,
-                            "wdad",
-                            phone,
-                            "dad",
-                            "dwadad",
-                            "dawdaw",
-                            price,
-                            context
+                            name = name,
+                            description = description,
+                            price = price,
+                            phone = phone,
+                            images = images,
+                            context = context
                         )
+                    } else {
+                        Toast.makeText(context, "لطفاً تمام فیلدها را پر کنید", Toast.LENGTH_LONG)
+                            .show()
                     }
                 }) {
                     Text("ذخیره محصول")
                 }
+
             }
         }
     }

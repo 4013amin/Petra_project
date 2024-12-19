@@ -4,7 +4,6 @@ import com.example.shop_app_project.data.models.Profile.ProdfileModel
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -23,16 +22,16 @@ interface API {
     @GET("products/{id}")
     suspend fun getProductById(@Path("id") productId: Int): Response<ProductModel>
 
-    @FormUrlEncoded
+
+    @Multipart
     @POST("AddProduct/")
     suspend fun sendProduct(
-        @Field("image") image: String,
-        @Field("name") name: String,
-        @Field("description") description: String,
-        @Field("price") price: String
+        @Part("name") name: String,
+        @Part("description") description: String,
+        @Part("price") price: String,
+        @Part("phone") phone: String,
+        @Part images: List<MultipartBody.Part>
     ): Response<ProductModel>
-
-
 
 
     @FormUrlEncoded
