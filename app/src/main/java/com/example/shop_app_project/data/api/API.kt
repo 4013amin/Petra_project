@@ -3,10 +3,13 @@ package com.example.shop_app_project.data.api
 import com.example.shop_app_project.data.models.Profile.ProdfileModel
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
@@ -20,15 +23,17 @@ interface API {
     @GET("products/{id}")
     suspend fun getProductById(@Path("id") productId: Int): Response<ProductModel>
 
-
     @FormUrlEncoded
-    @POST("")
+    @POST("AddProduct/")
     suspend fun sendProduct(
         @Field("image") image: String,
-        @Part("name") name: String,
-        @Part("description") description: String,
-        @Part("price") price: String,
+        @Field("name") name: String,
+        @Field("description") description: String,
+        @Field("price") price: String
     ): Response<ProductModel>
+
+
+
 
     @FormUrlEncoded
     @POST("registerUser/")

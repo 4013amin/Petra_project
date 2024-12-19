@@ -3,8 +3,8 @@ package com.example.shop_app_project.data.view_model
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
+import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
@@ -145,25 +145,48 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun encodeImageToBase64(imageUri: Uri, context: Context): String {
-        val inputStream = context.contentResolver.openInputStream(imageUri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
+        val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
         val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
+    // ارسال درخواست با داده‌ها
     fun sendProduct(
         imageUri: Uri,
         name: String,
         description: String,
+        nameUser: String,
+        phone: String,
+        city: String,
+        address: String,
+        family: String,
         price: String,
         context: Context
     ) {
+        val base64Image = encodeImageToBase64(imageUri, context)
+        val productData = mapOf(
+            "name" to name,
+            "description" to description,
+            "nameUser" to nameUser,
+            "phone" to phone,
+            "city" to city,
+            "address" to address,
+            "family" to family,
+            "price" to price,
+            "image" to base64Image
+        )
         viewModelScope.launch {
+            // تبدیل تصویر به Base64
             val base64Image = encodeImageToBase64(imageUri, context)
+
+            // ارسال داده‌ها به سرور
             val response = try {
-                UtilsRetrofit.api.sendProduct(base64Image, name, description, price)
+                // ارسال تصویر به عنوان رشته Base64 همراه با دیگر داده‌ها
+                UtilsRetrofit.api.sendProduct(
+                    base64Image, name, description, price.toString()
+                )
             } catch (e: IOException) {
                 Log.e("UserViewModel", "Network error occurred while sending product.", e)
                 return@launch
@@ -172,8 +195,11 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 return@launch
             }
 
+            // مدیریت پاسخ سرور
             if (response.isSuccessful && response.body() != null) {
-                registrationResult.value = "this is ok"
+                registrationResult.value = "Product saved successfully"
+            } else {
+                Log.e("UserViewModel", "Error saving product: ${response.message()}")
             }
         }
     }

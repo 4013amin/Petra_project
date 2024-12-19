@@ -22,10 +22,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -62,7 +59,6 @@ import coil.compose.AsyncImage
 import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.UserViewModel
-import java.time.format.TextStyle
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -216,8 +212,8 @@ fun AddProductForm(navController: NavController) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -251,6 +247,16 @@ fun AddProductForm(navController: NavController) {
                         onValueChange = { name = it },
                         label = { Text("نام محصول", textAlign = TextAlign.End) },
                         placeholder = { Text("نام محصول را وارد کنید", textAlign = TextAlign.End) },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            textAlign = TextAlign.End
+                        )
+                    )
+                    OutlinedTextField(
+                        value = phone,
+                        onValueChange = { phone = it },
+                        label = { Text("نام محصول", textAlign = TextAlign.End) },
+                        placeholder = { Text("تلفن  خود را وارد کنید", textAlign = TextAlign.End) },
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = androidx.compose.ui.text.TextStyle(
                             textAlign = TextAlign.End
@@ -309,14 +315,30 @@ fun AddProductForm(navController: NavController) {
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
         ) {
-            Button(
-                onClick = {
-                    // Send data to server
-                    userViewModel.sendProduct(images.first(), name, description, price, context)
-                },
-                modifier = Modifier.fillMaxWidth()
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
             ) {
-                Text("ذخیره محصول")
+                Button(onClick = {
+
+                    if (images.isNotEmpty()) {
+                        userViewModel.sendProduct(
+                            images.first(),
+                            name,
+                            description,
+                            "wdad",
+                            phone,
+                            "dad",
+                            "dwadad",
+                            "dawdaw",
+                            price,
+                            context
+                        )
+                    }
+                }) {
+                    Text("ذخیره محصول")
+                }
             }
         }
     }
