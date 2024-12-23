@@ -20,9 +20,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.IOException
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
@@ -155,46 +157,38 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
-    fun sendProduct(
-        name: String,
-        description: String,
-        price: String,
-        phone: String,
-        images: List<Uri>,
-        context: Context
-    ) {
-        viewModelScope.launch {
-            try {
-                val multipartImages = images.map { uri ->
-                    val inputStream = context.contentResolver.openInputStream(uri)
-                    val requestBody =
-                        inputStream?.readBytes()?.toRequestBody("image/*".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData(
-                        "images",
-                        "image_${System.currentTimeMillis()}.jpg",
-                        requestBody!!
-                    )
-                }
-
-                val response = UtilsRetrofit.api.sendProduct(
-                    name.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
-                    description.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
-                    price.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
-                    phone.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
-                    multipartImages
-                )
-
-                if (response.isSuccessful) {
-                    Toast.makeText(context, "محصول با موفقیت ذخیره شد", Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(context, "خطا در ذخیره محصول", Toast.LENGTH_LONG).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(context, "خطا در اتصال به سرور", Toast.LENGTH_LONG).show()
-                e.printStackTrace()
-            }
-        }
-    }
+//    fun sendProduct(
+//        name: String,
+//        description: String,
+//        price: String,
+//        phone: String,
+//        imageFile: File,
+//        context: Context
+//    ) {
+//        viewModelScope.launch {
+//            try {
+//                val imageRequestBody = RequestBody.create("image/*".toMediaTypeOrNull(), imageFile)
+//                val imagePart = MultipartBody.Part.createFormData("image", imageFile.name, imageRequestBody)
+//
+//                val response = UtilsRetrofit.api.sendProduct(
+//                    name.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
+//                    description.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
+//                    price.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
+//                    phone.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
+//                    imagePart
+//                )
+//
+//                if (response.isSuccessful) {
+//                    Toast.makeText(context, "محصول با موفقیت ذخیره شد", Toast.LENGTH_LONG).show()
+//                } else {
+//                    Toast.makeText(context, "خطا در ذخیره محصول", Toast.LENGTH_LONG).show()
+//                }
+//            } catch (e: Exception) {
+//                Toast.makeText(context, "خطا در اتصال به سرور", Toast.LENGTH_LONG).show()
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {
