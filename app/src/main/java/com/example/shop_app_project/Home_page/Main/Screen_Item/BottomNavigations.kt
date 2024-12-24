@@ -24,7 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductScreen
+import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCodeScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
@@ -159,7 +159,7 @@ fun NavGraph(
         }
 
         composable("addProduct") {
-            AddProductScreen(navController)
+            AddProductForm(navController)
         }
     }
 }

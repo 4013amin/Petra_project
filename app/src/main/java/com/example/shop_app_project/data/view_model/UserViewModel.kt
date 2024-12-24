@@ -24,7 +24,6 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.IOException
 
 class UserViewModel(application: Application) : AndroidViewModel(application) {
@@ -157,38 +156,59 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
-//    fun sendProduct(
-//        name: String,
-//        description: String,
-//        price: String,
-//        phone: String,
-//        imageFile: File,
-//        context: Context
-//    ) {
-//        viewModelScope.launch {
-//            try {
-//                val imageRequestBody = RequestBody.create("image/*".toMediaTypeOrNull(), imageFile)
-//                val imagePart = MultipartBody.Part.createFormData("image", imageFile.name, imageRequestBody)
-//
-//                val response = UtilsRetrofit.api.sendProduct(
-//                    name.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
-//                    description.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
-//                    price.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
-//                    phone.toRequestBody("text/plain".toMediaTypeOrNull()).toString(),
-//                    imagePart
-//                )
-//
-//                if (response.isSuccessful) {
-//                    Toast.makeText(context, "محصول با موفقیت ذخیره شد", Toast.LENGTH_LONG).show()
-//                } else {
-//                    Toast.makeText(context, "خطا در ذخیره محصول", Toast.LENGTH_LONG).show()
-//                }
-//            } catch (e: Exception) {
-//                Toast.makeText(context, "خطا در اتصال به سرور", Toast.LENGTH_LONG).show()
-//                e.printStackTrace()
-//            }
-//        }
-//    }
+    fun sendProduct(
+        name: String,
+        description: String,
+        price: String,
+        phone: String,
+        nameUser: String,
+        imageFile: Uri,
+        context: Context
+    ) {
+        viewModelScope.launch {
+            try {
+                // تبدیل URI به File
+                val contentResolver = context.contentResolver
+                val inputStream = contentResolver.openInputStream(imageFile)
+                val fileBytes = inputStream?.readBytes()
+                    ?: throw IllegalArgumentException("Cannot read image file")
+                val imageRequestBody = fileBytes.toRequestBody("image/*".toMediaTypeOrNull())
+
+                // ساخت MultipartBody.Part برای ارسال فایل
+                val imagePart =
+                    MultipartBody.Part.createFormData("image", "image.jpg", imageRequestBody)
+
+                // ساخت RequestBody برای متون
+                val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
+                val descriptionBody = description.toRequestBody("text/plain".toMediaTypeOrNull())
+                val priceBody = price.toRequestBody("text/plain".toMediaTypeOrNull())
+                val phoneBody = phone.toRequestBody("text/plain".toMediaTypeOrNull())
+                val nameUserBody = nameUser.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                // ارسال درخواست به سرور
+                val response = UtilsRetrofit.api.addProduct(
+                    name = nameBody,
+                    description = descriptionBody,
+                    nameUser = nameUserBody,
+                    phone = phoneBody,
+                    price = priceBody,
+                    image = imagePart
+                )
+
+                // مدیریت پاسخ سرور
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "محصول با موفقیت ذخیره شد", Toast.LENGTH_LONG).show()
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Toast.makeText(context, "خطا در ذخیره محصول: $errorBody", Toast.LENGTH_LONG)
+                        .show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "خطا در اتصال به سرور", Toast.LENGTH_LONG).show()
+                e.printStackTrace()
+            }
+        }
+    }
 
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {

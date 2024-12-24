@@ -31,12 +31,10 @@ interface API {
         @Part("description") description: RequestBody,
         @Part("nameUser") nameUser: RequestBody,
         @Part("phone") phone: RequestBody,
-        @Part("city") city: RequestBody,
-        @Part("address") address: RequestBody,
-        @Part("family") family: RequestBody,
         @Part("price") price: RequestBody,
         @Part image: MultipartBody.Part
     ): Response<ProductModel>
+
 
 
     @FormUrlEncoded
