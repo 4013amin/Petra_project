@@ -6,6 +6,7 @@ import android.os.CountDownTimer
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -170,8 +171,8 @@ fun forgetpasswordScreen(navController: NavController) {
                             onClick = { navController.navigate("addCode") },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(30.dp),
-                            shape = RoundedCornerShape(8.dp),
+                                .padding(45.dp),
+                            shape = RoundedCornerShape(6.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = colorResource(
                                     id = R.color.blueM
@@ -184,8 +185,6 @@ fun forgetpasswordScreen(navController: NavController) {
                                 fontSize = 18.sp,
                                 modifier = Modifier.padding(16.dp)
                             )
-
-
                         }
 
                     }
@@ -340,11 +339,11 @@ fun addCodeScreen(navController: NavController) {
                         )
                     }
 
-                    var timeRemaining by remember { mutableStateOf(120_000L) } // 2 دقیقه در میلی‌ثانیه
+                    var timeRemaining by remember { mutableStateOf(120_000L) }
                     var formattedTime by remember { mutableStateOf("2:00") }
 
                     LaunchedEffect(Unit) {
-                        object : CountDownTimer(timeRemaining, 1000) { // هر ثانیه آپدیت
+                        object : CountDownTimer(timeRemaining, 1000) {
                             override fun onTick(millisUntilFinished: Long) {
                                 timeRemaining = millisUntilFinished
                                 val minutes = (millisUntilFinished / 1000) / 60
@@ -372,6 +371,9 @@ fun addCodeScreen(navController: NavController) {
                         )
 
                         Text(
+                            modifier = Modifier.clickable {
+                                navController.navigate("forgetPassword")
+                            },
                             text = "تغییر شماره موبایل",
                             textAlign = TextAlign.End,
                             fontSize = 12.sp

@@ -1,5 +1,7 @@
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -9,15 +11,19 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -42,52 +48,70 @@ data class NavigationsItem(
 )
 
 val navItems = listOf(
-    NavigationsItem("home", "فروشگاه", Icons.Default.Home),
-    NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
-    NavigationsItem("favorites", "نشان ها", Icons.Default.Favorite),
     NavigationsItem("forgetPassword", "پروفایل", Icons.Default.Person),
+    NavigationsItem("favorites", "نشان ها", Icons.Default.Favorite),
+    NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
+    NavigationsItem("home", "فروشگاه", Icons.Default.Home),
+
 )
 
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController
 ) {
-    NavigationBar {
-        val currentBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = currentBackStackEntry?.destination
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStackEntry?.destination
 
-        navItems.reversed().forEach { item ->
-            NavigationBarItem(
-                selected = currentDestination?.route == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 8.dp
+        ) {
+            navItems.reversed().forEach { item ->  // Reversed to match RTL order
+                val isSelected = currentDestination?.route == item.route
+                val scale = animateFloatAsState(targetValue = if (isSelected) 1.2f else 1f).value
 
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
+                NavigationBarItem(
+                    selected = isSelected,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                icon = {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.title,
-                        modifier = Modifier.size(24.dp)
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = item.icon,
+                            contentDescription = item.title,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(4.dp)
+                                .graphicsLayer(scaleX = scale, scaleY = scale)
+                        )
+                    },
+                    label = {
+                        AnimatedVisibility(visible = isSelected) {
+                            Text(
+                                text = item.title,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = Color.Gray,
+                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
                     )
-                },
-                label = {
-                    Text(text = item.title)
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = Color.Gray,
-                    indicatorColor = MaterialTheme.colorScheme.secondary
                 )
-            )
+            }
         }
     }
 }
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
