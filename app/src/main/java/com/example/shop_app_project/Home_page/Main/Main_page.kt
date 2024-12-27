@@ -1,10 +1,13 @@
 package com.example.shop_app_project.Home_page.Main
 
 import BottomNavigations
+import FavoritesViewModel
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults.elevation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -48,6 +52,7 @@ import com.google.accompanist.pager.*
 val gson = Gson()
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -74,6 +79,7 @@ fun UiHomePage(
 ) {
     val products by userViewModel.products
     val category by userViewModel.category
+    val favoritesViewModel: FavoritesViewModel = viewModel()
 
     LaunchedEffect(Unit) {
         userViewModel.getAllProducts()
@@ -117,9 +123,14 @@ fun UiHomePage(
                     image = product.image,
                     onClick = {
                         navController.navigate("singleProduct/${product.id}")
+                    },
+                    onSaveClick = {
+                        favoritesViewModel.addFavorites(product)
+                        navController.navigate("favorites")
                     }
                 )
             }
+
         }
     }
 }
@@ -218,6 +229,7 @@ fun ProductItem(
     price: Int,
     image: String,
     onClick: () -> Unit,
+    onSaveClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -234,6 +246,14 @@ fun ProductItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
+            IconButton(onClick = { onSaveClick }) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "",
+                    tint = Color.Red
+                )
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -284,6 +304,8 @@ fun ProductItem(
                     Log.d("ProductItem", "Image loaded successfully")
                 }
             )
+
+
         }
     }
 }

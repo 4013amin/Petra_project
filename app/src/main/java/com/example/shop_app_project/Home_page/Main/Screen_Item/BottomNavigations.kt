@@ -31,10 +31,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
+import com.example.shop_app_project.Home_page.Main.Screen_Item.FavoritesScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCodeScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
-import com.example.shop_app_project.Home_page.Main.Screen_Item.favoritesScreen
 
 import com.example.shop_app_project.Home_page.Main.UiHomePage
 import com.example.shop_app_project.data.models.product.ProductModel
@@ -53,7 +53,7 @@ val navItems = listOf(
     NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
     NavigationsItem("home", "فروشگاه", Icons.Default.Home),
 
-)
+    )
 
 @Composable
 fun BottomNavigationBar(
@@ -113,7 +113,6 @@ fun BottomNavigationBar(
 }
 
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -171,7 +170,7 @@ fun NavGraph(
 
 
         composable("favorites") {
-            favoritesScreen()
+            FavoritesScreen(navController, favoritesViewModel = FavoritesViewModel())
         }
 
         composable("forgetPassword") {

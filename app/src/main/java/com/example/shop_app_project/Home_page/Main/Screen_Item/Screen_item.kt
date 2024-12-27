@@ -1,5 +1,6 @@
 package com.example.shop_app_project.Home_page.Main.Screen_Item
 
+import FavoritesViewModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
@@ -24,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +58,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.shop_app_project.Home_page.Main.ProductItem
 import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.UserViewModel
@@ -406,6 +409,22 @@ fun AddProductImages(context: Context, onImagesSelected: (List<Uri>) -> Unit) {
 
 
 @Composable
-fun favoritesScreen() {
-    Text(text = "favorites Screen")
+fun FavoritesScreen(navController: NavController, favoritesViewModel: FavoritesViewModel) {
+    LazyColumn {
+        items(favoritesViewModel.favorites) { product ->
+            ProductItem(
+                name = product.name,
+                description = product.description,
+                price = product.price,
+                image = product.image,
+                onClick = {
+                    navController.navigate("singleProduct/${product.id}")
+                },
+                onSaveClick = {
+                    favoritesViewModel.deleteFavorites(product)
+                }
+            )
+        }
+    }
 }
+

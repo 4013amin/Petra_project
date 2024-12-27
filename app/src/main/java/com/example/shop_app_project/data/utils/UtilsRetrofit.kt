@@ -7,7 +7,7 @@ import retrofit2.create
 
 object UtilsRetrofit {
 
-    const val BaseUrl = "http://192.168.190.101:2020/"
+    const val BaseUrl = "http://192.168.126.101:2020/"
 
     val api: API by lazy {
         Retrofit.Builder()
