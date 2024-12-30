@@ -412,6 +412,9 @@ fun AddProductImages(context: Context, onImagesSelected: (List<Uri>) -> Unit) {
 fun FavoritesScreen(navController: NavController, favoritesViewModel: FavoritesViewModel) {
     LazyColumn {
         items(favoritesViewModel.favorites) { product ->
+
+            favoritesViewModel.loadFavorites()
+
             ProductItem(
                 name = product.name,
                 description = product.description,
@@ -421,7 +424,7 @@ fun FavoritesScreen(navController: NavController, favoritesViewModel: FavoritesV
                     navController.navigate("singleProduct/${product.id}")
                 },
                 onSaveClick = {
-                    favoritesViewModel.deleteFavorites(product)
+                    favoritesViewModel.removeFavorite(product)
                 }
             )
         }

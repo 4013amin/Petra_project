@@ -125,7 +125,7 @@ fun UiHomePage(
                         navController.navigate("singleProduct/${product.id}")
                     },
                     onSaveClick = {
-                        favoritesViewModel.addFavorites(product)
+                        favoritesViewModel.addFavorite(product)
                         navController.navigate("favorites")
                     }
                 )
@@ -304,8 +304,6 @@ fun ProductItem(
                     Log.d("ProductItem", "Image loaded successfully")
                 }
             )
-
-
         }
     }
 }

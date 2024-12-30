@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -170,7 +171,8 @@ fun NavGraph(
 
 
         composable("favorites") {
-            FavoritesScreen(navController, favoritesViewModel = FavoritesViewModel())
+            val favoritesViewModel: FavoritesViewModel = viewModel()
+            FavoritesScreen(navController = navController, favoritesViewModel = favoritesViewModel)
         }
 
         composable("forgetPassword") {

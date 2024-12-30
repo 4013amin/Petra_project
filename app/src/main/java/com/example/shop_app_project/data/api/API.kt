@@ -36,7 +36,6 @@ interface API {
     ): Response<ProductModel>
 
 
-
     @FormUrlEncoded
     @POST("registerUser/")
     suspend fun registerUser(
@@ -46,4 +45,23 @@ interface API {
 
     @GET("GetCategories")
     suspend fun getCategories(): Response<List<Category>>
+
+
+    // Favorites
+    @FormUrlEncoded
+    @POST("favorites/add/")
+    suspend fun addFavorite(
+        @Field("product_id") productId: Int
+    ): Response<Unit>
+
+    @FormUrlEncoded
+    @POST("favorites/remove/")
+    suspend fun removeFavorite(
+        @Field("product_id") productId: Int
+    ): Response<Unit>
+
+    @GET("favorites/")
+    suspend fun getFavorites(): Response<List<ProductModel>>
 }
+
+
