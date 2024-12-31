@@ -8,3 +8,4 @@ data class login_model(
     val phone: String,
     val postal_code: String,
 )
+

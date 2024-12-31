@@ -176,11 +176,12 @@ fun NavGraph(
         }
 
         composable("forgetPassword") {
-            forgetpasswordScreen(navController)
+            forgetpasswordScreen(navController, userViewModel)
         }
 
-        composable("addCode") {
-            addCodeScreen(navController)
+        composable("addCodeScreen?phone={phone}") { backStackEntry ->
+            val phone = backStackEntry.arguments?.getString("phone")
+            addCodeScreen(navController, userViewModel, phone)
         }
 
         composable("addProduct") {

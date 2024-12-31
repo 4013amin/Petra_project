@@ -1,11 +1,16 @@
 package com.example.shop_app_project.data.api
 
+import android.telecom.Call
 import com.example.shop_app_project.data.models.Profile.ProdfileModel
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
+import com.example.shop_app_project.data.models.register.login_model
+import com.example.shop_app_project.data.view_model.OPT_Model
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -62,6 +67,26 @@ interface API {
 
     @GET("favorites/")
     suspend fun getFavorites(): Response<List<ProductModel>>
+
+
+    @FormUrlEncoded
+    @POST("send-otp/")
+    suspend fun sendOtp(
+        @Field("phone") phone: String
+    ): Response<OPT_Model>
+
+
+    @POST("verify-otp/")
+    @FormUrlEncoded
+    suspend fun verifyOtp(
+        @Field("phone") phone: String,
+        @Field("otp") otp: String
+    ): Response<OPT_Model>
+
+
 }
+
+
+
 
 

@@ -11,10 +11,12 @@ import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
+import com.example.shop_app_project.data.models.register.login_model
 import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,12 +28,19 @@ import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
+
+data class OPT_Model(
+    val phone: String,
+    val otp: String,
+)
+
+
 class UserViewModel(application: Application) : AndroidViewModel(application) {
     var registrationResult = mutableStateOf("")
     var login_result = mutableStateOf("")
     var products = mutableStateOf<List<ProductModel>>(arrayListOf())
     var category = mutableStateOf<List<Category>>(arrayListOf())
-
+    val data_Login = mutableStateOf(OPT_Model("", ""))
 
     //chech_for_login
     var isLoggedIn by mutableStateOf(false)
@@ -125,6 +134,61 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    //OPT
+    fun sendOPT(phone: String, context: Context) {
+
+        viewModelScope.launch {
+
+
+            val response = try {
+                UtilsRetrofit.api.sendOtp(phone)
+            } catch (e: IOException) {
+                Toast.makeText(context, "this is error in Io", Toast.LENGTH_SHORT).show()
+                return@launch
+            } catch (e: HttpException) {
+                Toast.makeText(context, "This is error in Http Request", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
+            if (response.isSuccessful && response.body() != null) {
+                data_Login.value = response.body()!!
+            }
+        }
+    }
+
+    fun verifyOTP(phone: String , enteredOtp: String, context: Context) {
+        viewModelScope.launch {
+            try {
+                Log.d("UserViewModel", "Verifying OTP...")
+                val response = UtilsRetrofit.api.verifyOtp(phone, enteredOtp)
+
+                if (response.isSuccessful && response.body() != null) {
+                    Toast.makeText(
+                        context,
+                        "OTP verified successfully. You can now register.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Toast.makeText(context, "Invalid OTP: $errorBody", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: IOException) {
+                Toast.makeText(
+                    context,
+                    "Network error occurred while verifying OTP",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } catch (e: HttpException) {
+                Toast.makeText(
+                    context,
+                    "HTTP error occurred while verifying OTP",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
 
     //RegisterUser
     fun registerUser(phone: String, password: String) {
@@ -237,10 +301,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         val fourth: D
     )
 
-//    // تابع برای اضافه کردن به سبد خرید
-//    fun addToCart(product: PorductModel) {
-//        shoppingCartViewModel.addToCart(product)
-//    }
 
 }
 

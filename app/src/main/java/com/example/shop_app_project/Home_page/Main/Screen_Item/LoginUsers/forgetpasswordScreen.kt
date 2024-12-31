@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,25 +39,28 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.shop_app_project.data.view_model.UserViewModel
 
 
 @Composable
-fun forgetpasswordScreen(navController: NavController) {
+fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewModel) {
+
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -165,13 +167,15 @@ fun forgetpasswordScreen(navController: NavController) {
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(36.dp))
 
                         Button(
-                            onClick = { navController.navigate("addCode") },
+                            onClick = {
+                                navController.navigate("addCodeScreen?phone=${phone.value}")
+                                userViewModel.sendOPT(phone.toString(), context)
+                            },
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(45.dp),
+                                .fillMaxWidth(),
                             shape = RoundedCornerShape(6.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = colorResource(
@@ -197,10 +201,12 @@ fun forgetpasswordScreen(navController: NavController) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun addCodeScreen(navController: NavController) {
+fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, phone: String?) {
     val codes = remember { List(5) { mutableStateOf("") } }
     val focusRequesters = remember { List(5) { FocusRequester() } }
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
+    val phone = navController.currentBackStackEntry?.arguments?.getString("phone") ?: ""
 
     Box(
         modifier = Modifier
@@ -279,7 +285,6 @@ fun addCodeScreen(navController: NavController) {
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
 
-                    // Row for code input boxes
                     Row(
                         modifier = Modifier.padding(vertical = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -291,7 +296,6 @@ fun addCodeScreen(navController: NavController) {
                                 onValueChange = { newValue ->
                                     if (newValue.length <= 1 && newValue.all { it.isDigit() }) {
                                         if (newValue.isNotEmpty()) {
-                                            // If a new number is added, move to the next field
                                             codeState.value = newValue
                                             if (index < codes.size - 1) {
                                                 focusRequesters[index + 1].requestFocus()
@@ -299,7 +303,6 @@ fun addCodeScreen(navController: NavController) {
                                                 focusManager.clearFocus()
                                             }
                                         } else {
-                                            // If the value is deleted, move focus to the previous field
                                             codeState.value = newValue
                                             if (index > 0) {
                                                 focusRequesters[index - 1].requestFocus()
@@ -324,7 +327,10 @@ fun addCodeScreen(navController: NavController) {
 
 
                     Button(
-                        onClick = { /* اقدام مورد نظر شما */ },
+                        onClick = {
+                            val otp = codes.joinToString("")
+                            userViewModel.verifyOTP(phone, otp, context)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(45.dp),
@@ -392,5 +398,6 @@ fun addCodeScreen(navController: NavController) {
 @Composable
 private fun showForgetPassword() {
     val navController = rememberNavController()
-    forgetpasswordScreen(navController = navController)
+    val userViewModel: UserViewModel = viewModel()
+    forgetpasswordScreen(navController = navController, userViewModel)
 }
