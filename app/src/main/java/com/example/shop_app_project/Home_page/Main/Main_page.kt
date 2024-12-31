@@ -95,7 +95,7 @@ fun UiHomePage(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate("newPage") // صفحه‌ای که می‌خواهید باز شود
+                    navController.navigate("newPage")
                 },
                 containerColor = Color(0xFF00BCD4)
             ) {

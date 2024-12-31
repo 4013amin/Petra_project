@@ -52,13 +52,13 @@ interface API {
     @POST("favorites/add/")
     suspend fun addFavorite(
         @Field("product_id") productId: Int
-    ): Response<Unit>
+    ): Response<ProductModel>
 
     @FormUrlEncoded
     @POST("favorites/remove/")
     suspend fun removeFavorite(
         @Field("product_id") productId: Int
-    ): Response<Unit>
+    ): Response<ProductModel>
 
     @GET("favorites/")
     suspend fun getFavorites(): Response<List<ProductModel>>

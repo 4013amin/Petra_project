@@ -430,4 +430,3 @@ fun FavoritesScreen(navController: NavController, favoritesViewModel: FavoritesV
         }
     }
 }
-
