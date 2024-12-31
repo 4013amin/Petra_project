@@ -76,12 +76,13 @@ interface API {
     ): Response<OPT_Model>
 
 
-    @POST("verify-otp/")
     @FormUrlEncoded
+    @POST("verify-otp/")
     suspend fun verifyOtp(
         @Field("phone") phone: String,
         @Field("otp") otp: String
     ): Response<OPT_Model>
+
 
 
 }

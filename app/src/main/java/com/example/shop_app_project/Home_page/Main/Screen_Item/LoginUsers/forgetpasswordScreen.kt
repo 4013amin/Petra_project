@@ -3,7 +3,6 @@ package com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers
 import com.example.shop_app_project.R
 import android.os.Build
 import android.os.CountDownTimer
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -173,7 +172,7 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
 
                         Button(
                             onClick = {
-                                navController.navigate("addCodeScreen?phone=${phone.value}")
+                                navController.navigate("addCodeScreen?phone=${phone}")
                                 userViewModel.sendOPT(phone.toString(), context)
                             },
                             modifier = Modifier
@@ -214,9 +213,6 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
 
     var timeRemaining by remember { mutableStateOf(120_000L) }
     var formattedTime by remember { mutableStateOf("2:00") }
-    var isOtpExpired by remember { mutableStateOf(false) } // Flag to check OTP expiry
-
-
 
     Box(
         modifier = Modifier
@@ -338,17 +334,7 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
 
                     Button(
                         onClick = {
-                            if (isOtpExpired) {
-                                // Send a new OTP if the session expired
-                                userViewModel.sendOPT(phone, context)
-                                isOtpExpired = false // Reset OTP expired flag
-                                timeRemaining = 120_000L // Reset the timer
-                            } else {
-                                // Correctly concatenate the OTP values from MutableState
-                                val otp = codes.joinToString("") { it.value }  // Collect the OTP digits as a string
-                                Log.d("OTP", "Sending OTP: $otp")  // Log to confirm the OTP value
-                                userViewModel.verifyOTP(phone, otp, context)
-                            }
+                            userViewModel.verifyOTP(phone, codes.joinToString("").trim(), context)
                         },
                         modifier = Modifier
                             .fillMaxWidth()

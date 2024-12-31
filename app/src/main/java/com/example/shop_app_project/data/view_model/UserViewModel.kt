@@ -8,21 +8,19 @@ import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
-import com.example.shop_app_project.data.models.register.login_model
 import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
@@ -40,7 +38,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     var login_result = mutableStateOf("")
     var products = mutableStateOf<List<ProductModel>>(arrayListOf())
     var category = mutableStateOf<List<Category>>(arrayListOf())
-    val data_Login = mutableStateOf(OPT_Model("", ""))
 
     //chech_for_login
     var isLoggedIn by mutableStateOf(false)
@@ -136,11 +133,9 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     //OPT
-    fun sendOPT(phone: String, context: Context) {
+    fun sendOPT(phone: String , context: Context) {
 
         viewModelScope.launch {
-
-
             val response = try {
                 UtilsRetrofit.api.sendOtp(phone)
             } catch (e: IOException) {
@@ -152,7 +147,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             if (response.isSuccessful && response.body() != null) {
-                data_Login.value = response.body()!!
+                Toast.makeText(context, "This is ok", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -160,8 +155,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     fun verifyOTP(phone: String, enteredOtp: String, context: Context) {
         viewModelScope.launch {
             try {
-                Log.d("UserViewModel", "Verifying OTP...")
                 val response = UtilsRetrofit.api.verifyOtp(phone, enteredOtp)
+                Log.d("UserViewModel", "Verifying OTP...")
 
                 if (!response.isSuccessful) {
                     val errorBody = response.errorBody()?.string()
