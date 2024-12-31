@@ -157,22 +157,27 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun verifyOTP(phone: String , enteredOtp: String, context: Context) {
+    fun verifyOTP(phone: String, enteredOtp: String, context: Context) {
         viewModelScope.launch {
             try {
                 Log.d("UserViewModel", "Verifying OTP...")
                 val response = UtilsRetrofit.api.verifyOtp(phone, enteredOtp)
 
-                if (response.isSuccessful && response.body() != null) {
+                if (!response.isSuccessful) {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("OTPVerification", "Error: $errorBody")
+                    Toast.makeText(context, "Error: $errorBody", Toast.LENGTH_SHORT).show()
+                } else {
+
+                    val successBody =
+                        response.body()
                     Toast.makeText(
                         context,
-                        "OTP verified successfully. You can now register.",
+                        "OTP verified successfully: $successBody",
                         Toast.LENGTH_SHORT
                     ).show()
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    Toast.makeText(context, "Invalid OTP: $errorBody", Toast.LENGTH_SHORT).show()
                 }
+
             } catch (e: IOException) {
                 Toast.makeText(
                     context,
