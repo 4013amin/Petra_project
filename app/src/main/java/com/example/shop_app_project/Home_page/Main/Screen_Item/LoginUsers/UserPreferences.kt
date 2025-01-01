@@ -16,4 +16,7 @@ object UserPreferences {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         return prefs.contains(KEY_PHONE) && prefs.contains(KEY_PASSWORD)
     }
+
+
+
 }

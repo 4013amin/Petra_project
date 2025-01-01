@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.utils.UtilsRetrofit
@@ -133,7 +134,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     //OPT
-    fun sendOPT(phone: String , context: Context) {
+    fun sendOPT(phone: String, context: Context) {
         viewModelScope.launch {
             val response = try {
                 UtilsRetrofit.api.sendOtp(phone)
@@ -148,7 +149,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun verifyOtp(phone: String, otp: String, context: Context) {
+    fun verifyOtp(phone: String, otp: String, context: Context, navController: NavController) {
         viewModelScope.launch {
             val response = try {
                 UtilsRetrofit.api.verifyOtp(phone, otp)
@@ -162,15 +163,18 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
             if (response.isSuccessful && response.body() != null) {
                 Toast.makeText(context, "OTP verified successfully", Toast.LENGTH_SHORT).show()
+                navController.navigate("home")
             } else {
                 // Log the error body or message for better debugging
                 Log.e("VerifyOTP", "Error: ${response.errorBody()?.string()}")
-                Toast.makeText(context, "Error: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Error: ${response.errorBody()?.string()}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
-
-
 
 
     //RegisterUser

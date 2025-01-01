@@ -146,7 +146,7 @@ fun NavGraph(
     modifier: Modifier = Modifier,
     userViewModel: UserViewModel
 ) {
-    NavHost(navController = navController, startDestination = "home", modifier = modifier) {
+    NavHost(navController = navController, startDestination = "forgetPassword", modifier = modifier) {
         composable("home") {
             UiHomePage(navController = navController)
         }

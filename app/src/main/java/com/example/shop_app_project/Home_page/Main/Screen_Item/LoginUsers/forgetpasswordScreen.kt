@@ -334,7 +334,11 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
 
                     Button(
                         onClick = {
-                            userViewModel.verifyOtp(phone, codes.joinToString("") { it.value }, context)
+                            userViewModel.verifyOtp(
+                                phone,
+                                codes.joinToString("") { it.value },
+                                context, navController
+                            )
                         },
                         modifier = Modifier
                             .fillMaxWidth()
