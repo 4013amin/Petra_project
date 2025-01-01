@@ -6,6 +6,7 @@ import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.models.register.login_model
 import com.example.shop_app_project.data.view_model.OPT_Model
+import com.google.gson.JsonObject
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -82,7 +83,6 @@ interface API {
         @Field("phone") phone: String,
         @Field("otp") otp: String
     ): Response<OPT_Model>
-
 
 
 }

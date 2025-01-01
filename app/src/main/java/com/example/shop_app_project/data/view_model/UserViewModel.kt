@@ -134,7 +134,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     //OPT
     fun sendOPT(phone: String , context: Context) {
-
         viewModelScope.launch {
             val response = try {
                 UtilsRetrofit.api.sendOtp(phone)
@@ -146,48 +145,32 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 return@launch
             }
 
-            if (response.isSuccessful && response.body() != null) {
-                Toast.makeText(context, "This is ok", Toast.LENGTH_SHORT).show()
-            }
         }
     }
 
-    fun verifyOTP(phone: String, enteredOtp: String, context: Context) {
+    fun verifyOtp(phone: String, otp: String, context: Context) {
         viewModelScope.launch {
-            try {
-                val response = UtilsRetrofit.api.verifyOtp(phone, enteredOtp)
-                Log.d("UserViewModel", "Verifying OTP...")
-
-                if (!response.isSuccessful) {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("OTPVerification", "Error: $errorBody")
-                    Toast.makeText(context, "Error: $errorBody", Toast.LENGTH_SHORT).show()
-                } else {
-
-                    val successBody =
-                        response.body()
-                    Toast.makeText(
-                        context,
-                        "OTP verified successfully: $successBody",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
+            val response = try {
+                UtilsRetrofit.api.verifyOtp(phone, otp)
             } catch (e: IOException) {
-                Toast.makeText(
-                    context,
-                    "Network error occurred while verifying OTP",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(context, "Error in network", Toast.LENGTH_SHORT).show()
+                return@launch
             } catch (e: HttpException) {
-                Toast.makeText(
-                    context,
-                    "HTTP error occurred while verifying OTP",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(context, "Error in request: ${e.message}", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
+            if (response.isSuccessful && response.body() != null) {
+                Toast.makeText(context, "OTP verified successfully", Toast.LENGTH_SHORT).show()
+            } else {
+                // Log the error body or message for better debugging
+                Log.e("VerifyOTP", "Error: ${response.errorBody()?.string()}")
+                Toast.makeText(context, "Error: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+
 
 
     //RegisterUser
