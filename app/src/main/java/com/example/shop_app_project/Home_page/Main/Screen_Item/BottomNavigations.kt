@@ -65,8 +65,11 @@ fun BottomNavigationBar(
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         NavigationBar(
-            containerColor = MaterialTheme.colorScheme.surface,
-            tonalElevation = 8.dp
+            containerColor = Color(0xFF006FC7), // آبی کم رنگ
+            tonalElevation = 8.dp,
+            modifier = Modifier
+                .padding(bottom = 10.dp) // کمی از پایین فاصله بده
+
         ) {
             navItems.reversed().forEach { item ->  // Reversed to match RTL order
                 val isSelected = currentDestination?.route == item.route
@@ -88,7 +91,7 @@ fun BottomNavigationBar(
                             imageVector = item.icon,
                             contentDescription = item.title,
                             modifier = Modifier
-                                .size(24.dp)
+                                .size(25.dp)
                                 .padding(4.dp)
                                 .graphicsLayer(scaleX = scale, scaleY = scale)
                         )
@@ -112,6 +115,7 @@ fun BottomNavigationBar(
         }
     }
 }
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
