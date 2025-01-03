@@ -84,7 +84,6 @@ fun ProductDetailScreen(product: ProductModel) {
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Image section
             AsyncImage(
                 model = "http://192.168.1.110:2020/${images}",
                 contentDescription = null,

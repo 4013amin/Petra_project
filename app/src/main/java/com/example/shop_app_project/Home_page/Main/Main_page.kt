@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults.elevation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
@@ -63,7 +62,7 @@ class MainActivity : ComponentActivity() {
                 val userViewModel: UserViewModel = viewModel()
                 val shoppingCartViewModel: ShoppingCartViewModel = viewModel()
 
-                UiHomePage(navController = navController)
+                UiHomePage(navController = navController, userViewModel = userViewModel)
 
                 BottomNavigations(navController, userViewModel, shoppingCartViewModel)
             }
@@ -74,7 +73,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UiHomePage(
-    userViewModel: UserViewModel = viewModel(),
+    userViewModel: UserViewModel,
     navController: NavController,
 ) {
     val products by userViewModel.products
@@ -86,12 +85,9 @@ fun UiHomePage(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Pet Store", color = Color.Black) },
-                colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color(0xFF03A9F4))
-            )
-        },
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.White),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -236,10 +232,11 @@ fun ProductItem(
             .fillMaxWidth()
             .padding(8.dp)
             .clickable(onClick = onClick)
-            .border(
-                2.dp, color = Color(0xFF00BCD4), RoundedCornerShape(8.dp)
-            ),
+            .background(color = Color.White),
         shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+        )
     ) {
         Row(
             modifier = Modifier.padding(15.dp),
@@ -247,13 +244,16 @@ fun ProductItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
-            IconButton(onClick = { onSaveClick }) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = "",
-                    tint = Color.Red
-                )
-            }
+            Text(
+                text = "$${price} تومان",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Green,
+                textAlign = TextAlign.End,
+                modifier = Modifier.padding(top = 60.dp)
+            )
+
+
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -274,20 +274,19 @@ fun ProductItem(
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
                     color = Color.Gray,
-                    textAlign = TextAlign.End,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 4.dp),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    minLines = 1
                 )
-                Text(
-                    text = "$${price} تومان",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Green,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
+
+                IconButton(onClick = { onSaveClick }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_save_alt_24),
+                        contentDescription = null
+                    )
+                }
+
             }
 
             AsyncImage(
@@ -295,7 +294,7 @@ fun ProductItem(
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(125.dp)
                     .clip(RoundedCornerShape(8.dp)),
                 onError = {
                     Log.e("ProductItem", "Error loading image: ${it.result.throwable?.message}")
@@ -382,9 +381,15 @@ fun AnimalBoxes() {
 @Composable
 private fun PreviewUiHomePage() {
     Shop_App_projectTheme {
-        UiHomePage(
-            userViewModel = viewModel(),
-            navController = rememberNavController()
+
+        ProductItem(
+            name = "Amin",
+            description = "description",
+            price = 20000,
+            image = "",
+            onClick = {},
+            onSaveClick = {}
         )
     }
 }
+

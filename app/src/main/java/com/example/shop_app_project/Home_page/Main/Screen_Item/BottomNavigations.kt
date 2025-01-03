@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -49,8 +50,7 @@ data class NavigationsItem(
 )
 
 val navItems = listOf(
-    NavigationsItem("forgetPassword", "پروفایل", Icons.Default.Person),
-    NavigationsItem("favorites", "نشان ها", Icons.Default.Favorite),
+    NavigationsItem("favorites", "نشان ها", Icons.Default.FavoriteBorder),
     NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
     NavigationsItem("home", "فروشگاه", Icons.Default.Home),
 
@@ -64,58 +64,61 @@ fun BottomNavigationBar(
     val currentDestination = currentBackStackEntry?.destination
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        NavigationBar(
-            containerColor = Color(0xFF006FC7), // آبی کم رنگ
-            tonalElevation = 8.dp,
-            modifier = Modifier
-                .padding(bottom = 10.dp) // کمی از پایین فاصله بده
-
+        Surface(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            shape = MaterialTheme.shapes.medium,
+            color = Color.White,
+            shadowElevation = 8.dp
         ) {
-            navItems.reversed().forEach { item ->  // Reversed to match RTL order
-                val isSelected = currentDestination?.route == item.route
-                val scale = animateFloatAsState(targetValue = if (isSelected) 1.2f else 1f).value
+            NavigationBar(
+                containerColor = Color.Transparent,
+                tonalElevation = 0.dp,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                navItems.reversed().forEach { item ->
+                    val isSelected = currentDestination?.route == item.route
+                    val scale =
+                        animateFloatAsState(targetValue = if (isSelected) 1.2f else 1f).value
 
-                NavigationBarItem(
-                    selected = isSelected,
-                    onClick = {
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+                    NavigationBarItem(
+                        selected = isSelected,
+                        onClick = {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = item.title,
-                            modifier = Modifier
-                                .size(25.dp)
-                                .padding(4.dp)
-                                .graphicsLayer(scaleX = scale, scaleY = scale)
-                        )
-                    },
-                    label = {
-                        AnimatedVisibility(visible = isSelected) {
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.title,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .graphicsLayer(scaleX = scale, scaleY = scale),
+                                tint = if (isSelected) Color(0xFF007BFF) else Color.Gray
+                            )
+                        },
+                        label = {
                             Text(
                                 text = item.title,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
+                                style = MaterialTheme.typography.labelMedium,
+                                color = if (isSelected) Color.Black else Color.Gray
                             )
-                        }
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = Color.Gray,
-                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Color.Black,
+                            unselectedIconColor = Color.Gray,
+                            indicatorColor = Color.Transparent
+                        )
                     )
-                )
+                }
             }
         }
     }
 }
-
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -150,9 +153,13 @@ fun NavGraph(
     modifier: Modifier = Modifier,
     userViewModel: UserViewModel
 ) {
-    NavHost(navController = navController, startDestination = "forgetPassword", modifier = modifier) {
+    NavHost(
+        navController = navController,
+        startDestination = "forgetPassword",
+        modifier = modifier
+    ) {
         composable("home") {
-            UiHomePage(navController = navController)
+            UiHomePage(navController = navController , userViewModel = userViewModel)
         }
 
         composable("singleProduct/{productId}") { backStackEntry ->
