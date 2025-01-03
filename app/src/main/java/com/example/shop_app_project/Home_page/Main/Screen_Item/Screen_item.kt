@@ -69,24 +69,18 @@ import com.example.shop_app_project.data.view_model.UserViewModel
 fun ProductDetailScreen(product: ProductModel) {
     val images = product.image
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = product.name, color = Color.Black) },
-                colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color(0xFF03A9F4))
-            )
-        }
+
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
+                .padding(10.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Image display
             AsyncImage(
                 model = "http://192.168.1.110:2020/${images}",
-                contentDescription = null,
+                contentDescription = "Product image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -102,22 +96,21 @@ fun ProductDetailScreen(product: ProductModel) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Information section with rows
-            Column(
-                modifier = Modifier.fillMaxWidth(),
+            LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.End
             ) {
-                InfoRow(value = product.name)
-                InfoRow(value = product.nameUser)
-                InfoRow(value = product.city)
-                InfoRow(value = product.family)
-                InfoRow(value = "${product.price} تومان", color = Color.Green)
-                InfoRow(value = product.address)
-                InfoRow(value = product.description)
-                InfoRow(value = product.phone)
-                InfoRow(value = product.created_at)
-                InfoRow(value = product.updated_at)
+
+                item { InfoRow(value = product.name) }
+                item { InfoRow(value = product.nameUser) }
+                item { InfoRow(value = product.city) }
+                item { InfoRow(value = product.family) }
+                item { InfoRow(value = "${product.price} تومان", color = Color.Green) }
+                item { InfoRow(value = product.address) }
+                item { InfoRow(value = product.description) }
+                item { InfoRow(value = product.phone) }
+                item { InfoRow(value = product.created_at) }
+                item { InfoRow(value = product.updated_at) }
             }
         }
     }
@@ -127,9 +120,9 @@ fun ProductDetailScreen(product: ProductModel) {
 fun InfoRow(value: String, color: Color = Color.Black) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-
         Text(
             text = value,
             fontSize = 16.sp,
@@ -137,6 +130,29 @@ fun InfoRow(value: String, color: Color = Color.Black) {
             color = color
         )
     }
+}
+
+
+
+@Preview
+@Composable
+private fun show() {
+    ProductDetailScreen(
+        product = ProductModel(
+            name = "Example Product",
+            image = "example.jpg",
+            nameUser = "John Doe",
+            city = "Tehran",
+            family = "Smith",
+            price = 20000,
+            address = "123 Street",
+            description = "Sample description",
+            phone = "1234567890",
+            created_at = "2025-01-01",
+            updated_at = "2025-01-02",
+            id = 20
+        )
+    )
 }
 
 
