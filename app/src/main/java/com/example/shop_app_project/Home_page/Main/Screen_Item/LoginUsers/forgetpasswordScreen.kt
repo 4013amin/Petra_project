@@ -408,5 +408,5 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
 private fun showForgetPassword() {
     val navController = rememberNavController()
     val userViewModel: UserViewModel = viewModel()
-    forgetpasswordScreen(navController = navController, userViewModel)
+    addCodeScreen(navController , userViewModel  , "09362629118")
 }

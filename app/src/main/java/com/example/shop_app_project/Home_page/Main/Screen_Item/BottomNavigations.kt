@@ -129,9 +129,14 @@ fun BottomNavigations(
     userViewModel: UserViewModel,
     shoppingCartViewModel: ShoppingCartViewModel,
 ) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(navController = navController)
+            if (currentRoute != "forgetPassword") {
+                BottomNavigationBar(navController = navController)
+            }
         }
     ) { innerPadding ->
         NavGraph(
@@ -141,7 +146,6 @@ fun BottomNavigations(
             userViewModel
         )
     }
-
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
