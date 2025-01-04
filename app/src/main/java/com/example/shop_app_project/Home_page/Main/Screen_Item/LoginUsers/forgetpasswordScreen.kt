@@ -1,5 +1,6 @@
 package com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers
 
+import android.annotation.SuppressLint
 import com.example.shop_app_project.R
 import android.os.Build
 import android.os.CountDownTimer
@@ -56,11 +57,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.data.view_model.UserViewModel
 
-
 @Composable
 fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewModel) {
 
     val context = LocalContext.current
+
 
     Box(
         modifier = Modifier
@@ -111,13 +112,6 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.eectangle),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(123.dp)
-                            .padding(15.dp)
-                    )
 
                     Text(
                         text = "ورود / ثبت نام",
@@ -143,8 +137,6 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         val phone = remember { mutableStateOf("") }
-                        var password by remember { mutableStateOf("") }
-                        var passwordVisible by remember { mutableStateOf(false) }
 
                         Row(
                             modifier = Modifier
@@ -170,26 +162,38 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
 
                         Spacer(modifier = Modifier.height(36.dp))
 
-                        Button(
-                            onClick = {
-                                navController.navigate("addCodeScreen?phone=${phone}")
-                                userViewModel.sendOPT(phone.toString(), context)
-                            },
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(6.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colorResource(
-                                    id = R.color.blueM
-                                )
-                            )
+                                .fillMaxSize()
+                                .padding(bottom = 25.dp),
+                            contentAlignment = Alignment.BottomCenter
                         ) {
-                            Text(
-                                text = "دریافت کد",
-                                color = Color.White,
-                                fontSize = 18.sp,
-                                modifier = Modifier.padding(16.dp)
-                            )
+                            val isPhoneValid = phone.value.length == 11
+                            Button(
+                                onClick = {
+                                    if (isPhoneValid) {
+                                        navController.navigate("addCodeScreen?phone=${phone.value}")
+                                        userViewModel.sendOPT(phone.value, context)
+                                    }
+
+                                },
+                                modifier = Modifier
+                                    .width(400.dp)
+                                    .height(60.dp),
+                                shape = RoundedCornerShape(6.dp),
+                                enabled = isPhoneValid,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isPhoneValid) colorResource(id = R.color.blueM)
+                                    else colorResource(id = R.color.graBTN)
+                                )
+                            ) {
+                                Text(
+                                    text = "دریافت کد",
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
                         }
 
                     }
@@ -209,10 +213,11 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
     val context = LocalContext.current
     val phone = navController.currentBackStackEntry?.arguments?.getString("phone") ?: ""
 
-    Toast.makeText(context, phone, Toast.LENGTH_SHORT).show()
+    val isFieldsFilled = codes.all { it.value.length == 1 }
 
     var timeRemaining by remember { mutableStateOf(120_000L) }
     var formattedTime by remember { mutableStateOf("2:00") }
+
 
     Box(
         modifier = Modifier
@@ -263,13 +268,7 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.eectangle),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(123.dp)
-                            .padding(15.dp)
-                    )
+
 
                     Text(
                         text = "ورود / ثبت نام",
@@ -334,17 +333,22 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
 
                     Button(
                         onClick = {
-                            userViewModel.verifyOtp(
-                                phone,
-                                codes.joinToString("") { it.value },
-                                context, navController
-                            )
+                            if (isFieldsFilled) {
+                                userViewModel.verifyOtp(
+                                    phone,
+                                    codes.joinToString("") { it.value },
+                                    context, navController
+                                )
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(45.dp),
                         shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.blueM))
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isFieldsFilled) colorResource(id = R.color.blueM) else Color.Gray
+                        ),
+                        enabled = isFieldsFilled
                     ) {
                         Text(
                             text = "ارسال",
@@ -371,42 +375,38 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
                             }
                         }.start()
                     }
+                    Box(modifier = Modifier.fillMaxSize()) {
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(5.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "ارسال مجدد کد $formattedTime",
-                            textAlign = TextAlign.End,
-                            fontSize = 12.sp
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .align(Alignment.BottomCenter),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
 
-                        Text(
-                            modifier = Modifier.clickable {
-                                navController.navigate("forgetPassword")
-                            },
-                            text = "تغییر شماره موبایل",
-                            textAlign = TextAlign.End,
-                            fontSize = 12.sp
-                        )
+                            ) {
+                            Text(
+                                text = "ارسال مجدد کد $formattedTime",
+                                textAlign = TextAlign.End,
+                                fontSize = 12.sp, modifier = Modifier.clickable {
+                                    userViewModel.sendOPT(phone, context)
+                                }
+                            )
+
+                            Text(
+                                modifier = Modifier.clickable {
+                                    navController.navigate("forgetPassword")
+                                },
+                                text = "تغییر شماره موبایل",
+                                textAlign = TextAlign.End,
+                                fontSize = 12.sp
+                            )
+                        }
                     }
                 }
 
             }
         }
     }
-}
-
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-private fun showForgetPassword() {
-    val navController = rememberNavController()
-    val userViewModel: UserViewModel = viewModel()
-    addCodeScreen(navController , userViewModel  , "09362629118")
 }

@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
 import com.example.shop_app_project.Home_page.Main.Screen_Item.FavoritesScreen
+import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.UserPreferences
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCodeScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
@@ -134,7 +135,7 @@ fun BottomNavigations(
 
     Scaffold(
         bottomBar = {
-            if (currentRoute != "forgetPassword") {
+            if (currentRoute != "forgetPassword" && currentRoute?.startsWith("addCodeScreen") != true) {
                 BottomNavigationBar(navController = navController)
             }
         }
@@ -157,13 +158,16 @@ fun NavGraph(
     modifier: Modifier = Modifier,
     userViewModel: UserViewModel
 ) {
+    val context = LocalContext.current
+
+
     NavHost(
         navController = navController,
         startDestination = "forgetPassword",
         modifier = modifier
     ) {
         composable("home") {
-            UiHomePage(navController = navController , userViewModel = userViewModel)
+            UiHomePage(navController = navController, userViewModel = userViewModel)
         }
 
         composable("singleProduct/{productId}") { backStackEntry ->
@@ -190,14 +194,17 @@ fun NavGraph(
             FavoritesScreen(navController = navController, favoritesViewModel = favoritesViewModel)
         }
 
+
         composable("forgetPassword") {
             forgetpasswordScreen(navController, userViewModel)
         }
+
 
         composable("addCodeScreen?phone={phone}") { backStackEntry ->
             val phone = backStackEntry.arguments?.getString("phone")
             addCodeScreen(navController, userViewModel, phone)
         }
+
 
         composable("addProduct") {
             AddProductForm(navController)
