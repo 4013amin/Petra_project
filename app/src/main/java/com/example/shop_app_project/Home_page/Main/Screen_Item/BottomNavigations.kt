@@ -163,7 +163,7 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = "forgetPassword",
+        startDestination = "home",
         modifier = modifier
     ) {
         composable("home") {

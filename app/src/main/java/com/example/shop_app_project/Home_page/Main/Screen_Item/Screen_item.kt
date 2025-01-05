@@ -16,6 +16,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -25,11 +26,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,9 +52,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -62,97 +69,87 @@ import com.example.shop_app_project.Home_page.Main.ProductItem
 import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.UserViewModel
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(product: ProductModel) {
-    val images = product.image
+    val sheetState = rememberBottomSheetScaffoldState()
+
     Scaffold(
-
+        modifier = Modifier
+            .background(color = Color.White)
+            .padding(15.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(10.dp)
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // Image display
-            AsyncImage(
-                model = "http://192.168.1.110:2020/${images}",
-                contentDescription = "Product image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                onError = {
-                    Log.e("ProductItem", "Error loading image: ${it.result.throwable?.message}")
-                },
-                onSuccess = {
-                    Log.d("ProductItem", "Image loaded successfully")
+        BottomSheetScaffold(
+            scaffoldState = sheetState,
+            containerColor = Color.White,
+            sheetContainerColor = Color.White,
+            sheetContent = {
+
+                InfoRow(value = product.name, label = "موضوع ")
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Divider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = Color.Gray,
+                    thickness = 1.dp
+                )
+
+
+                InfoRow(value = product.description, label = "توضیحات ")
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Divider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = Color.Gray,
+                    thickness = 1.dp
+                )
+
+                InfoRow(value = product.city, label = "شهر ")
+                Spacer(modifier = Modifier.height(16.dp))
+                Divider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = Color.Gray,
+                    thickness = 1.dp
+                )
+
+                InfoRow(value = product.price.toString(), label = "قیمت")
+
+                Spacer(modifier = Modifier.height(100.dp))
+
+
+                Button(
+                    onClick = { /*TODO*/ }, modifier = Modifier
+                        .width(400.dp)
+                        .height(60.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.blueM)
+                    )
+                ) {
+                    Text(text = product.phone)
                 }
-            )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            },
+            sheetPeekHeight = 50.dp,
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.End
             ) {
+            Column(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .background(color = Color.White)
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-                item { InfoRow(value = product.name) }
-                item { InfoRow(value = product.nameUser) }
-                item { InfoRow(value = product.city) }
-                item { InfoRow(value = product.family) }
-                item { InfoRow(value = "${product.price} تومان", color = Color.Green) }
-                item { InfoRow(value = product.address) }
-                item { InfoRow(value = product.description) }
-                item { InfoRow(value = product.phone) }
-                item { InfoRow(value = product.created_at) }
-                item { InfoRow(value = product.updated_at) }
+                val image = listOf(product.image)
+                ImageSlider(images = image)
+
             }
         }
     }
-}
-
-@Composable
-fun InfoRow(value: String, color: Color = Color.Black) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = color
-        )
-    }
-}
-
-
-
-@Preview
-@Composable
-private fun show() {
-    ProductDetailScreen(
-        product = ProductModel(
-            name = "Example Product",
-            image = "example.jpg",
-            nameUser = "John Doe",
-            city = "Tehran",
-            family = "Smith",
-            price = 20000,
-            address = "123 Street",
-            description = "Sample description",
-            phone = "1234567890",
-            created_at = "2025-01-01",
-            updated_at = "2025-01-02",
-            id = 20
-        )
-    )
 }
 
 
@@ -164,22 +161,33 @@ fun ImageSlider(images: List<String>) {
         com.google.accompanist.pager.HorizontalPager(
             count = images.size,
             state = pagerState,
-            modifier = Modifier.height(200.dp)
+            modifier = Modifier
+                .height(300.dp)
+                .padding(15.dp)
         ) { page ->
-            // Use rememberImagePainter to load the image from the URL string
-            Image(
-                painter = rememberImagePainter(images[page]),
+            AsyncImage(
+                model = "http://192.168.1.110:2020/${images[page]}", // URL تصویر
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .aspectRatio(16f / 9f)
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                onError = {
+                    Log.e(
+                        "ProductDetailScreen",
+                        "Error loading image: ${it.result.throwable?.message}"
+                    )
+                },
+                onSuccess = {
+                    Log.d("ProductDetailScreen", "Image loaded successfully")
+                }
             )
+
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Pager Indicator
         PagerIndicator(
             pagerState = pagerState,
             modifier = Modifier
@@ -210,6 +218,53 @@ fun PagerIndicator(
         }
     }
 }
+
+@Composable
+fun InfoRow(value: String, label: String, color: Color = Color.Black) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = color,
+            modifier = Modifier.padding(15.dp)
+        )
+
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = color,
+            modifier = Modifier.padding(15.dp)
+        )
+    }
+}
+
+
+@Preview
+@Composable
+fun ProductDetailsPreview() {
+    val sampleProduct = ProductModel(
+        address = "123 Street",
+        city = "CityName",
+        created_at = "2025-01-01",
+        description = "This is a sample product description.",
+        family = "Sample Family",
+        id = 1,
+        image = "https://via.placeholder.com/300x250",
+        name = "Sample Product",
+        nameUser = "User123",
+        phone = "123456789",
+        price = 1000,
+        updated_at = "2025-01-05"
+    )
+    ProductDetailScreen(product = sampleProduct)
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)

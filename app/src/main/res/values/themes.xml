@@ -10,7 +10,10 @@
 
         <item name="android:statusBarColor">#03A9F4</item>
 
+
     </style>
 
     <style name="Theme.Shop_App_project" parent="android:Theme.Material.Light.NoActionBar" />
+
+
 </resources>
