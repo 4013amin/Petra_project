@@ -99,15 +99,6 @@ fun ProductDetailScreen(product: ProductModel) {
                 )
 
 
-                InfoRow(value = product.description, label = "توضیحات ")
-
-                Spacer(modifier = Modifier.height(16.dp))
-                Divider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    color = Color.Gray,
-                    thickness = 1.dp
-                )
-
                 InfoRow(value = product.city, label = "شهر ")
                 Spacer(modifier = Modifier.height(16.dp))
                 Divider(

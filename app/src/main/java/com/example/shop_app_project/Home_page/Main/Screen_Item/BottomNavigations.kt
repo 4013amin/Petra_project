@@ -2,8 +2,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
@@ -18,9 +20,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
@@ -123,7 +129,6 @@ fun BottomNavigationBar(
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomNavigations(
     navController: NavHostController,
@@ -133,19 +138,43 @@ fun BottomNavigations(
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
 
+    val isBottomBarVisible = remember { mutableStateOf(true) }
+    val scrollState = rememberLazyListState()
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (available.y > 0) {
+                    isBottomBarVisible.value = true
+                } else if (available.y < 0) {
+                    isBottomBarVisible.value = false
+                }
+                return Offset.Zero
+            }
+        }
+    }
+
     Scaffold(
         bottomBar = {
-            if (currentRoute != "forgetPassword" && currentRoute?.startsWith("addCodeScreen") != true) {
+            AnimatedVisibility(
+                visible = isBottomBarVisible.value && currentRoute != "forgetPassword" && currentRoute?.startsWith("addCodeScreen") != true
+            ) {
                 BottomNavigationBar(navController = navController)
             }
         }
     ) { innerPadding ->
-        NavGraph(
-            navController = navController,
-            shoppingCartViewModel = shoppingCartViewModel,
-            modifier = Modifier.padding(innerPadding),
-            userViewModel
-        )
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .nestedScroll(nestedScrollConnection)
+        ) {
+            NavGraph(
+                navController = navController,
+                shoppingCartViewModel = shoppingCartViewModel,
+                modifier = Modifier,
+                userViewModel
+            )
+        }
     }
 }
 
