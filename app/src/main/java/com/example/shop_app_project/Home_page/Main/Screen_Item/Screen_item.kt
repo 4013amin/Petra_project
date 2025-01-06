@@ -3,6 +3,7 @@ package com.example.shop_app_project.Home_page.Main.Screen_Item
 import FavoritesViewModel
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -10,9 +11,11 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.collection.intIntMapOf
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +33,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -55,12 +60,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -75,72 +83,118 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(product: ProductModel) {
-    val sheetState = rememberBottomSheetScaffoldState()
-
-    Scaffold(
+    val scroller = rememberScrollState()
+    val context = LocalContext.current
+    Column(
         modifier = Modifier
-            .background(color = Color.White)
+            .fillMaxSize()
             .padding(15.dp)
+            .verticalScroll(scroller)
+            .background(color = Color.White)
     ) {
 
-        BottomSheetScaffold(
-            scaffoldState = sheetState,
-            containerColor = Color.White,
-            sheetContainerColor = Color.White,
-            sheetContent = {
+        val image = listOf(product.image)
+        ImageSlider(images = image)
 
-                InfoRow(value = product.name, label = "موضوع ")
+        Spacer(modifier = Modifier.height(25.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
-                Divider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    color = Color.Gray,
-                    thickness = 1.dp
+        InfoRow(value = product.name)
+
+        Divider(modifier = Modifier.height(1.dp))
+        Spacer(modifier = Modifier.height(15.dp))
+
+        InfoRow(value = product.city)
+
+        Divider(modifier = Modifier.height(1.dp))
+        Spacer(modifier = Modifier.height(15.dp))
+
+        InfoRow(value = product.nameUser)
+
+        Divider(modifier = Modifier.height(1.dp))
+        Spacer(modifier = Modifier.height(15.dp))
+
+        InfoRow(value = product.price.toString())
+
+        Divider(modifier = Modifier.height(1.dp))
+        Spacer(modifier = Modifier.height(15.dp))
+
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = Color.White)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+
+                Text(
+                    text = "توضیحات",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.padding(15.dp)
                 )
 
-
-                InfoRow(value = product.city, label = "شهر ")
-                Spacer(modifier = Modifier.height(16.dp))
-                Divider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    color = Color.Gray,
-                    thickness = 1.dp
+                Text(
+                    text = product.description,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.padding(15.dp)
                 )
-
-                InfoRow(value = product.price.toString(), label = "قیمت")
-
-                Spacer(modifier = Modifier.height(100.dp))
-
-
-                Button(
-                    onClick = { /*TODO*/ }, modifier = Modifier
-                        .width(400.dp)
-                        .height(60.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.blueM)
-                    )
-                ) {
-                    Text(text = product.phone)
-                }
-
-            },
-            sheetPeekHeight = 50.dp,
-
-            ) {
-            Column(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .background(color = Color.White)
-            ) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val image = listOf(product.image)
-                ImageSlider(images = image)
-
             }
         }
+
+
+        Button(
+            onClick = {
+                val intent = Intent(Intent.ACTION_DIAL).apply {
+                    data = Uri.parse("tel:${product.phone}")
+                }
+                ContextCompat.startActivity(context, intent, null)
+            },
+            modifier = Modifier
+                .width(200.dp)
+                .padding(15.dp),
+            shape = RoundedCornerShape(5.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 0.dp
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0x4FFFFFFF),
+                                Color(0x40FFFFFF)
+                            )
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = Color(0x66FFFFFF),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .padding(10.dp)
+            ) {
+                Text(
+                    text = product.phone,
+                    color = Color(0xAA000000),
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+
     }
+
 }
 
 
@@ -157,7 +211,7 @@ fun ImageSlider(images: List<String>) {
                 .padding(15.dp)
         ) { page ->
             AsyncImage(
-                model = "http://192.168.1.110:2020/${images[page]}", // URL تصویر
+                model = "http://192.168.1.110:2020/${images[page]}",
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -211,10 +265,10 @@ fun PagerIndicator(
 }
 
 @Composable
-fun InfoRow(value: String, label: String, color: Color = Color.Black) {
+fun InfoRow(value: String, color: Color = Color.Black) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -225,13 +279,6 @@ fun InfoRow(value: String, label: String, color: Color = Color.Black) {
             modifier = Modifier.padding(15.dp)
         )
 
-        Text(
-            text = label,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = color,
-            modifier = Modifier.padding(15.dp)
-        )
     }
 }
 
