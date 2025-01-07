@@ -49,25 +49,11 @@ interface API {
         @Field("password") password: String
     ): Response<ProdfileModel>
 
+
+
     @GET("GetCategories")
     suspend fun getCategories(): Response<List<Category>>
 
-
-    // Favorites
-    @FormUrlEncoded
-    @POST("favorites/add/")
-    suspend fun addFavorite(
-        @Field("product_id") productId: Int
-    ): Response<ProductModel>
-
-    @FormUrlEncoded
-    @POST("favorites/remove/")
-    suspend fun removeFavorite(
-        @Field("product_id") productId: Int
-    ): Response<ProductModel>
-
-    @GET("favorites/")
-    suspend fun getFavorites(): Response<List<ProductModel>>
 
 
     @FormUrlEncoded
@@ -83,7 +69,6 @@ interface API {
         @Field("phone") phone: String,
         @Field("otp") otp: String
     ): Response<OPT_Model>
-
 
 }
 

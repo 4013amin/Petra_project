@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -40,7 +38,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
 import com.example.shop_app_project.Home_page.Main.Screen_Item.FavoritesScreen
-import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.UserPreferences
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCodeScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen

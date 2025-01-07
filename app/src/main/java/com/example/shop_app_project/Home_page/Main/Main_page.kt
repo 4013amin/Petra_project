@@ -19,9 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -122,7 +119,7 @@ fun UiHomePage(
                     },
                     onSaveClick = {
                         favoritesViewModel.addFavorite(product)
-                        navController.navigate("favorites")
+
                     }
                 )
             }
@@ -280,7 +277,7 @@ fun ProductItem(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                IconButton(onClick = { onSaveClick }) {
+                IconButton(onClick = { onSaveClick() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_save_alt_24),
                         contentDescription = null

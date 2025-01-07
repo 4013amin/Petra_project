@@ -11,19 +11,14 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.collection.intIntMapOf
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,13 +32,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,12 +47,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -77,7 +65,6 @@ import com.example.shop_app_project.Home_page.Main.ProductItem
 import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.UserViewModel
-import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -283,24 +270,29 @@ fun InfoRow(value: String, color: Color = Color.Black) {
 }
 
 
+@SuppressLint("NewApi")
 @Preview
 @Composable
 fun ProductDetailsPreview() {
-    val sampleProduct = ProductModel(
-        address = "123 Street",
-        city = "CityName",
-        created_at = "2025-01-01",
-        description = "This is a sample product description.",
-        family = "Sample Family",
-        id = 1,
-        image = "https://via.placeholder.com/300x250",
-        name = "Sample Product",
-        nameUser = "User123",
-        phone = "123456789",
-        price = 1000,
-        updated_at = "2025-01-05"
-    )
-    ProductDetailScreen(product = sampleProduct)
+//    val sampleProduct = ProductModel(
+//        address = "123 Street",
+//        city = "CityName",
+//        created_at = "2025-01-01",
+//        description = "This is a sample product description.",
+//        family = "Sample Family",
+//        id = 1,
+//        image = "https://via.placeholder.com/300x250",
+//        name = "Sample Product",
+//        nameUser = "User123",
+//        phone = "123456789",
+//        price = 1000,
+//        updated_at = "2025-01-05"
+//    )
+//    ProductDetailScreen(product = sampleProduct)
+
+    val navController = rememberNavController()
+    AddProductForm(navController = navController)
+
 }
 
 
@@ -310,15 +302,6 @@ fun ProductDetailsPreview() {
 fun AddProductForm(navController: NavController) {
     val context = LocalContext.current
     val userViewModel: UserViewModel = viewModel()
-    val provinces = mapOf(
-        "تهران" to listOf("تهران", "ری", "شمیرانات"),
-        "اصفهان" to listOf("اصفهان", "کاشان", "خمینی‌شهر"),
-        "خراسان رضوی" to listOf("مشهد", "نیشابور", "تربت حیدریه")
-    )
-
-    var selectedProvince by remember { mutableStateOf("") }
-    var selectedCity by remember { mutableStateOf("") }
-    val cities = provinces[selectedProvince] ?: emptyList()
 
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -518,23 +501,42 @@ fun AddProductImages(context: Context, onImagesSelected: (List<Uri>) -> Unit) {
 
 @Composable
 fun FavoritesScreen(navController: NavController, favoritesViewModel: FavoritesViewModel) {
-    LazyColumn {
-        items(favoritesViewModel.favorites) { product ->
+    val favorites = favoritesViewModel.favorites
 
-            favoritesViewModel.loadFavorites()
+    if (favorites.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "No favorites yet!", style = MaterialTheme.typography.bodyLarge)
+        }
+    } else {
 
-            ProductItem(
-                name = product.name,
-                description = product.description,
-                price = product.price,
-                image = product.image,
-                onClick = {
-                    navController.navigate("singleProduct/${product.id}")
-                },
-                onSaveClick = {
-                    favoritesViewModel.removeFavorite(product)
-                }
-            )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            items(favorites) { product ->
+                ProductItem(
+                    name = product.name,
+                    description = product.description,
+                    price = product.price,
+                    image = product.image,
+                    onClick = {
+                        navController.navigate("singleProduct/${product.id}")
+                    },
+                    onSaveClick = {
+                        favoritesViewModel.removeFavorite(product)
+                    }
+                )
+            }
         }
     }
 }
+
+
+
+
+
+
