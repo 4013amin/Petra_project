@@ -207,54 +207,86 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
+
     fun sendProduct(
         name: String,
         description: String,
         price: String,
         phone: String,
         nameUser: String,
+        city: String,       // اضافه کردن فیلد city
+        address: String,    // اضافه کردن فیلد address
+        family: String,     // اضافه کردن فیلد family
         imageFiles: List<Uri>,
         context: Context
     ) {
         viewModelScope.launch {
             try {
+                Log.d("sendProduct", "Preparing to send product data...")
                 val contentResolver = context.contentResolver
 
                 val imageParts = imageFiles.mapIndexed { index, imageFile ->
                     val inputStream = contentResolver.openInputStream(imageFile)
-                    val fileBytes = inputStream?.readBytes()
-                        ?: throw IllegalArgumentException("Cannot read image file")
-                    val imageRequestBody = fileBytes.toRequestBody("image/*".toMediaTypeOrNull())
+                    val fileBytes = inputStream?.readBytes() ?: throw IllegalArgumentException("Cannot read image file")
+                    val imageRequestBody = fileBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
                     MultipartBody.Part.createFormData("images", "image$index.jpg", imageRequestBody)
                 }
 
+
+                Log.d("ImageParts", "Image parts count: ${imageParts.size}")
+                imageParts.forEachIndexed { index, part ->
+                    Log.d("ImageParts", "Image $index: ${part.body}")
+                }
+
+                // ارسال سایر پارامترها به صورت صحیح
+                Log.d("sendProduct", "Name: $name")
+                Log.d("sendProduct", "Description: $description")
+                Log.d("sendProduct", "Price: $price")
+                Log.d("sendProduct", "Phone: $phone")
+                Log.d("sendProduct", "NameUser: $nameUser")
+                Log.d("sendProduct", "City: $city")  // لاگ فیلد city
+                Log.d("sendProduct", "Address: $address") // لاگ فیلد address
+                Log.d("sendProduct", "Family: $family") // لاگ فیلد family
+
+                // ارسال سایر پارامترها
                 val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
                 val descriptionBody = description.toRequestBody("text/plain".toMediaTypeOrNull())
                 val priceBody = price.toRequestBody("text/plain".toMediaTypeOrNull())
                 val phoneBody = phone.toRequestBody("text/plain".toMediaTypeOrNull())
                 val nameUserBody = nameUser.toRequestBody("text/plain".toMediaTypeOrNull())
+                val cityBody = city.toRequestBody("text/plain".toMediaTypeOrNull())  // ارسال city
+                val addressBody = address.toRequestBody("text/plain".toMediaTypeOrNull()) // ارسال address
+                val familyBody = family.toRequestBody("text/plain".toMediaTypeOrNull())  // ارسال family
 
+                // فراخوانی API برای ارسال محصول
+                Log.d("sendProduct", "Calling API to send product...")
                 val response = UtilsRetrofit.api.addProduct(
                     name = nameBody,
                     description = descriptionBody,
                     nameUser = nameUserBody,
                     phone = phoneBody,
                     price = priceBody,
+                    city = cityBody, // ارسال city به سرور
+                    address = addressBody, // ارسال address به سرور
+                    family = familyBody, // ارسال family به سرور
                     images = imageParts
                 )
 
                 if (response.isSuccessful) {
+                    Log.d("sendProduct", "Product saved successfully.")
                     Toast.makeText(context, "محصول با موفقیت ذخیره شد", Toast.LENGTH_LONG).show()
                 } else {
                     val errorBody = response.errorBody()?.string()
+                    Log.e("sendProduct", "Error response: $errorBody")
                     Toast.makeText(context, "خطا در ذخیره محصول: $errorBody", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
+                Log.e("sendProduct", "Error occurred during product submission", e)
                 Toast.makeText(context, "خطا در اتصال به سرور", Toast.LENGTH_LONG).show()
-                e.printStackTrace()
             }
         }
     }
+
 
 
 

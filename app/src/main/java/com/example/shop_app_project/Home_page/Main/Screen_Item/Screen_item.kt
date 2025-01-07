@@ -14,6 +14,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -290,14 +291,11 @@ fun ProductDetailsPreview() {
 //    )
 //    ProductDetailScreen(product = sampleProduct)
 
-    val navController = rememberNavController()
-    AddProductForm(navController = navController)
 
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterial3Api
 @Composable
 fun AddProductForm(navController: NavController) {
     val context = LocalContext.current
@@ -308,194 +306,347 @@ fun AddProductForm(navController: NavController) {
     var price by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.rectangle),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+    var selectedCity by remember { mutableStateOf("Tehran") } // Default city is Tehran
+    var expanded by remember { mutableStateOf(false) }
+
+    val cities = listOf(
+        "Tehran",
+        "Shiraz",
+        "Isfahan",
+        "Mashhad",
+        "Tabriz",
+        "Karaj"
+    ) // List of cities in Tehran
+
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onResult = { uris ->
+            if (uris.size <= 10) {
+                images = uris
+            } else {
+                Toast.makeText(context, "You can only select up to 10 images.", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+    )
+
+    // Form UI
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = "Add New Product")
+
+        // Name Field
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Product Name") },
+            modifier = Modifier.fillMaxWidth()
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 150.dp)
-                .padding(bottom = 80.dp)
+        // Description Field
+        OutlinedTextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Description") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Price Field
+        OutlinedTextField(
+            value = price,
+            onValueChange = { price = it },
+            label = { Text("Price") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Phone Field
+        OutlinedTextField(
+            value = phone,
+            onValueChange = { phone = it },
+            label = { Text("Phone") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // City Picker (Dropdown)
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
         ) {
-            Surface(
+            OutlinedTextField(
+                value = selectedCity,
+                onValueChange = { selectedCity = it },
+                label = { Text("City") },
+                readOnly = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-                color = Color.White
+                    .clickable { expanded = !expanded }
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.End
-                ) {
+                cities.forEach { city ->
 
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = { Text("نام محصول", textAlign = TextAlign.End) },
-                        placeholder = { Text("نام محصول را وارد کنید", textAlign = TextAlign.End) },
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = androidx.compose.ui.text.TextStyle(
-                            textAlign = TextAlign.End
-                        )
-                    )
-                    OutlinedTextField(
-                        value = phone,
-                        onValueChange = { phone = it },
-                        label = { Text("نام محصول", textAlign = TextAlign.End) },
-                        placeholder = { Text("تلفن  خود را وارد کنید", textAlign = TextAlign.End) },
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = androidx.compose.ui.text.TextStyle(
-                            textAlign = TextAlign.End
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = description,
-                        onValueChange = { description = it },
-                        label = { Text("توضیحات محصول", textAlign = TextAlign.End) },
-                        placeholder = {
-                            Text(
-                                "توضیحات محصول را وارد کنید",
-                                textAlign = TextAlign.End
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = androidx.compose.ui.text.TextStyle(
-                            textAlign = TextAlign.End
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = price,
-                        onValueChange = { price = it },
-                        label = { Text("قیمت محصول", textAlign = TextAlign.End) },
-                        placeholder = {
-                            Text(
-                                "قیمت محصول را وارد کنید",
-                                textAlign = TextAlign.End
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = androidx.compose.ui.text.TextStyle(
-                            textAlign = TextAlign.End
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-
-                    AddProductImages(context = context, onImagesSelected = { selectedImages ->
-                        images = selectedImages
-                    })
                 }
             }
         }
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-            ) {
-                Button(onClick = {
-                    if (name.isNotEmpty() && description.isNotEmpty() && price.isNotEmpty() && phone.isNotEmpty() && images.isNotEmpty()) {
-                        userViewModel.sendProduct(
-                            name = name,
-                            description = description,
-                            price = price,
-                            phone = phone,
-                            nameUser = name,
-                            context = context,
-                            imageFiles = images
-                        )
-
-                    } else {
-                        Toast.makeText(context, "لطفاً تمام فیلدها را پر کنید", Toast.LENGTH_LONG)
-                            .show()
-                    }
-                }) {
-                    Text("ذخیره محصول")
-                }
-
-            }
-        }
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddProductImages(context: Context, onImagesSelected: (List<Uri>) -> Unit) {
-    var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
-
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris ->
-        if (uris != null && uris.size <= 10) {
-            images = uris
-            onImagesSelected(uris) // Pass the selected images back to the parent composable
-        } else {
-            Toast.makeText(
-                context,
-                "حداکثر 10 تصویر می‌توانید انتخاب کنید.",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+        // Show selected images
+        // در UI برای نمایش تصاویر و انتخاب آن‌ها
         LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 16.dp)
         ) {
-            items(images) { image ->
+            items(images) { uri ->
                 Image(
-                    painter = rememberImagePainter(image),
-                    contentDescription = "Selected Image",
+                    painter = rememberImagePainter(uri),
+                    contentDescription = null,
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(80.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                        .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         Button(
-            onClick = { imagePicker.launch("image/*") },
-            modifier = Modifier.fillMaxWidth()
+            onClick = {
+                imagePickerLauncher.launch("image/*")
+            },
+            modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("انتخاب تصاویر")
+            Text(text = "Select Images")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("تعداد تصاویر انتخابی: ${images.size}/10")
+        Button(
+            onClick = {
+                userViewModel.sendProduct(
+                    name,
+                    description,
+                    price,
+                    phone,
+                    name,
+                    selectedCity,
+                    name,
+                    name,
+                    images,
+                    context
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        ) {
+            Text(text = "Submit Product")
+        }
     }
 }
+
+
+//
+//@RequiresApi(Build.VERSION_CODES.O)
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun AddProductForm(navController: NavController) {
+//    val context = LocalContext.current
+//    val userViewModel: UserViewModel = viewModel()
+//
+//    var name by remember { mutableStateOf("") }
+//    var description by remember { mutableStateOf("") }
+//    var price by remember { mutableStateOf("") }
+//    var phone by remember { mutableStateOf("") }
+//    var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
+//    Box(
+//        modifier = Modifier.fillMaxSize()
+//    ) {
+//        Image(
+//            painter = painterResource(id = R.drawable.rectangle),
+//            contentDescription = null,
+//            contentScale = ContentScale.Crop,
+//            modifier = Modifier.fillMaxSize()
+//        )
+//
+//        Column(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(top = 150.dp)
+//                .padding(bottom = 80.dp)
+//        ) {
+//            Surface(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .weight(1f),
+//                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+//                color = Color.White
+//            ) {
+//                Column(
+//                    modifier = Modifier.padding(16.dp),
+//                    horizontalAlignment = Alignment.End
+//                ) {
+//
+//                    OutlinedTextField(
+//                        value = name,
+//                        onValueChange = { name = it },
+//                        label = { Text("نام محصول", textAlign = TextAlign.End) },
+//                        placeholder = { Text("نام محصول را وارد کنید", textAlign = TextAlign.End) },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = androidx.compose.ui.text.TextStyle(
+//                            textAlign = TextAlign.End
+//                        )
+//                    )
+//                    OutlinedTextField(
+//                        value = phone,
+//                        onValueChange = { phone = it },
+//                        label = { Text("نام محصول", textAlign = TextAlign.End) },
+//                        placeholder = { Text("تلفن  خود را وارد کنید", textAlign = TextAlign.End) },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = androidx.compose.ui.text.TextStyle(
+//                            textAlign = TextAlign.End
+//                        )
+//                    )
+//
+//                    Spacer(modifier = Modifier.height(8.dp))
+//
+//                    OutlinedTextField(
+//                        value = description,
+//                        onValueChange = { description = it },
+//                        label = { Text("توضیحات محصول", textAlign = TextAlign.End) },
+//                        placeholder = {
+//                            Text(
+//                                "توضیحات محصول را وارد کنید",
+//                                textAlign = TextAlign.End
+//                            )
+//                        },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = androidx.compose.ui.text.TextStyle(
+//                            textAlign = TextAlign.End
+//                        )
+//                    )
+//
+//                    Spacer(modifier = Modifier.height(8.dp))
+//
+//                    OutlinedTextField(
+//                        value = price,
+//                        onValueChange = { price = it },
+//                        label = { Text("قیمت محصول", textAlign = TextAlign.End) },
+//                        placeholder = {
+//                            Text(
+//                                "قیمت محصول را وارد کنید",
+//                                textAlign = TextAlign.End
+//                            )
+//                        },
+//                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = androidx.compose.ui.text.TextStyle(
+//                            textAlign = TextAlign.End
+//                        )
+//                    )
+//
+//                    Spacer(modifier = Modifier.height(16.dp))
+//
+//
+//                    AddProductImages(context = context, onImagesSelected = { selectedImages ->
+//                        images = selectedImages
+//                    })
+//                }
+//            }
+//        }
+//
+//        Box(
+//            modifier = Modifier
+//                .align(Alignment.BottomCenter)
+//                .padding(16.dp)
+//        ) {
+//            Box(
+//                modifier = Modifier
+//                    .align(Alignment.BottomCenter)
+//                    .padding(16.dp)
+//            ) {
+//                Button(onClick = {
+//                    if (name.isNotEmpty() && description.isNotEmpty() && price.isNotEmpty() && phone.isNotEmpty() && images.isNotEmpty()) {
+//                        userViewModel.sendProduct(
+//                            name = name,
+//                            description = description,
+//                            price = price,
+//                            phone = phone,
+//                            nameUser = name,
+//                            context = context,
+//                            imageFiles = images
+//                        )
+//
+//                    } else {
+//                        Toast.makeText(context, "لطفاً تمام فیلدها را پر کنید", Toast.LENGTH_LONG)
+//                            .show()
+//                    }
+//                }) {
+//                    Text("ذخیره محصول")
+//                }
+//
+//            }
+//        }
+//    }
+//}
+//
+//
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun AddProductImages(context: Context, onImagesSelected: (List<Uri>) -> Unit) {
+//    var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
+//
+//    val imagePicker = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.GetMultipleContents()
+//    ) { uris ->
+//        if (uris != null && uris.size <= 10) {
+//            images = uris
+//            onImagesSelected(uris) // Pass the selected images back to the parent composable
+//        } else {
+//            Toast.makeText(
+//                context,
+//                "حداکثر 10 تصویر می‌توانید انتخاب کنید.",
+//                Toast.LENGTH_SHORT
+//            ).show()
+//        }
+//    }
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(16.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        LazyRow(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.spacedBy(8.dp)
+//        ) {
+//            items(images) { image ->
+//                Image(
+//                    painter = rememberImagePainter(image),
+//                    contentDescription = "Selected Image",
+//                    modifier = Modifier
+//                        .size(100.dp)
+//                        .clip(RoundedCornerShape(8.dp))
+//                        .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+//                )
+//            }
+//        }
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        Button(
+//            onClick = { imagePicker.launch("image/*") },
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            Text("انتخاب تصاویر")
+//        }
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        Text("تعداد تصاویر انتخابی: ${images.size}/10")
+//    }
+//}
 
 
 @Composable
@@ -521,7 +672,7 @@ fun FavoritesScreen(navController: NavController, favoritesViewModel: FavoritesV
                     name = product.name,
                     description = product.description,
                     price = product.price,
-                    image = product.image,
+                    image = product.image.toString(),
                     onClick = {
                         navController.navigate("singleProduct/${product.id}")
                     },
