@@ -213,46 +213,41 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         price: String,
         phone: String,
         nameUser: String,
-        imageFile: Uri,
+        imageFiles: List<Uri>,
         context: Context
     ) {
         viewModelScope.launch {
             try {
-                // تبدیل URI به File
                 val contentResolver = context.contentResolver
-                val inputStream = contentResolver.openInputStream(imageFile)
-                val fileBytes = inputStream?.readBytes()
-                    ?: throw IllegalArgumentException("Cannot read image file")
-                val imageRequestBody = fileBytes.toRequestBody("image/*".toMediaTypeOrNull())
 
-                // ساخت MultipartBody.Part برای ارسال فایل
-                val imagePart =
-                    MultipartBody.Part.createFormData("image", "image.jpg", imageRequestBody)
+                val imageParts = imageFiles.mapIndexed { index, imageFile ->
+                    val inputStream = contentResolver.openInputStream(imageFile)
+                    val fileBytes = inputStream?.readBytes()
+                        ?: throw IllegalArgumentException("Cannot read image file")
+                    val imageRequestBody = fileBytes.toRequestBody("image/*".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("images", "image$index.jpg", imageRequestBody)
+                }
 
-                // ساخت RequestBody برای متون
                 val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
                 val descriptionBody = description.toRequestBody("text/plain".toMediaTypeOrNull())
                 val priceBody = price.toRequestBody("text/plain".toMediaTypeOrNull())
                 val phoneBody = phone.toRequestBody("text/plain".toMediaTypeOrNull())
                 val nameUserBody = nameUser.toRequestBody("text/plain".toMediaTypeOrNull())
 
-                // ارسال درخواست به سرور
                 val response = UtilsRetrofit.api.addProduct(
                     name = nameBody,
                     description = descriptionBody,
                     nameUser = nameUserBody,
                     phone = phoneBody,
                     price = priceBody,
-                    image = imagePart
+                    images = imageParts
                 )
 
-                // مدیریت پاسخ سرور
                 if (response.isSuccessful) {
                     Toast.makeText(context, "محصول با موفقیت ذخیره شد", Toast.LENGTH_LONG).show()
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    Toast.makeText(context, "خطا در ذخیره محصول: $errorBody", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(context, "خطا در ذخیره محصول: $errorBody", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(context, "خطا در اتصال به سرور", Toast.LENGTH_LONG).show()
@@ -260,6 +255,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
 
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {

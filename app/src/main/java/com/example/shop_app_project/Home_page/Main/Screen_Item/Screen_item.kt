@@ -422,8 +422,8 @@ fun AddProductForm(navController: NavController) {
                             price = price,
                             phone = phone,
                             nameUser = name,
-                            imageFile = images.first(),
-                            context = context
+                            context = context,
+                            imageFiles = images
                         )
 
                     } else {
@@ -443,7 +443,6 @@ fun AddProductForm(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddProductImages(context: Context, onImagesSelected: (List<Uri>) -> Unit) {
-    // لیستی برای ذخیره تصاویر
     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
     val imagePicker = rememberLauncherForActivityResult(

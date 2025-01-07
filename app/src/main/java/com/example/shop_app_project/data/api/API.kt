@@ -38,8 +38,9 @@ interface API {
         @Part("nameUser") nameUser: RequestBody,
         @Part("phone") phone: RequestBody,
         @Part("price") price: RequestBody,
-        @Part image: MultipartBody.Part
+        @Part images: List<MultipartBody.Part>
     ): Response<ProductModel>
+
 
 
     @FormUrlEncoded
