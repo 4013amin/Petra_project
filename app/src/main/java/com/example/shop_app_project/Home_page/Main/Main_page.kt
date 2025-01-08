@@ -113,17 +113,16 @@ fun UiHomePage(
                     name = product.name,
                     description = product.description,
                     price = product.price,
-                    image = product.image,
+                    images = product.images,
                     onClick = {
                         navController.navigate("singleProduct/${product.id}")
                     },
                     onSaveClick = {
                         favoritesViewModel.addFavorite(product)
-
                     }
                 )
-            }
 
+            }
         }
     }
 }
@@ -220,7 +219,7 @@ fun ProductItem(
     name: String,
     description: String,
     price: Int,
-    image: String,
+    images: List<String>,
     onClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
@@ -286,20 +285,25 @@ fun ProductItem(
 
             }
 
-            AsyncImage(
-                model = "http://192.168.1.110:2020/${image}",
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(125.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                onError = {
-                    Log.e("ProductItem", "Error loading image: ${it.result.throwable?.message}")
-                },
-                onSuccess = {
-                    Log.d("ProductItem", "Image loaded successfully")
-                }
-            )
+            if (images.isNotEmpty()) {
+                AsyncImage(
+                    model = "http://192.168.1.110:2020/${images.first()}",
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(125.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    onError = {
+                        Log.e(
+                            "ProductItem",
+                            "Error loading image: ${it.result.throwable?.message}"
+                        )
+                    },
+                    onSuccess = {
+                        Log.d("ProductItem", "Image loaded successfully")
+                    }
+                )
+            }
         }
     }
 }
@@ -379,14 +383,7 @@ fun AnimalBoxes() {
 private fun PreviewUiHomePage() {
     Shop_App_projectTheme {
 
-        ProductItem(
-            name = "Amin",
-            description = "description",
-            price = 20000,
-            image = "",
-            onClick = {},
-            onSaveClick = {}
-        )
+
     }
 }
 

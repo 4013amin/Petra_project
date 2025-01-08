@@ -82,7 +82,9 @@ fun ProductDetailScreen(product: ProductModel) {
     ) {
 
         val image = listOf(product.image)
-        ImageSlider(images = image)
+        ImageSlider(
+            images = product.images,
+        )
 
         Spacer(modifier = Modifier.height(25.dp))
 
@@ -316,7 +318,7 @@ fun AddProductForm(navController: NavController) {
         "Mashhad",
         "Tabriz",
         "Karaj"
-    ) // List of cities in Tehran
+    )
 
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -369,7 +371,6 @@ fun AddProductForm(navController: NavController) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        // City Picker (Dropdown)
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded }
@@ -672,7 +673,7 @@ fun FavoritesScreen(navController: NavController, favoritesViewModel: FavoritesV
                     name = product.name,
                     description = product.description,
                     price = product.price,
-                    image = product.image.toString(),
+                    images = product.images,
                     onClick = {
                         navController.navigate("singleProduct/${product.id}")
                     },
