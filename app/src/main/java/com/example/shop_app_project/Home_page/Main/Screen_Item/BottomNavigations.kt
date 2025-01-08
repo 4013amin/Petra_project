@@ -154,7 +154,9 @@ fun BottomNavigations(
     Scaffold(
         bottomBar = {
             AnimatedVisibility(
-                visible = isBottomBarVisible.value && currentRoute != "forgetPassword" && currentRoute?.startsWith("addCodeScreen") != true
+                visible = isBottomBarVisible.value && currentRoute != "forgetPassword" && currentRoute?.startsWith(
+                    "addCodeScreen"
+                ) != true
             ) {
                 BottomNavigationBar(navController = navController)
             }

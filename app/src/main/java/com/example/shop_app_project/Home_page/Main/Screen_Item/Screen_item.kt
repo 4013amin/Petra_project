@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import androidx.compose.material3.*
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +56,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -273,28 +276,29 @@ fun InfoRow(value: String, color: Color = Color.Black) {
 }
 
 
-@SuppressLint("NewApi")
-@Preview
-@Composable
-fun ProductDetailsPreview() {
-//    val sampleProduct = ProductModel(
-//        address = "123 Street",
-//        city = "CityName",
-//        created_at = "2025-01-01",
-//        description = "This is a sample product description.",
-//        family = "Sample Family",
-//        id = 1,
-//        image = "https://via.placeholder.com/300x250",
-//        name = "Sample Product",
-//        nameUser = "User123",
-//        phone = "123456789",
-//        price = 1000,
-//        updated_at = "2025-01-05"
-//    )
-//    ProductDetailScreen(product = sampleProduct)
-
-
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@SuppressLint("NewApi")
+//@Preview
+//@Composable
+//fun ProductDetailsPreview() {
+////    val sampleProduct = ProductModel(
+////        address = "123 Street",
+////        city = "CityName",
+////        created_at = "2025-01-01",
+////        description = "This is a sample product description.",
+////        family = "Sample Family",
+////        id = 1,
+////        image = "https://via.placeholder.com/300x250",
+////        name = "Sample Product",
+////        nameUser = "User123",
+////        phone = "123456789",
+////        price = 1000,
+////        updated_at = "2025-01-05"
+////    )
+////    ProductDetailScreen(product = sampleProduct)
+//
+//
+//}
 
 
 @ExperimentalMaterial3Api
@@ -445,6 +449,9 @@ fun AddProductForm(navController: NavController) {
         }
     }
 }
+
+
+
 
 
 //
