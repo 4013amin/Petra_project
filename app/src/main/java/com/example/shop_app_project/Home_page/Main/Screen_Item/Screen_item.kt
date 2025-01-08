@@ -63,6 +63,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -82,7 +83,6 @@ fun ProductDetailScreen(product: ProductModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(15.dp)
             .verticalScroll(scroller)
             .background(color = Color.White)
     ) {
@@ -197,6 +197,8 @@ fun ProductDetailScreen(product: ProductModel) {
 @Composable
 fun ImageSlider(images: List<String>) {
     val pagerState = com.google.accompanist.pager.rememberPagerState()
+    val openDialog = remember { mutableStateOf(false) } // State to control the dialog
+    val selectedImage = remember { mutableStateOf("") } // State for selected image
 
     Column {
         com.google.accompanist.pager.HorizontalPager(
@@ -213,7 +215,11 @@ fun ImageSlider(images: List<String>) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(400.dp)
-                    .clip(RoundedCornerShape(12.dp)),
+                    .clip(RoundedCornerShape(5.dp))
+                    .clickable {
+                        selectedImage.value = "http://192.168.1.110:2020/${images[page]}"
+                        openDialog.value = true
+                    },
                 onError = {
                     Log.e(
                         "ProductDetailScreen",
@@ -224,7 +230,6 @@ fun ImageSlider(images: List<String>) {
                     Log.d("ProductDetailScreen", "Image loaded successfully")
                 }
             )
-
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -236,8 +241,34 @@ fun ImageSlider(images: List<String>) {
                 .padding(8.dp)
         )
     }
+
+    // Show the dialog when the image is clicked
+    if (openDialog.value) {
+        ImageViewerDialog(imageUrl = selectedImage.value, onDismiss = { openDialog.value = false })
+    }
 }
 
+@Composable
+fun ImageViewerDialog(imageUrl: String, onDismiss: () -> Unit) {
+    // Create a dialog to show the image larger
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.8f))
+                .clickable(onClick = onDismiss) // Close dialog when tapped outside
+        ) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
+            )
+        }
+    }
+}
 
 @Composable
 fun PagerIndicator(
@@ -260,6 +291,7 @@ fun PagerIndicator(
     }
 }
 
+
 @Composable
 fun InfoRow(value: String, color: Color = Color.Black) {
     Row(
@@ -276,6 +308,32 @@ fun InfoRow(value: String, color: Color = Color.Black) {
         )
 
     }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("NewApi")
+@Preview
+@Composable
+fun ProductDetailsPreview() {
+    val sampleProduct = ProductModel(
+        address = "123 Street",
+        city = "CityName",
+        created_at = "2025-01-01",
+        description = "This is a sample product description.",
+        family = "Sample Family",
+        id = 1,
+        image = "https://via.placeholder.com/300x250",
+        name = "Sample Product",
+        nameUser = "User123",
+        phone = "123456789",
+        price = 1000,
+        updated_at = "2025-01-05",
+        images = listOf(String())
+    )
+    ProductDetailScreen(product = sampleProduct)
+
+
 }
 
 
@@ -549,6 +607,218 @@ fun AddProductForm(navController: NavController) {
         }
     }
 }
+
+
+@ExperimentalMaterial3Api
+@Preview
+@Composable
+private fun showAddForm() {
+    val navController = rememberNavController()
+    AddProductForm(navController = navController)
+}
+
+
+//
+//@RequiresApi(Build.VERSION_CODES.O)
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun AddProductForm(navController: NavController) {
+//    val context = LocalContext.current
+//    val userViewModel: UserViewModel = viewModel()
+//
+//    var name by remember { mutableStateOf("") }
+//    var description by remember { mutableStateOf("") }
+//    var price by remember { mutableStateOf("") }
+//    var phone by remember { mutableStateOf("") }
+//    var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
+//    Box(
+//        modifier = Modifier.fillMaxSize()
+//    ) {
+//        Image(
+//            painter = painterResource(id = R.drawable.rectangle),
+//            contentDescription = null,
+//            contentScale = ContentScale.Crop,
+//            modifier = Modifier.fillMaxSize()
+//        )
+//
+//        Column(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(top = 150.dp)
+//                .padding(bottom = 80.dp)
+//        ) {
+//            Surface(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .weight(1f),
+//                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+//                color = Color.White
+//            ) {
+//                Column(
+//                    modifier = Modifier.padding(16.dp),
+//                    horizontalAlignment = Alignment.End
+//                ) {
+//
+//                    OutlinedTextField(
+//                        value = name,
+//                        onValueChange = { name = it },
+//                        label = { Text("نام محصول", textAlign = TextAlign.End) },
+//                        placeholder = { Text("نام محصول را وارد کنید", textAlign = TextAlign.End) },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = androidx.compose.ui.text.TextStyle(
+//                            textAlign = TextAlign.End
+//                        )
+//                    )
+//                    OutlinedTextField(
+//                        value = phone,
+//                        onValueChange = { phone = it },
+//                        label = { Text("نام محصول", textAlign = TextAlign.End) },
+//                        placeholder = { Text("تلفن  خود را وارد کنید", textAlign = TextAlign.End) },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = androidx.compose.ui.text.TextStyle(
+//                            textAlign = TextAlign.End
+//                        )
+//                    )
+//
+//                    Spacer(modifier = Modifier.height(8.dp))
+//
+//                    OutlinedTextField(
+//                        value = description,
+//                        onValueChange = { description = it },
+//                        label = { Text("توضیحات محصول", textAlign = TextAlign.End) },
+//                        placeholder = {
+//                            Text(
+//                                "توضیحات محصول را وارد کنید",
+//                                textAlign = TextAlign.End
+//                            )
+//                        },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = androidx.compose.ui.text.TextStyle(
+//                            textAlign = TextAlign.End
+//                        )
+//                    )
+//
+//                    Spacer(modifier = Modifier.height(8.dp))
+//
+//                    OutlinedTextField(
+//                        value = price,
+//                        onValueChange = { price = it },
+//                        label = { Text("قیمت محصول", textAlign = TextAlign.End) },
+//                        placeholder = {
+//                            Text(
+//                                "قیمت محصول را وارد کنید",
+//                                textAlign = TextAlign.End
+//                            )
+//                        },
+//                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = androidx.compose.ui.text.TextStyle(
+//                            textAlign = TextAlign.End
+//                        )
+//                    )
+//
+//                    Spacer(modifier = Modifier.height(16.dp))
+//
+//
+//                    AddProductImages(context = context, onImagesSelected = { selectedImages ->
+//                        images = selectedImages
+//                    })
+//                }
+//            }
+//        }
+//
+//        Box(
+//            modifier = Modifier
+//                .align(Alignment.BottomCenter)
+//                .padding(16.dp)
+//        ) {
+//            Box(
+//                modifier = Modifier
+//                    .align(Alignment.BottomCenter)
+//                    .padding(16.dp)
+//            ) {
+//                Button(onClick = {
+//                    if (name.isNotEmpty() && description.isNotEmpty() && price.isNotEmpty() && phone.isNotEmpty() && images.isNotEmpty()) {
+//                        userViewModel.sendProduct(
+//                            name = name,
+//                            description = description,
+//                            price = price,
+//                            phone = phone,
+//                            nameUser = name,
+//                            context = context,
+//                            imageFiles = images
+//                        )
+//
+//                    } else {
+//                        Toast.makeText(context, "لطفاً تمام فیلدها را پر کنید", Toast.LENGTH_LONG)
+//                            .show()
+//                    }
+//                }) {
+//                    Text("ذخیره محصول")
+//                }
+//
+//            }
+//        }
+//    }
+//}
+//
+//
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun AddProductImages(context: Context, onImagesSelected: (List<Uri>) -> Unit) {
+//    var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
+//
+//    val imagePicker = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.GetMultipleContents()
+//    ) { uris ->
+//        if (uris != null && uris.size <= 10) {
+//            images = uris
+//            onImagesSelected(uris) // Pass the selected images back to the parent composable
+//        } else {
+//            Toast.makeText(
+//                context,
+//                "حداکثر 10 تصویر می‌توانید انتخاب کنید.",
+//                Toast.LENGTH_SHORT
+//            ).show()
+//        }
+//    }
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(16.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        LazyRow(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.spacedBy(8.dp)
+//        ) {
+//            items(images) { image ->
+//                Image(
+//                    painter = rememberImagePainter(image),
+//                    contentDescription = "Selected Image",
+//                    modifier = Modifier
+//                        .size(100.dp)
+//                        .clip(RoundedCornerShape(8.dp))
+//                        .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+//                )
+//            }
+//        }
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        Button(
+//            onClick = { imagePicker.launch("image/*") },
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            Text("انتخاب تصاویر")
+//        }
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        Text("تعداد تصاویر انتخابی: ${images.size}/10")
+//    }
+//}
 
 
 @Composable
