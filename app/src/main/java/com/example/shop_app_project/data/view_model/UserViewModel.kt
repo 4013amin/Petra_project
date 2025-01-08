@@ -214,9 +214,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         price: String,
         phone: String,
         nameUser: String,
-        city: String,       // اضافه کردن فیلد city
-        address: String,    // اضافه کردن فیلد address
-        family: String,     // اضافه کردن فیلد family
+        city: String,
         imageFiles: List<Uri>,
         context: Context
     ) {
@@ -244,21 +242,17 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 Log.d("sendProduct", "Price: $price")
                 Log.d("sendProduct", "Phone: $phone")
                 Log.d("sendProduct", "NameUser: $nameUser")
-                Log.d("sendProduct", "City: $city")  // لاگ فیلد city
-                Log.d("sendProduct", "Address: $address") // لاگ فیلد address
-                Log.d("sendProduct", "Family: $family") // لاگ فیلد family
+                Log.d("sendProduct", "City: $city")
 
-                // ارسال سایر پارامترها
+
+
                 val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
                 val descriptionBody = description.toRequestBody("text/plain".toMediaTypeOrNull())
                 val priceBody = price.toRequestBody("text/plain".toMediaTypeOrNull())
                 val phoneBody = phone.toRequestBody("text/plain".toMediaTypeOrNull())
                 val nameUserBody = nameUser.toRequestBody("text/plain".toMediaTypeOrNull())
-                val cityBody = city.toRequestBody("text/plain".toMediaTypeOrNull())  // ارسال city
-                val addressBody = address.toRequestBody("text/plain".toMediaTypeOrNull()) // ارسال address
-                val familyBody = family.toRequestBody("text/plain".toMediaTypeOrNull())  // ارسال family
+                val cityBody = city.toRequestBody("text/plain".toMediaTypeOrNull())
 
-                // فراخوانی API برای ارسال محصول
                 Log.d("sendProduct", "Calling API to send product...")
                 val response = UtilsRetrofit.api.addProduct(
                     name = nameBody,
@@ -266,9 +260,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                     nameUser = nameUserBody,
                     phone = phoneBody,
                     price = priceBody,
-                    city = cityBody, // ارسال city به سرور
-                    address = addressBody, // ارسال address به سرور
-                    family = familyBody, // ارسال family به سرور
+                    city = cityBody,
                     images = imageParts
                 )
 

@@ -38,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
 import com.example.shop_app_project.Home_page.Main.Screen_Item.FavoritesScreen
+import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.UserPreferences
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCodeScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
@@ -69,7 +70,7 @@ fun BottomNavigationBar(
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Surface(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            modifier = Modifier.padding(15.dp),
             shape = MaterialTheme.shapes.medium,
             color = Color.White,
             shadowElevation = 8.dp
@@ -189,9 +190,13 @@ fun NavGraph(
     val context = LocalContext.current
 
 
+    val isUserLoggedIn = remember {
+        mutableStateOf(UserPreferences.isUserLoggedIn(context))
+    }
+
     NavHost(
         navController = navController,
-        startDestination = "home",
+        startDestination = if (isUserLoggedIn.value) "home" else "forgetPassword",
         modifier = modifier
     ) {
         composable("home") {

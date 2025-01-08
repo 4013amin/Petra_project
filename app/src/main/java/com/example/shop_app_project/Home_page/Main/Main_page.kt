@@ -85,17 +85,8 @@ fun UiHomePage(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White),
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate("newPage")
-                },
-                containerColor = Color(0xFF00BCD4)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add to Cart")
-            }
-        }
-    ) { innerPadding ->
+
+        ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()

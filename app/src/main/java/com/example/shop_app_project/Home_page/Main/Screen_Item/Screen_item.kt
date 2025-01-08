@@ -383,6 +383,7 @@ fun AddProductForm(navController: NavController) {
                     var description by remember { mutableStateOf("") }
                     var price by remember { mutableStateOf("") }
                     var phone by remember { mutableStateOf("") }
+                    var userName by remember { mutableStateOf("") }
                     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
                     var selectedCity by remember { mutableStateOf("تهران") } // Default city is Tehran
                     var expanded by remember { mutableStateOf(false) }
@@ -458,6 +459,21 @@ fun AddProductForm(navController: NavController) {
                         OutlinedTextField(
                             value = description,
                             onValueChange = { description = it },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(15.dp))
+
+
+                        Text(
+                            text = "نام خود را برای معرفی وارد کنید",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                        OutlinedTextField(
+                            value = userName,
+                            onValueChange = { userName = it },
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -569,10 +585,8 @@ fun AddProductForm(navController: NavController) {
                                     description,
                                     price,
                                     phone,
-                                    name,
+                                    userName,
                                     selectedCity,
-                                    name,
-                                    name,
                                     images,
                                     context
                                 )

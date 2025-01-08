@@ -39,8 +39,6 @@ interface API {
         @Part("phone") phone: RequestBody,
         @Part("price") price: RequestBody,
         @Part("city") city: RequestBody,
-        @Part("address") address: RequestBody,
-        @Part("family") family: RequestBody,
         @Part images: List<MultipartBody.Part>
     ): Response<ProductModel>
 

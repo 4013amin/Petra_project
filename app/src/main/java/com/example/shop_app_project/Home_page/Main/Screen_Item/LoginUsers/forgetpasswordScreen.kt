@@ -62,147 +62,160 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
 
     val context = LocalContext.current
 
+    var shouldNavigate by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.rectangle),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+    LaunchedEffect(Unit) {
+        if (UserPreferences.isUserLoggedIn(context)) {
+            shouldNavigate = true
+            navController.navigate("home") {
+                popUpTo("forgetpasswordScreen") { inclusive = true }
+            }
+        }
+    }
 
-        Image(
-            painter = painterResource(id = R.drawable.patternloginr),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
+    if (!shouldNavigate) {
+        Box(
             modifier = Modifier
-                .size(150.dp)
-                .align(Alignment.TopEnd)
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.patternloginl),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .size(150.dp)
-                .align(Alignment.TopStart)
-                .offset(x = 0.dp, y = 32.dp)
-        )
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 150.dp)
+                .fillMaxSize()
         ) {
-            Surface(
+            Image(
+                painter = painterResource(id = R.drawable.rectangle),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            Image(
+                painter = painterResource(id = R.drawable.patternloginr),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(150.dp)
+                    .align(Alignment.TopEnd)
+            )
+
+            Image(
+                painter = painterResource(id = R.drawable.patternloginl),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(150.dp)
+                    .align(Alignment.TopStart)
+                    .offset(x = 0.dp, y = 32.dp)
+            )
+
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-                color = Color.White
+                    .padding(top = 150.dp)
             ) {
-                Column(
+                Surface(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = Color.White)
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                        .fillMaxWidth()
+                        .weight(1f),
+                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+                    color = Color.White
                 ) {
-
-                    Text(
-                        text = "ورود / ثبت نام",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = "شماره تماس و رمز عبور خود را وارد کنید",
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(15.dp)
-                    )
-
-                    Text(
-                        text = "شماره تماس خود را وارد کنید",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal
-                    )
-
                     Column(
-                        modifier = Modifier.padding(top = 35.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = Color.White)
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        val phone = remember { mutableStateOf("") }
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(0.85f)
-                                .padding(start = 16.dp, end = 16.dp),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            Text(text = "موبایل", textAlign = TextAlign.Right)
-                            Spacer(modifier = Modifier.width(4.dp))
-                        }
-
-                        OutlinedTextField(
-                            value = phone.value,
-                            onValueChange = { phone.value = it },
-                            modifier = Modifier
-                                .fillMaxWidth(0.85f)
-                                .padding(top = 8.dp),
-                            singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
-                            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Right),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        Text(
+                            text = "ورود / ثبت نام",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
                         )
 
-                        Spacer(modifier = Modifier.height(36.dp))
+                        Text(
+                            text = "شماره تماس و رمز عبور خود را وارد کنید",
+                            fontSize = 14.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(15.dp)
+                        )
 
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(bottom = 25.dp),
-                            contentAlignment = Alignment.BottomCenter
+                        Text(
+                            text = "شماره تماس خود را وارد کنید",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+
+                        Column(
+                            modifier = Modifier.padding(top = 35.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            val isPhoneValid = phone.value.length == 11
-                            Button(
-                                onClick = {
-                                    if (isPhoneValid) {
-                                        navController.navigate("addCodeScreen?phone=${phone.value}")
-                                        userViewModel.sendOPT(phone.value, context)
-                                    }
+                            val phone = remember { mutableStateOf("") }
 
-                                },
+                            Row(
                                 modifier = Modifier
-                                    .width(400.dp)
-                                    .height(60.dp),
-                                shape = RoundedCornerShape(6.dp),
-                                enabled = isPhoneValid,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isPhoneValid) colorResource(id = R.color.blueM)
-                                    else colorResource(id = R.color.graBTN)
-                                )
+                                    .fillMaxWidth(0.85f)
+                                    .padding(start = 16.dp, end = 16.dp),
+                                horizontalArrangement = Arrangement.End
                             ) {
-                                Text(
-                                    text = "دریافت کد",
-                                    color = Color.White,
-                                    fontSize = 18.sp,
-                                    modifier = Modifier.padding(8.dp)
-                                )
+                                Text(text = "موبایل", textAlign = TextAlign.Right)
+                                Spacer(modifier = Modifier.width(4.dp))
                             }
-                        }
 
+                            OutlinedTextField(
+                                value = phone.value,
+                                onValueChange = { phone.value = it },
+                                modifier = Modifier
+                                    .fillMaxWidth(0.85f)
+                                    .padding(top = 8.dp),
+                                singleLine = true,
+                                shape = RoundedCornerShape(10.dp),
+                                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Right),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            )
+
+                            Spacer(modifier = Modifier.height(36.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(bottom = 25.dp),
+                                contentAlignment = Alignment.BottomCenter
+                            ) {
+                                val isPhoneValid = phone.value.length == 11
+                                Button(
+                                    onClick = {
+                                        if (isPhoneValid) {
+                                            navController.navigate("addCodeScreen?phone=${phone.value}")
+                                            userViewModel.sendOPT(phone.value, context)
+                                        }
+
+                                        UserPreferences.saveUser(context, phone.value)
+
+                                    },
+                                    modifier = Modifier
+                                        .width(400.dp)
+                                        .height(60.dp),
+                                    shape = RoundedCornerShape(6.dp),
+                                    enabled = isPhoneValid,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (isPhoneValid) colorResource(id = R.color.blueM)
+                                        else colorResource(id = R.color.graBTN)
+                                    )
+                                ) {
+                                    Text(
+                                        text = "دریافت کد",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 }
             }
         }
     }
 }
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
