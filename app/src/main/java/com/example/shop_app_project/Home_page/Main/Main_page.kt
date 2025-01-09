@@ -141,7 +141,6 @@ fun ImageSlider(images: List<Int>) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Pager Indicator
         PagerIndicator(
             pagerState = pagerState,
             modifier = Modifier
@@ -367,14 +366,3 @@ fun AnimalBoxes() {
         }
     }
 }
-
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewUiHomePage() {
-    Shop_App_projectTheme {
-
-
-    }
-}
-

@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import androidx.compose.material3.*
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -840,43 +841,29 @@ fun FavoritesScreen(
     navController: NavController,
     favoritesViewModel: FavoritesViewModel
 ) {
-    val favorites = favoritesViewModel.favorites
+    val favorites by favoritesViewModel.favorites.collectAsState()
 
-    if (favorites.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "No favorites yet!",
-                style = MaterialTheme.typography.bodyLarge
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        items(favorites) { product ->
+            ProductItem(
+                name = product.name,
+                description = product.description,
+                price = product.price,
+                images = product.images,
+                onClick = {
+                    navController.navigate("singleProduct/${product.id}")
+                },
+                onSaveClick = {
+                    favoritesViewModel.removeFavorite(product)
+                }
             )
-        }
-    } else {
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            items(favorites) { product ->
-                ProductItem(
-                    name = product.name,
-                    description = product.description,
-                    price = product.price,
-                    images = product.images,
-                    onClick = {
-                        navController.navigate("singleProduct/${product.id}")
-                    },
-                    onSaveClick = {
-                        favoritesViewModel.removeFavorite(product)
-                    }
-                )
-            }
         }
     }
 }
-
 
 
 
