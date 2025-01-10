@@ -8,16 +8,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.example.shop_app_project.data.models.product.ProductModel
 
-class FavoritesViewModel : ViewModel() {
-    private val _favorites = MutableStateFlow<List<ProductModel>>(emptyList())
-    val favorites: StateFlow<List<ProductModel>> = _favorites
+data class FavoriteModel(
+    val id: Int,
+    val product: ProductModel,
+    val created_at: String
+)
 
-    fun addFavorite(product: ProductModel) {
-        _favorites.value = _favorites.value + product
-    }
-
-    fun removeFavorite(product: ProductModel) {
-        _favorites.value = _favorites.value.filter { it.id != product.id }
-    }
-}
+data class SimpleResponse(
+    val message: String
+)
 

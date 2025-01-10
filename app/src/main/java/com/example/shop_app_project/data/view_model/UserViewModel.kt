@@ -1,5 +1,6 @@
 package com.example.shop_app_project.data.view_model
 
+import FavoriteModel
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
@@ -18,6 +19,7 @@ import androidx.navigation.NavController
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.utils.UtilsRetrofit
+import com.example.shop_app_project.data.utils.UtilsRetrofit.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -133,6 +135,55 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun addFavorite(productModel: ProductModel, context: Context) {
+        viewModelScope.launch {
+            val response = try {
+                UtilsRetrofit.api.addFavorite(productModel.id)
+            } catch (e: IOException) {
+                return@launch
+            } catch (e: HttpException) {
+                return@launch
+            }
+            if (response.isSuccessful && response.body() != null) {
+                Toast.makeText(context, "Added to favorite", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    fun removeFavorite(Id: Int, context: Context) {
+        viewModelScope.launch {
+            val response = try {
+                UtilsRetrofit.api.removeFavorite(Id)
+            } catch (e: IOException) {
+                return@launch
+            } catch (e: HttpException) {
+                return@launch
+            }
+
+            if (response.isSuccessful && response.body() != null) {
+                Toast.makeText(context, "Removed from favorite", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    fun getFavorites(onSuccess: (List<FavoriteModel>) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = api.getFavorites()
+                if (response.isSuccessful) {
+                    response.body()?.let(onSuccess)
+                } else {
+                    // Handle failure
+                }
+            } catch (e: Exception) {
+                // Handle exception
+            }
+        }
+    }
+
+
     //OPT
     fun sendOPT(phone: String, context: Context) {
         viewModelScope.launch {
@@ -225,7 +276,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
                 val imageParts = imageFiles.mapIndexed { index, imageFile ->
                     val inputStream = contentResolver.openInputStream(imageFile)
-                    val fileBytes = inputStream?.readBytes() ?: throw IllegalArgumentException("Cannot read image file")
+                    val fileBytes = inputStream?.readBytes()
+                        ?: throw IllegalArgumentException("Cannot read image file")
                     val imageRequestBody = fileBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
                     MultipartBody.Part.createFormData("images", "image$index.jpg", imageRequestBody)
                 }
@@ -243,7 +295,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 Log.d("sendProduct", "Phone: $phone")
                 Log.d("sendProduct", "NameUser: $nameUser")
                 Log.d("sendProduct", "City: $city")
-
 
 
                 val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -270,7 +321,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("sendProduct", "Error response: $errorBody")
-                    Toast.makeText(context, "خطا در ذخیره محصول: $errorBody", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "خطا در ذخیره محصول: $errorBody", Toast.LENGTH_LONG)
+                        .show()
                 }
             } catch (e: Exception) {
                 Log.e("sendProduct", "Error occurred during product submission", e)
@@ -278,8 +330,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
-
-
 
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {

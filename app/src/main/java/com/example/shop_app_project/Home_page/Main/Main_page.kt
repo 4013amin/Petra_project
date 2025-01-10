@@ -1,7 +1,6 @@
 package com.example.shop_app_project.Home_page.Main
 
 import BottomNavigations
-import FavoritesViewModel
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -26,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -75,7 +75,7 @@ fun UiHomePage(
 ) {
     val products by userViewModel.products
     val category by userViewModel.category
-    val favoritesViewModel: FavoritesViewModel = viewModel()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         userViewModel.getAllProducts()
@@ -109,7 +109,7 @@ fun UiHomePage(
                         navController.navigate("singleProduct/${product.id}")
                     },
                     onSaveClick = {
-                        favoritesViewModel.addFavorite(product)
+                        userViewModel.addFavorite(product, context)
                     }
                 )
 

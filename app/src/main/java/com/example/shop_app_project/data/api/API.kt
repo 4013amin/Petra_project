@@ -1,5 +1,7 @@
 package com.example.shop_app_project.data.api
 
+import FavoriteModel
+import SimpleResponse
 import android.telecom.Call
 import com.example.shop_app_project.data.models.Profile.ProdfileModel
 import com.example.shop_app_project.data.models.product.Category
@@ -43,7 +45,6 @@ interface API {
     ): Response<ProductModel>
 
 
-
     @FormUrlEncoded
     @POST("registerUser/")
     suspend fun registerUser(
@@ -52,10 +53,8 @@ interface API {
     ): Response<ProdfileModel>
 
 
-
     @GET("GetCategories")
     suspend fun getCategories(): Response<List<Category>>
-
 
 
     @FormUrlEncoded
@@ -71,6 +70,22 @@ interface API {
         @Field("phone") phone: String,
         @Field("otp") otp: String
     ): Response<OPT_Model>
+
+
+    @FormUrlEncoded
+    @POST("favorites/add/")
+    suspend fun addFavorite(
+        @Field("id") productId: Int
+    ): Response<SimpleResponse>
+
+    @FormUrlEncoded
+    @POST("favorites/remove/")
+    suspend fun removeFavorite(
+        @Field("product_id") productId: Int
+    ): Response<SimpleResponse>
+
+    @GET("favorites/")
+    suspend fun getFavorites(): Response<List<FavoriteModel>>
 
 }
 

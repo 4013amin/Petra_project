@@ -1,8 +1,7 @@
 package com.example.shop_app_project.Home_page.Main.Screen_Item
 
-import FavoritesViewModel
+import FavoriteModel
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -49,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import androidx.compose.material3.*
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -835,36 +835,29 @@ private fun showAddForm() {
 //    }
 //}
 
-
 @Composable
-fun FavoritesScreen(
-    navController: NavController,
-    favoritesViewModel: FavoritesViewModel
+fun FavoritesPage(
+    favoritesViewModel: UserViewModel
 ) {
-    val favorites by favoritesViewModel.favorites.collectAsState()
+    val favorites = remember { mutableStateOf<List<FavoriteModel>>(emptyList()) }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        items(favorites) { product ->
+    LaunchedEffect(Unit) {
+        favoritesViewModel.getFavorites { favorites.value = it }
+    }
+
+    LazyColumn {
+        items(favorites.value) { favorite ->
             ProductItem(
-                name = product.name,
-                description = product.description,
-                price = product.price,
-                images = product.images,
-                onClick = {
-                    navController.navigate("singleProduct/${product.id}")
-                },
-                onSaveClick = {
-                    favoritesViewModel.removeFavorite(product)
-                }
+                name = favorite.product.name,
+                description = favorite.product.description,
+                price = favorite.product.price,
+                images = favorite.product.images,
+                onClick = {},
+                onSaveClick = {}
             )
         }
     }
 }
-
 
 
 
