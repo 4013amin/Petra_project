@@ -1,6 +1,5 @@
 package com.example.shop_app_project.data.view_model
 
-import FavoriteModel
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
@@ -131,54 +130,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
             if (response.isSuccessful && response.body() != null) {
                 category.value = response.body()!!
-            }
-        }
-    }
-
-    fun addFavorite(productModel: ProductModel, context: Context) {
-        viewModelScope.launch {
-            val response = try {
-                UtilsRetrofit.api.addFavorite(productModel.id)
-            } catch (e: IOException) {
-                return@launch
-            } catch (e: HttpException) {
-                return@launch
-            }
-            if (response.isSuccessful && response.body() != null) {
-                Toast.makeText(context, "Added to favorite", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-
-    fun removeFavorite(Id: Int, context: Context) {
-        viewModelScope.launch {
-            val response = try {
-                UtilsRetrofit.api.removeFavorite(Id)
-            } catch (e: IOException) {
-                return@launch
-            } catch (e: HttpException) {
-                return@launch
-            }
-
-            if (response.isSuccessful && response.body() != null) {
-                Toast.makeText(context, "Removed from favorite", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-
-    fun getFavorites(onSuccess: (List<FavoriteModel>) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val response = api.getFavorites()
-                if (response.isSuccessful) {
-                    response.body()?.let(onSuccess)
-                } else {
-                    // Handle failure
-                }
-            } catch (e: Exception) {
-                // Handle exception
             }
         }
     }

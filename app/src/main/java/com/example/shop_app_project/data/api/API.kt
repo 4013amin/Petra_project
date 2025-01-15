@@ -1,7 +1,5 @@
 package com.example.shop_app_project.data.api
 
-import FavoriteModel
-import SimpleResponse
 import android.telecom.Call
 import com.example.shop_app_project.data.models.Profile.ProdfileModel
 import com.example.shop_app_project.data.models.product.Category
@@ -75,17 +73,17 @@ interface API {
     @FormUrlEncoded
     @POST("favorites/add/")
     suspend fun addFavorite(
-        @Field("id") productId: Int
-    ): Response<SimpleResponse>
+        @Field("id") id : Int
+    ): Response<ProdfileModel>
 
     @FormUrlEncoded
     @POST("favorites/remove/")
     suspend fun removeFavorite(
-        @Field("product_id") productId: Int
-    ): Response<SimpleResponse>
+        @Field("id") id: Int
+    ): Response<ProdfileModel>
 
     @GET("favorites/")
-    suspend fun getFavorites(): Response<List<FavoriteModel>>
+    suspend fun getFavorites(): Response<List<ProdfileModel>>
 
 }
 

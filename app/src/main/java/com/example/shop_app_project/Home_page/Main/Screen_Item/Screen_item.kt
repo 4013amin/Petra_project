@@ -1,6 +1,6 @@
 package com.example.shop_app_project.Home_page.Main.Screen_Item
 
-import FavoriteModel
+import SavedProductsViewModel
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
@@ -837,24 +837,28 @@ private fun showAddForm() {
 
 @Composable
 fun FavoritesPage(
-    favoritesViewModel: UserViewModel
+    viewModel: SavedProductsViewModel
 ) {
-    val favorites = remember { mutableStateOf<List<FavoriteModel>>(emptyList()) }
+    val savedProducts = viewModel.savedProducts
 
-    LaunchedEffect(Unit) {
-        favoritesViewModel.getFavorites { favorites.value = it }
-    }
-
-    LazyColumn {
-        items(favorites.value) { favorite ->
-            ProductItem(
-                name = favorite.product.name,
-                description = favorite.product.description,
-                price = favorite.product.price,
-                images = favorite.product.images,
-                onClick = {},
-                onSaveClick = {}
-            )
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(
+            text = "محصولات ذخیره‌شده",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        LazyColumn {
+            items(savedProducts) { product ->
+                ProductItem(
+                    name = product.name,
+                    description = product.description,
+                    price = product.price,
+                    images = product.images,
+                    onClick = {  },
+                    onSaveClick = { }
+                )
+            }
         }
     }
 }

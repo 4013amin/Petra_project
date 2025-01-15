@@ -1,9 +1,12 @@
 package com.example.shop_app_project.Home_page.Main
 
 import BottomNavigations
+import SavedProductsViewModel
+import android.content.ContentValues.TAG
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -76,7 +79,7 @@ fun UiHomePage(
     val products by userViewModel.products
     val category by userViewModel.category
     val context = LocalContext.current
-
+    val favoriteModel: SavedProductsViewModel = viewModel()
     LaunchedEffect(Unit) {
         userViewModel.getAllProducts()
     }
@@ -109,7 +112,8 @@ fun UiHomePage(
                         navController.navigate("singleProduct/${product.id}")
                     },
                     onSaveClick = {
-                        userViewModel.addFavorite(product, context)
+                        Toast.makeText(context, "This is clicked", Toast.LENGTH_SHORT).show()
+                        favoriteModel.saveProduct(product)
                     }
                 )
 

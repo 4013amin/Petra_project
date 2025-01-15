@@ -223,8 +223,8 @@ fun NavGraph(
 
 
         composable("favorites") {
-            val favoritesViewModel: UserViewModel = viewModel()
-            FavoritesPage(favoritesViewModel = favoritesViewModel)
+            val favoritesViewModel: SavedProductsViewModel = viewModel()
+            FavoritesPage(favoritesViewModel)
         }
 
 
