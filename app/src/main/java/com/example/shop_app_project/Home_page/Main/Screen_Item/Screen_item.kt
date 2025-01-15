@@ -1,6 +1,5 @@
 package com.example.shop_app_project.Home_page.Main.Screen_Item
 
-import SavedProductsViewModel
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
@@ -73,6 +72,7 @@ import coil.compose.AsyncImage
 import com.example.shop_app_project.Home_page.Main.ProductItem
 import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.product.ProductModel
+import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -837,17 +837,21 @@ private fun showAddForm() {
 
 @Composable
 fun FavoritesPage(
-    viewModel: SavedProductsViewModel
+    viewModel: SavedProductsViewModel,
+    navController: NavController
 ) {
     val savedProducts = viewModel.savedProducts
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
         Text(
             text = "محصولات ذخیره‌شده",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )
+
         LazyColumn {
             items(savedProducts) { product ->
                 ProductItem(
@@ -855,13 +859,20 @@ fun FavoritesPage(
                     description = product.description,
                     price = product.price,
                     images = product.images,
-                    onClick = {  },
-                    onSaveClick = { }
+                    onClick = {
+                        navController.navigate("singleProduct/${product.id}")
+                    },
+                    onSaveClick = {
+                        if (savedProducts.contains(product)) {
+                            viewModel.removeSavedProduct(product)
+                        }
+                    }
                 )
             }
         }
     }
 }
+
 
 
 

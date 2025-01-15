@@ -45,6 +45,7 @@ import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScre
 
 import com.example.shop_app_project.Home_page.Main.UiHomePage
 import com.example.shop_app_project.data.models.product.ProductModel
+import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.ShoppingCartViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
 
@@ -224,7 +225,7 @@ fun NavGraph(
 
         composable("favorites") {
             val favoritesViewModel: SavedProductsViewModel = viewModel()
-            FavoritesPage(favoritesViewModel)
+            FavoritesPage(favoritesViewModel , navController)
         }
 
 

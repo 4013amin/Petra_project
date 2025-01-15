@@ -1,7 +1,6 @@
 package com.example.shop_app_project.Home_page.Main
 
 import BottomNavigations
-import SavedProductsViewModel
 import android.content.ContentValues.TAG
 import android.os.Build
 import android.os.Bundle
@@ -42,6 +41,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.shop_app_project.R
+import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.ShoppingCartViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
 import com.example.shop_app_project.ui.theme.Shop_App_projectTheme
