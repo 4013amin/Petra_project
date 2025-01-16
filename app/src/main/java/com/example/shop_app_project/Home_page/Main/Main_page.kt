@@ -83,6 +83,16 @@ fun UiHomePage(
     var isSearchActive by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     val favoriteModel: SavedProductsViewModel = viewModel()
+
+    val filteredProducts = if (searchQuery.isNotEmpty()) {
+        products.filter { product ->
+            product.name.contains(searchQuery, ignoreCase = true) ||
+                    product.description.contains(searchQuery, ignoreCase = true)
+        }
+    } else {
+        products
+    }
+
     LaunchedEffect(Unit) {
         userViewModel.getAllProducts()
     }
@@ -156,7 +166,7 @@ fun UiHomePage(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            items(products) { product ->
+            items(filteredProducts) { product ->
                 ProductItem(
                     name = product.name,
                     description = product.description,
