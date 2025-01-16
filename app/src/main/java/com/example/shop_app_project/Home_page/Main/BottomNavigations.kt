@@ -71,7 +71,6 @@ fun BottomNavigationBar(
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Surface(
-            modifier = Modifier.padding(15.dp),
             shape = MaterialTheme.shapes.medium,
             color = Color.White,
             shadowElevation = 8.dp
@@ -79,7 +78,6 @@ fun BottomNavigationBar(
             NavigationBar(
                 containerColor = Color.Transparent,
                 tonalElevation = 0.dp,
-                modifier = Modifier.padding(8.dp)
             ) {
                 navItems.reversed().forEach { item ->
                     val isSelected = currentDestination?.route == item.route
@@ -102,7 +100,7 @@ fun BottomNavigationBar(
                                 imageVector = item.icon,
                                 contentDescription = item.title,
                                 modifier = Modifier
-                                    .size(24.dp)
+                                    .size(20.dp)
                                     .graphicsLayer(scaleX = scale, scaleY = scale),
                                 tint = if (isSelected) Color(0xFF007BFF) else Color.Gray
                             )
@@ -225,7 +223,7 @@ fun NavGraph(
 
         composable("favorites") {
             val favoritesViewModel: SavedProductsViewModel = viewModel()
-            FavoritesPage(favoritesViewModel , navController)
+            FavoritesPage(favoritesViewModel, navController)
         }
 
 
@@ -250,7 +248,6 @@ fun NavGraph(
 @Preview
 @Composable
 private fun showBottomNavigation() {
-
     val navController = rememberNavController()
     BottomNavigationBar(navController = navController)
 }

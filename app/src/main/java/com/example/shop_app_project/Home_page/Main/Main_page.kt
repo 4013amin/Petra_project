@@ -20,6 +20,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -57,7 +59,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         setContent {
             Shop_App_projectTheme {
-
                 val navController = rememberNavController()
                 val userViewModel: UserViewModel = viewModel()
                 val shoppingCartViewModel: ShoppingCartViewModel = viewModel()
@@ -79,12 +80,65 @@ fun UiHomePage(
     val products by userViewModel.products
     val category by userViewModel.category
     val context = LocalContext.current
+    var isSearchActive by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
     val favoriteModel: SavedProductsViewModel = viewModel()
     LaunchedEffect(Unit) {
         userViewModel.getAllProducts()
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IconButton(onClick = { isSearchActive = !isSearchActive }) {
+                            Icon(
+                                imageVector = if (isSearchActive) Icons.Default.Close else Icons.Default.Search,
+                                contentDescription = if (isSearchActive) "بستن جستجو" else "جستجو",
+                                tint = Color.White
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        if (isSearchActive) {
+                            TextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = { Text("جستجو محصول...") },
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    focusedTextColor = Color.Black,
+                                    unfocusedTextColor = Color.Black,
+                                    focusedContainerColor = Color.White,
+                                    unfocusedContainerColor = Color.White,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    focusedPlaceholderColor = Color.Gray,
+                                    unfocusedPlaceholderColor = Color.Gray
+                                )
+                            )
+                        } else {
+                            Text(
+                                text = "محصولات",
+                                color = Color.White,
+                                modifier = Modifier.padding(15.dp),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            )
+        },
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White),
@@ -112,8 +166,12 @@ fun UiHomePage(
                         navController.navigate("singleProduct/${product.id}")
                     },
                     onSaveClick = {
-                        Toast.makeText(context, "This is clicked", Toast.LENGTH_SHORT).show()
                         favoriteModel.saveProduct(product)
+                        Toast.makeText(
+                            context,
+                            "محصول شما در علاقه مندی ها ذخیره شد",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 )
 
@@ -121,7 +179,6 @@ fun UiHomePage(
         }
     }
 }
-
 
 @Composable
 fun ImageSlider(images: List<Int>) {
