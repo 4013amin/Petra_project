@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -145,7 +146,7 @@ fun UiHomePage(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = colorResource(id = R.color.blueM)
                 )
             )
         },
@@ -167,24 +168,47 @@ fun UiHomePage(
             }
 
             items(filteredProducts) { product ->
-                ProductItem(
-                    name = product.name,
-                    description = product.description,
-                    price = product.price,
-                    images = product.images,
-                    onClick = {
-                        navController.navigate("singleProduct/${product.id}")
-                    },
-                    onSaveClick = {
-                        favoriteModel.saveProduct(product)
-                        Toast.makeText(
-                            context,
-                            "محصول شما در علاقه مندی ها ذخیره شد",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                if (filteredProducts.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (searchQuery.isNotEmpty()) {
+                                "محصولی با این مشخصات یافت نشد!"
+                            } else {
+                                "هنوز محصولی اضافه نشده است، شما اولین نفر باشید!"
+                            },
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
                     }
-                )
+                } else {
 
+                    ProductItem(
+                        name = product.name,
+                        description = product.description,
+                        price = product.price,
+                        images = product.images,
+                        onClick = {
+                            navController.navigate("singleProduct/${product.id}")
+                        },
+                        onSaveClick = {
+                            favoriteModel.saveProduct(product)
+                            Toast.makeText(
+                                context,
+                                "محصول شما در علاقه مندی ها ذخیره شد",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    )
+
+                }
             }
         }
     }
@@ -290,40 +314,65 @@ fun ProductItem(
             .padding(8.dp)
             .clickable(onClick = onClick)
             .background(color = Color.White),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         )
     ) {
         Row(
-            modifier = Modifier.padding(15.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            if (images.isNotEmpty()) {
+                AsyncImage(
+                    model = "http://192.168.1.110:2020/${images.first()}",
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.LightGray),
+                    onError = {
+                        Log.e("ProductItem", "Error loading image: ${it.result.throwable?.message}")
+                    },
+                    onSuccess = {
+                        Log.d("ProductItem", "Image loaded successfully")
+                    }
+                )
+            } else {
 
-            Text(
-                text = "$${price} تومان",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Green,
-                textAlign = TextAlign.End,
-                modifier = Modifier.padding(top = 60.dp)
-            )
-
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.LightGray),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_pets_24),
+                        contentDescription = "No Image",
+                        tint = Color.White,
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+            }
 
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(15.dp),
+                    .padding(start = 16.dp),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.End
+                horizontalAlignment = Alignment.Start
             ) {
                 Text(
                     text = name,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
-                    textAlign = TextAlign.End,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
@@ -331,38 +380,26 @@ fun ProductItem(
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
                     color = Color.Gray,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 4.dp),
+                    modifier = Modifier.padding(bottom = 8.dp),
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
-
-                IconButton(onClick = { onSaveClick() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_save_alt_24),
-                        contentDescription = null
-                    )
-                }
-
+                Text(
+                    text = "$${price} تومان",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Green,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
             }
 
-            if (images.isNotEmpty()) {
-                AsyncImage(
-                    model = "http://192.168.1.110:2020/${images.first()}",
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(125.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    onError = {
-                        Log.e(
-                            "ProductItem",
-                            "Error loading image: ${it.result.throwable?.message}"
-                        )
-                    },
-                    onSuccess = {
-                        Log.d("ProductItem", "Image loaded successfully")
-                    }
+            IconButton(
+                onClick = { onSaveClick() },
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_save_alt_24),
+                    contentDescription = "Save"
                 )
             }
         }

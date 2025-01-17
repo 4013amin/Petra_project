@@ -14,8 +14,9 @@ class SavedProductsViewModel(application: Application) : AndroidViewModel(applic
     val savedProducts: List<ProductModel> get() = _savedProducts
 
     init {
+        // بارگذاری محصولات ذخیره‌شده از SharedPreferences
         viewModelScope.launch {
-            _savedProducts.addAll(SharedPreferencesManager.loadSavedProducts(getApplication()))
+            _savedProducts.addAll(SharedPreferencesManager.loadSavedProducts(application))
         }
     }
 
@@ -32,6 +33,7 @@ class SavedProductsViewModel(application: Application) : AndroidViewModel(applic
     }
 
     private fun saveSavedProducts() {
+        // ذخیره محصولات در SharedPreferences
         SharedPreferencesManager.saveSavedProducts(getApplication(), _savedProducts)
     }
 }

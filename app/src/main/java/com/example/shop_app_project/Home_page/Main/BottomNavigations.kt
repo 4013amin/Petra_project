@@ -213,7 +213,7 @@ fun NavGraph(
                 }
 
                 product.value?.let { productDetails ->
-                    ProductDetailScreen(product = productDetails)
+                    ProductDetailScreen(product = productDetails , onBackClick = {})
                 } ?: Text("Loading...")
             } else {
                 Text("Invalid product ID")
