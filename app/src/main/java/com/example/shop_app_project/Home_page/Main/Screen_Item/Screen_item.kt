@@ -222,8 +222,8 @@ fun InfoRow(title: String, value: String) {
 @Composable
 fun ImageSlider(images: List<String>, modifier: Modifier) {
     val pagerState = com.google.accompanist.pager.rememberPagerState()
-    val openDialog = remember { mutableStateOf(false) } // State to control the dialog
-    val selectedImage = remember { mutableStateOf("") } // State for selected image
+    val openDialog = remember { mutableStateOf(false) }
+    val selectedImage = remember { mutableStateOf("") }
 
     Column {
         com.google.accompanist.pager.HorizontalPager(
@@ -267,7 +267,6 @@ fun ImageSlider(images: List<String>, modifier: Modifier) {
         )
     }
 
-    // Show the dialog when the image is clicked
     if (openDialog.value) {
         ImageViewerDialog(imageUrl = selectedImage.value, onDismiss = { openDialog.value = false })
     }
@@ -275,13 +274,13 @@ fun ImageSlider(images: List<String>, modifier: Modifier) {
 
 @Composable
 fun ImageViewerDialog(imageUrl: String, onDismiss: () -> Unit) {
-    // Create a dialog to show the image larger
+
     Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.8f))
-                .clickable(onClick = onDismiss) // Close dialog when tapped outside
+                .clickable(onClick = onDismiss)
         ) {
             AsyncImage(
                 model = imageUrl,
@@ -439,7 +438,6 @@ fun AddProductForm(navController: NavController) {
                                     .background(color = Color.White),
                                 horizontalAlignment = Alignment.End
                             ) {
-                                // Add Image Button
                                 IconButton(
                                     onClick = {
                                         imagePickerLauncher.launch("image/*")
@@ -752,10 +750,14 @@ fun FavoritesPage(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.baseline_add_a_photo_24),
+                                painter = painterResource(id = R.drawable.baseline_note_add_24),
                                 contentDescription = "Empty",
                                 tint = colorResource(id = R.color.blueM),
-                                modifier = Modifier.size(80.dp)
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clickable {
+                                        navController.navigate("home")
+                                    }
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
@@ -803,14 +805,12 @@ fun FavoritesPage(
                                     ) {
                                         if (product.images.isNotEmpty()) {
                                             AsyncImage(
-                                                model = "http://example.com/${product.images.first()}",
+                                                model = "http://192.168.1.110:2020/${product.images.first()}",
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
-                                                modifier = Modifier.fillMaxSize(),
-
-                                                )
+                                                modifier = Modifier.fillMaxSize()
+                                            )
                                         }
-
                                     }
 
                                     Spacer(modifier = Modifier.width(16.dp))

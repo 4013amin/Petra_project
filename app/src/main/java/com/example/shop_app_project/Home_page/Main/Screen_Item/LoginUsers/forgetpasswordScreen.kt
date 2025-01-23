@@ -187,8 +187,6 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
                                             userViewModel.sendOPT(phone.value, context)
                                         }
 
-                                        UserPreferences.saveUser(context, phone.value)
-
                                     },
                                     modifier = Modifier
                                         .width(400.dp)
@@ -353,6 +351,7 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
                                     context, navController
                                 )
                             }
+                            UserPreferences.saveUser(context, phone)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -361,8 +360,9 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isFieldsFilled) colorResource(id = R.color.blueM) else Color.Gray
                         ),
-                        enabled = isFieldsFilled
-                    ) {
+                        enabled = isFieldsFilled,
+
+                        ) {
                         Text(
                             text = "ارسال",
                             color = Color.White,
