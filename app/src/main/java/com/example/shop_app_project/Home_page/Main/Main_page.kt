@@ -51,6 +51,8 @@ import com.example.shop_app_project.ui.theme.Shop_App_projectTheme
 import com.google.gson.Gson
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.delay
+import java.text.NumberFormat
+import java.util.Locale
 
 val gson = Gson()
 
@@ -312,6 +314,13 @@ fun ProductItem(
     onClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
+
+    val formatter = NumberFormat.getInstance(Locale.US).apply {
+        isGroupingUsed = true
+    }
+    val formattedPrice = formatter.format(price)
+
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -389,7 +398,7 @@ fun ProductItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "$${price} تومان",
+                    text = "$formattedPrice تومان", // نمایش قیمت با جداکننده‌های سه‌تایی
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Green,
