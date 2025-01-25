@@ -50,6 +50,7 @@ import com.example.shop_app_project.data.view_model.UserViewModel
 import com.example.shop_app_project.ui.theme.Shop_App_projectTheme
 import com.google.gson.Gson
 import com.google.accompanist.pager.*
+import kotlinx.coroutines.delay
 
 val gson = Gson()
 
@@ -95,7 +96,10 @@ fun UiHomePage(
     }
 
     LaunchedEffect(Unit) {
-        userViewModel.getAllProducts()
+        while (true) {
+            userViewModel.getAllProducts()
+            delay(2000)
+        }
     }
 
     Scaffold(
