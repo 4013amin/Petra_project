@@ -323,7 +323,7 @@ fun PagerIndicator(
 fun AddProductForm(navController: NavController) {
     val scroller = rememberScrollState()
     val scope = rememberCoroutineScope()
-    val IsLoading by remember {
+    var IsLoading by remember {
         mutableStateOf(false)
     }
     Scaffold(
@@ -641,7 +641,6 @@ fun AddProductForm(navController: NavController) {
 
                                 Spacer(modifier = Modifier.height(30.dp))
 
-                                // Submit Button
                                 Button(
                                     onClick = {
                                         if (name.isNotBlank() &&
@@ -667,6 +666,13 @@ fun AddProductForm(navController: NavController) {
                                                     navController.popBackStack()
                                                 } catch (e: Exception) {
                                                     Log.e("AddProductForm", "Error: ${e.message}")
+                                                    Toast.makeText(
+                                                        context,
+                                                        "خطا در ارسال درخواست: ${e.message}",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                } finally {
+                                                    IsLoading = false
                                                 }
                                             }
                                         }
@@ -687,13 +693,20 @@ fun AddProductForm(navController: NavController) {
                                             Color.Gray
                                         }
                                     ),
-                                    enabled = name.isNotBlank() &&
+                                    enabled = !IsLoading && name.isNotBlank() &&
                                             description.isNotBlank() &&
                                             price.isNotBlank() &&
                                             phone.isNotBlank() &&
                                             images.isNotEmpty()
                                 ) {
-                                    Text(text = "ثبت آگهی")
+                                    if (IsLoading) {
+                                        CircularProgressIndicator(
+                                            color = Color.White,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    } else {
+                                        Text(text = "ثبت آگهی")
+                                    }
                                 }
                             }
                         }
