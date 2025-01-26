@@ -234,7 +234,7 @@ fun ImageSlider(images: List<String>, modifier: Modifier) {
                 .padding(15.dp)
         ) { page ->
             AsyncImage(
-                model = "http://192.168.1.110:2020/${images[page]}",
+                model = "https://petshopdjango.liara.run/${images[page]}",
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -242,7 +242,7 @@ fun ImageSlider(images: List<String>, modifier: Modifier) {
                     .height(400.dp)
                     .clip(RoundedCornerShape(5.dp))
                     .clickable {
-                        selectedImage.value = "http://192.168.1.110:2020/${images[page]}"
+                        selectedImage.value = "https://petshopdjango.liara.run/${images[page]}"
                         openDialog.value = true
                     },
                 onError = {
@@ -805,7 +805,7 @@ fun FavoritesPage(
                                     ) {
                                         if (product.images.isNotEmpty()) {
                                             AsyncImage(
-                                                model = "http://192.168.1.110:2020/${product.images.first()}",
+                                                model = "https://petshopdjango.liara.run/${product.images.first()}",
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier.fillMaxSize()
