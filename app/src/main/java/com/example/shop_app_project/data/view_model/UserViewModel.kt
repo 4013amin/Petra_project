@@ -211,7 +211,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
-    private var job: Job? = null
+    var job: Job? = null
 
     fun sendProduct(
         name: String,
@@ -224,7 +224,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         context: Context
     ) {
         job = viewModelScope.launch(Dispatchers.IO) {
-
             try {
                 Log.d("sendProduct", "Preparing to send product data...")
                 val contentResolver = context.contentResolver

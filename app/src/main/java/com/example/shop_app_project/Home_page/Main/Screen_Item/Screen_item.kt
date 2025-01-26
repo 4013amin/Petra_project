@@ -54,6 +54,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -77,6 +78,7 @@ import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -320,7 +322,10 @@ fun PagerIndicator(
 @Composable
 fun AddProductForm(navController: NavController) {
     val scroller = rememberScrollState()
-
+    val scope = rememberCoroutineScope()
+    val IsLoading by remember {
+        mutableStateOf(false)
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -645,23 +650,25 @@ fun AddProductForm(navController: NavController) {
                                             phone.isNotBlank() &&
                                             images.isNotEmpty()
                                         ) {
-                                            userViewModel.sendProduct(
-                                                name,
-                                                description,
-                                                price,
-                                                phone,
-                                                userName,
-                                                selectedCity,
-                                                images,
-                                                context
-                                            )
-                                            navController.popBackStack()
-                                        } else {
-                                            Toast.makeText(
-                                                context,
-                                                "لطفاً تمام فیلدهای الزامی را پر کنید.",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            scope.launch {
+                                                try {
+                                                    IsLoading = true
+                                                    userViewModel.sendProduct(
+                                                        name,
+                                                        description,
+                                                        price,
+                                                        phone,
+                                                        userName,
+                                                        selectedCity,
+                                                        images,
+                                                        context
+                                                    )
+                                                    userViewModel.job?.join()
+                                                    navController.popBackStack()
+                                                } catch (e: Exception) {
+                                                    Log.e("AddProductForm", "Error: ${e.message}")
+                                                }
+                                            }
                                         }
                                     },
                                     modifier = Modifier
