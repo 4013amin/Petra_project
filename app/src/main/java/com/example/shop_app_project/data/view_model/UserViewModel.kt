@@ -20,6 +20,7 @@ import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.utils.UtilsRetrofit
 import com.example.shop_app_project.data.utils.UtilsRetrofit.api
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -27,6 +28,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
 
 
 data class OPT_Model(
@@ -209,6 +211,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
+    private var job: Job? = null
 
     fun sendProduct(
         name: String,
@@ -220,7 +223,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         imageFiles: List<Uri>,
         context: Context
     ) {
-        viewModelScope.launch {
+        job = viewModelScope.launch(Dispatchers.IO) {
+
             try {
                 Log.d("sendProduct", "Preparing to send product data...")
                 val contentResolver = context.contentResolver
@@ -239,7 +243,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                     Log.d("ImageParts", "Image $index: ${part.body}")
                 }
 
-                // ارسال سایر پارامترها به صورت صحیح
                 Log.d("sendProduct", "Name: $name")
                 Log.d("sendProduct", "Description: $description")
                 Log.d("sendProduct", "Price: $price")
@@ -275,13 +278,17 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                     Toast.makeText(context, "خطا در ذخیره محصول: $errorBody", Toast.LENGTH_LONG)
                         .show()
                 }
+            } catch (e: CancellationException) {
+                Log.e("sendProduct", "Job cancelled: ${e.message}")
             } catch (e: Exception) {
-                Log.e("sendProduct", "Error occurred during product submission", e)
-                Toast.makeText(context, "خطا در اتصال به سرور", Toast.LENGTH_LONG).show()
+                Log.e("sendProduct", "Unexpected error occurred", e)
             }
         }
     }
 
+    fun cancelJob() {
+        job?.cancel()
+    }
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {
         with(sharedPreferences.edit()) {

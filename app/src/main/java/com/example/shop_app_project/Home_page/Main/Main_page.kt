@@ -98,10 +98,8 @@ fun UiHomePage(
     }
 
     LaunchedEffect(Unit) {
-        while (true) {
-            userViewModel.getAllProducts()
-            delay(2000)
-        }
+        userViewModel.getAllProducts()
+
     }
 
     Scaffold(
