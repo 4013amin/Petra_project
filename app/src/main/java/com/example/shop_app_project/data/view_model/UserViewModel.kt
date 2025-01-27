@@ -42,6 +42,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     var login_result = mutableStateOf("")
     var products = mutableStateOf<List<ProductModel>>(arrayListOf())
     var category = mutableStateOf<List<Category>>(arrayListOf())
+    var userProducts = mutableStateOf<List<ProductModel>>(arrayListOf())
 
     //chech_for_login
     var isLoggedIn by mutableStateOf(false)
@@ -288,6 +289,39 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     fun cancelJob() {
         job?.cancel()
     }
+
+
+    fun getUserProducts(phone: String, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = try {
+                UtilsRetrofit.api.getUserProducts(phone)
+            } catch (e: IOException) {
+                Log.e("UserViewModel", "Network error occurred while fetching user products.", e)
+                Toast.makeText(context, "Network error occurred.", Toast.LENGTH_SHORT).show()
+                return@launch
+            } catch (e: HttpException) {
+                Log.e(
+                    "UserViewModel",
+                    "HTTP error occurred while fetching user products: ${e.code()}",
+                    e
+                )
+                Toast.makeText(context, "HTTP error occurred: ${e.code()}", Toast.LENGTH_SHORT)
+                    .show()
+                return@launch
+            }
+
+            if (response.isSuccessful && response.body() != null) {
+                userProducts.value = response.body()!!
+            } else {
+                Log.e(
+                    "UserViewModel",
+                    "Failed to fetch user products: ${response.errorBody()?.string()}"
+                )
+                Toast.makeText(context, "Failed to fetch user products.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {
         with(sharedPreferences.edit()) {

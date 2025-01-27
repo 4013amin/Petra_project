@@ -7,7 +7,7 @@ import retrofit2.create
 
 object UtilsRetrofit {
 
-    const val BaseUrl = "https://petshopdjango.liara.run/"
+    const val BaseUrl = "http://192.168.5.101:2020/"
 
     val api: API by lazy {
         Retrofit.Builder()

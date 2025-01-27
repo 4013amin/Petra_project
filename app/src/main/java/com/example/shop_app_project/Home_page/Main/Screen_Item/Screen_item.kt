@@ -1,6 +1,7 @@
 package com.example.shop_app_project.Home_page.Main.Screen_Item
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -880,4 +881,100 @@ fun FavoritesPage(
             }
         }
     )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserProductsScreen(
+    userViewModel: UserViewModel,
+    phone: String,
+    context: Context,
+    navController: NavController
+) {
+    val userProducts by userViewModel.userProducts
+
+    LaunchedEffect(Unit) {
+        userViewModel.getUserProducts(phone, context)
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "محصولات من") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorResource(id = R.color.blueM)
+                )
+            )
+        },
+        content = { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                if (userProducts.isEmpty()) {
+                    Text(
+                        text = "هنوز محصولی اضافه نکرده‌اید.",
+                        modifier = Modifier.align(Alignment.Center),
+                        fontSize = 18.sp,
+                        color = Color.Gray
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        items(userProducts) { product ->
+                            ProductItem(
+                                product = product,
+                                onDeleteClick = {
+
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun ProductItem(
+    product: ProductModel,
+    onDeleteClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = product.name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = product.description, fontSize = 14.sp, color = Color.Gray)
+            Text(text = "قیمت: ${product.price} تومان", fontSize = 16.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onDeleteClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red
+                )
+            ) {
+                Text(text = "حذف")
+            }
+        }
+    }
 }

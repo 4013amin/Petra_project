@@ -19,6 +19,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface API {
 
@@ -70,20 +71,8 @@ interface API {
     ): Response<OPT_Model>
 
 
-    @FormUrlEncoded
-    @POST("favorites/add/")
-    suspend fun addFavorite(
-        @Field("id") id : Int
-    ): Response<ProdfileModel>
-
-    @FormUrlEncoded
-    @POST("favorites/remove/")
-    suspend fun removeFavorite(
-        @Field("id") id: Int
-    ): Response<ProdfileModel>
-
-    @GET("favorites/")
-    suspend fun getFavorites(): Response<List<ProdfileModel>>
+    @GET("user-products/")
+    suspend fun getUserProducts(@Query("phone") phone: String): Response<List<ProductModel>>
 
 }
 

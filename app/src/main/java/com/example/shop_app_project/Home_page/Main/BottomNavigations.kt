@@ -42,6 +42,7 @@ import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.UserPr
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCodeScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
+import com.example.shop_app_project.Home_page.Main.Screen_Item.UserProductsScreen
 
 import com.example.shop_app_project.Home_page.Main.UiHomePage
 import com.example.shop_app_project.data.models.product.ProductModel
@@ -58,7 +59,8 @@ data class NavigationsItem(
 val navItems = listOf(
     NavigationsItem("favorites", "نشان ها", Icons.Default.FavoriteBorder),
     NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
-    NavigationsItem("home", "فروشگاه", Icons.Default.Home),
+    NavigationsItem("home", "خانه", Icons.Default.Home),
+    NavigationsItem("profile", "پروفایل", Icons.Default.Home),
 
     )
 
@@ -213,7 +215,7 @@ fun NavGraph(
                 }
 
                 product.value?.let { productDetails ->
-                    ProductDetailScreen(product = productDetails , onBackClick = {})
+                    ProductDetailScreen(product = productDetails, onBackClick = {})
                 } ?: Text("Loading...")
             } else {
                 Text("Invalid product ID")
@@ -240,6 +242,10 @@ fun NavGraph(
 
         composable("addProduct") {
             AddProductForm(navController)
+        }
+
+        composable("profile") {
+            UserProductsScreen(userViewModel, phone = "09362629118", context, navController)
         }
     }
 }
