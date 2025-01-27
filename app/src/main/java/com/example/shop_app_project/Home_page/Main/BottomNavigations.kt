@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -38,7 +39,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
 import com.example.shop_app_project.Home_page.Main.Screen_Item.FavoritesPage
-import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.UserPreferences
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCodeScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
@@ -57,12 +57,11 @@ data class NavigationsItem(
 )
 
 val navItems = listOf(
+    NavigationsItem("profile", "پروفایل", Icons.Default.Person),
     NavigationsItem("favorites", "نشان ها", Icons.Default.FavoriteBorder),
     NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
     NavigationsItem("home", "خانه", Icons.Default.Home),
-    NavigationsItem("profile", "پروفایل", Icons.Default.Home),
-
-    )
+)
 
 @Composable
 fun BottomNavigationBar(
@@ -189,10 +188,12 @@ fun NavGraph(
     userViewModel: UserViewModel
 ) {
     val context = LocalContext.current
-
+    val userPreferences = remember {
+        UserPreferences.getInstance(context)
+    }
 
     val isUserLoggedIn = remember {
-        mutableStateOf(UserPreferences.isUserLoggedIn(context))
+        mutableStateOf(userPreferences.isUserLoggedIn())
     }
 
     NavHost(
@@ -245,7 +246,9 @@ fun NavGraph(
         }
 
         composable("profile") {
-            UserProductsScreen(userViewModel, phone = "09362629118", context, navController)
+            val userPreferences = UserPreferences.getInstance(context)
+            val phone = userPreferences.getUserPhone()
+            UserProductsScreen(userViewModel, phone.toString(), context, navController)
         }
     }
 }

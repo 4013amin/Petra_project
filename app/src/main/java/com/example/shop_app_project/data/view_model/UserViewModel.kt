@@ -22,6 +22,7 @@ import com.example.shop_app_project.data.utils.UtilsRetrofit.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -271,12 +272,18 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
                 if (response.isSuccessful) {
                     Log.d("sendProduct", "Product saved successfully.")
-                    Toast.makeText(context, "محصول با موفقیت ذخیره شد", Toast.LENGTH_LONG).show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "محصول با موفقیت ذخیره شد", Toast.LENGTH_LONG)
+                            .show()
+                    }
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("sendProduct", "Error response: $errorBody")
-                    Toast.makeText(context, "خطا در ذخیره محصول: $errorBody", Toast.LENGTH_LONG)
-                        .show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "خطا در ذخیره محصول: $errorBody", Toast.LENGTH_LONG)
+                            .show()
+                    }
+
                 }
             } catch (e: CancellationException) {
                 Log.e("sendProduct", "Job cancelled: ${e.message}")
@@ -305,8 +312,27 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                     "HTTP error occurred while fetching user products: ${e.code()}",
                     e
                 )
-                Toast.makeText(context, "HTTP error occurred: ${e.code()}", Toast.LENGTH_SHORT)
-                    .show()
+                when (e.code()) {
+                    502 -> {
+                        Toast.makeText(
+                            context,
+                            "Server error (502). Please try again later.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    else -> {
+                        Toast.makeText(
+                            context,
+                            "HTTP error occurred: ${e.code()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                return@launch
+            } catch (e: Exception) {
+                Log.e("UserViewModel", "Unexpected error occurred while fetching user products.", e)
+                Toast.makeText(context, "Unexpected error occurred.", Toast.LENGTH_SHORT).show()
                 return@launch
             }
 

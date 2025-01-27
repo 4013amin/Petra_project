@@ -883,7 +883,6 @@ fun FavoritesPage(
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProductsScreen(
@@ -893,7 +892,6 @@ fun UserProductsScreen(
     navController: NavController
 ) {
     val userProducts by userViewModel.userProducts
-
     LaunchedEffect(Unit) {
         userViewModel.getUserProducts(phone, context)
     }
@@ -933,14 +931,16 @@ fun UserProductsScreen(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(userProducts) { product ->
                             ProductItem(
                                 product = product,
                                 onDeleteClick = {
 
-                                }
+                                },
+                                navController = navController
                             )
                         }
                     }
@@ -953,27 +953,79 @@ fun UserProductsScreen(
 @Composable
 fun ProductItem(
     product: ProductModel,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    navController: NavController
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .clickable {
+                // ناوبری به صفحه محصول
+                navController.navigate("singleProduct/${product.id}")
+            },
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = product.name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text(text = product.description, fontSize = 14.sp, color = Color.Gray)
-            Text(text = "قیمت: ${product.price} تومان", fontSize = 16.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = onDeleteClick,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red
-                )
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.LightGray)
             ) {
-                Text(text = "حذف")
+                if (product.images.isNotEmpty()) {
+                    AsyncImage(
+                        model = "https://petshopdjango.liara.run/${product.images.first()}",
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = product.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = product.description,
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "$${product.price} تومان",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF00C853)
+                )
+            }
+
+            IconButton(
+                onClick = { onDeleteClick() }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Remove",
+                    tint = Color.Red
+                )
             }
         }
     }

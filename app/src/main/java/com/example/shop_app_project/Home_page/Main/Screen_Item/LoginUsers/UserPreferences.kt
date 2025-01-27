@@ -1,27 +1,47 @@
-package com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers
-
+import UserPreferences.Companion.PREF_NAME
 import android.content.Context
+import android.content.SharedPreferences
 
-object UserPreferences {
-    private const val PREF_NAME = "user_prefs"
-    private const val KEY_PHONE = "phone"
+class UserPreferences private constructor(context: Context) {
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+    companion object {
+        private const val PREF_NAME = "user_prefs"
+        private const val KEY_PHONE = "phone"
+        private const val KEY_IS_LOGGED_IN = "is_logged_in"
+
+        @Volatile
+        private var INSTANCE: UserPreferences? = null
+
+        fun getInstance(context: Context): UserPreferences {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: UserPreferences(context).also { INSTANCE = it }
+            }
+        }
+    }
 
     fun saveUser(context: Context, phone: String) {
-        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(KEY_PHONE, phone).apply()
+        sharedPreferences.edit().apply {
+            putString(KEY_PHONE, phone)
+            putBoolean(KEY_IS_LOGGED_IN, true)
+            apply()
+        }
     }
 
-    fun isUserLoggedIn(context: Context): Boolean {
-        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        return prefs.contains(KEY_PHONE)
-    }
-    fun getUserPhone(context: Context): String? {
-        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_PHONE, null)
+    fun isUserLoggedIn(): Boolean {
+        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
     }
 
-    fun clearUser(context: Context) {
-        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().remove(KEY_PHONE).apply()
+    fun getUserPhone(): String? {
+        return sharedPreferences.getString(KEY_PHONE, null)
+    }
+
+    fun clearUser() {
+        sharedPreferences.edit().apply {
+            remove(KEY_PHONE)
+            remove(KEY_IS_LOGGED_IN)
+            apply()
+        }
     }
 }

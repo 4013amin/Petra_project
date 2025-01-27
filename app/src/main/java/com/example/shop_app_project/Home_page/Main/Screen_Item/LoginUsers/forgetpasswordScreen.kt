@@ -1,5 +1,6 @@
 package com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers
 
+import UserPreferences
 import android.annotation.SuppressLint
 import com.example.shop_app_project.R
 import android.os.Build
@@ -61,11 +62,13 @@ import com.example.shop_app_project.data.view_model.UserViewModel
 fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewModel) {
 
     val context = LocalContext.current
-
+    val userPreferences = remember {
+        UserPreferences.getInstance(context)
+    }
     var shouldNavigate by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        if (UserPreferences.isUserLoggedIn(context)) {
+        if (userPreferences.isUserLoggedIn()) {
             shouldNavigate = true
             navController.navigate("home") {
                 popUpTo("forgetpasswordScreen") { inclusive = true }
@@ -223,6 +226,7 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val phone = navController.currentBackStackEntry?.arguments?.getString("phone") ?: ""
+    val userPreferences = remember { UserPreferences.getInstance(context) }
 
     val isFieldsFilled = codes.all { it.value.length == 1 }
 
@@ -351,7 +355,7 @@ fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, ph
                                     context, navController
                                 )
                             }
-                            UserPreferences.saveUser(context, phone)
+                            userPreferences.saveUser(context, phone)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
