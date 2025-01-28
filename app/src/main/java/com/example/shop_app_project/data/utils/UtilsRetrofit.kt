@@ -1,21 +1,32 @@
 package com.example.shop_app_project.data.utils
 
 import com.example.shop_app_project.data.api.API
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.util.concurrent.TimeUnit
 
 object UtilsRetrofit {
 
     const val BaseUrl = "https://petshopdjango.liara.run/"
 
-    val api: API by lazy {
-        Retrofit.Builder()
-            .baseUrl(BaseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
+    val okHttpClient by lazy { createOkHttpClient() }
+    val api: API by lazy { createRetrofitInstance().create() }
+
+    private fun createOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
-            .create(API::class.java)
     }
 
+    private fun createRetrofitInstance(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BaseUrl)
+            .client(okHttpClient) // اضافه کردن OkHttpClient به Retrofit
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
 }
-
