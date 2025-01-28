@@ -43,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.shop_app_project.Home_page.internet.ConnectivityObserver
 import com.example.shop_app_project.R
 import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.ShoppingCartViewModel
@@ -61,19 +62,44 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
+        val connectivityObserver = ConnectivityObserver(this)
         setContent {
             Shop_App_projectTheme {
                 val navController = rememberNavController()
                 val userViewModel: UserViewModel = viewModel()
                 val shoppingCartViewModel: ShoppingCartViewModel = viewModel()
+                val isConnected = connectivityObserver.isConnected
 
                 UiHomePage(navController = navController, userViewModel = userViewModel)
 
                 BottomNavigations(navController, userViewModel, shoppingCartViewModel)
+
+                if (!isConnected) {
+                    InternetErrorMessage()
+                }
+
             }
         }
     }
 }
+
+
+@Composable
+fun InternetErrorMessage() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.Red)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "اتصال اینترنت شما قطع شده است.",
+            color = Color.White,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

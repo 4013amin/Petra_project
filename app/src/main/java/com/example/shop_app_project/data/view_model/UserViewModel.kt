@@ -22,6 +22,7 @@ import com.example.shop_app_project.data.utils.UtilsRetrofit.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.withTimeout
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -109,12 +110,14 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     suspend fun getProductById(context: Context, productId: Int): ProductModel? {
         return try {
-            val response = UtilsRetrofit.api.getProductById(productId)
-            if (response.isSuccessful) {
-                response.body()
-            } else {
-                Toast.makeText(context, "Failed to fetch product", Toast.LENGTH_SHORT).show()
-                null
+            withTimeout(30_000) {
+                val response = UtilsRetrofit.api.getProductById(productId)
+                if (response.isSuccessful) {
+                    response.body()
+                } else {
+                    Toast.makeText(context, "Failed to fetch product", Toast.LENGTH_SHORT).show()
+                    null
+                }
             }
         } catch (e: IOException) {
             Toast.makeText(context, "Network error", Toast.LENGTH_SHORT).show()
@@ -328,60 +331,64 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getUserProducts(phone: String, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = try {
-                UtilsRetrofit.api.getUserProducts(phone)
-            } catch (e: IOException) {
-                Log.e(
-                    "UserViewModel",
-                    "Network error occurred while fetching user products.",
-                    e
-                )
-                Toast.makeText(context, "Network error occurred.", Toast.LENGTH_SHORT).show()
-                return@launch
-            } catch (e: HttpException) {
-                Log.e(
-                    "UserViewModel",
-                    "HTTP error occurred while fetching user products: ${e.code()}",
-                    e
-                )
-                when (e.code()) {
-                    502 -> {
-                        Toast.makeText(
-                            context,
-                            "Server error (502). Please try again later.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
 
-                    else -> {
-                        Toast.makeText(
-                            context,
-                            "HTTP error occurred: ${e.code()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+            withTimeout(30_000) {
+                val response = try {
+                    UtilsRetrofit.api.getUserProducts(phone)
+                } catch (e: IOException) {
+                    Log.e(
+                        "UserViewModel",
+                        "Network error occurred while fetching user products.",
+                        e
+                    )
+                    Toast.makeText(context, "Network error occurred.", Toast.LENGTH_SHORT).show()
+                    return@withTimeout
+                } catch (e: HttpException) {
+                    Log.e(
+                        "UserViewModel",
+                        "HTTP error occurred while fetching user products: ${e.code()}",
+                        e
+                    )
+                    when (e.code()) {
+                        502 -> {
+                            Toast.makeText(
+                                context,
+                                "Server error (502). Please try again later.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        else -> {
+                            Toast.makeText(
+                                context,
+                                "HTTP error occurred: ${e.code()}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
+                    return@withTimeout
+                } catch (e: Exception) {
+                    Log.e(
+                        "UserViewModel",
+                        "Unexpected error occurred while fetching user products.",
+                        e
+                    )
+                    Toast.makeText(context, "Unexpected error occurred.", Toast.LENGTH_SHORT).show()
+                    return@withTimeout
                 }
-                return@launch
-            } catch (e: Exception) {
-                Log.e(
-                    "UserViewModel",
-                    "Unexpected error occurred while fetching user products.",
-                    e
-                )
-                Toast.makeText(context, "Unexpected error occurred.", Toast.LENGTH_SHORT).show()
-                return@launch
+                if (response.isSuccessful && response.body() != null) {
+                    userProducts.value = response.body()!!
+                } else {
+                    Log.e(
+                        "UserViewModel",
+                        "Failed to fetch user products: ${response.errorBody()?.string()}"
+                    )
+                    Toast.makeText(context, "Failed to fetch user products.", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
 
-            if (response.isSuccessful && response.body() != null) {
-                userProducts.value = response.body()!!
-            } else {
-                Log.e(
-                    "UserViewModel",
-                    "Failed to fetch user products: ${response.errorBody()?.string()}"
-                )
-                Toast.makeText(context, "Failed to fetch user products.", Toast.LENGTH_SHORT)
-                    .show()
-            }
+
         }
     }
 
