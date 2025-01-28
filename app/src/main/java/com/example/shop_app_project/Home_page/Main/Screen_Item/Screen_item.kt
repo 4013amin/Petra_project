@@ -37,6 +37,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -318,15 +319,14 @@ fun PagerIndicator(
     }
 }
 
-
 @ExperimentalMaterial3Api
 @Composable
 fun AddProductForm(navController: NavController) {
     val scroller = rememberScrollState()
     val scope = rememberCoroutineScope()
-    var IsLoading by remember {
-        mutableStateOf(false)
-    }
+    var IsLoading by remember { mutableStateOf(false) }
+    var isFormSubmitted by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -488,9 +488,9 @@ fun AddProductForm(navController: NavController) {
                                     value = name,
                                     onValueChange = { name = it },
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = name.isBlank()
+                                    isError = isFormSubmitted && name.isBlank() // نمایش خطا فقط پس از ارسال فرم
                                 )
-                                if (name.isBlank()) {
+                                if (isFormSubmitted && name.isBlank()) {
                                     Text(
                                         text = "این فیلد الزامی است.",
                                         color = Color.Red,
@@ -512,9 +512,9 @@ fun AddProductForm(navController: NavController) {
                                     value = description,
                                     onValueChange = { description = it },
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = description.isBlank()
+                                    isError = isFormSubmitted && description.isBlank() // نمایش خطا فقط پس از ارسال فرم
                                 )
-                                if (description.isBlank()) {
+                                if (isFormSubmitted && description.isBlank()) {
                                     Text(
                                         text = "این فیلد الزامی است.",
                                         color = Color.Red,
@@ -536,16 +536,15 @@ fun AddProductForm(navController: NavController) {
                                     value = userName,
                                     onValueChange = { userName = it },
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = userName.isBlank()
+                                    isError = isFormSubmitted && userName.isBlank() // نمایش خطا فقط پس از ارسال فرم
                                 )
-                                if (userName.isBlank()) {
+                                if (isFormSubmitted && userName.isBlank()) {
                                     Text(
                                         text = "این فیلد الزامی است.",
                                         color = Color.Red,
                                         fontSize = 12.sp,
                                         modifier = Modifier.padding(start = 8.dp)
                                     )
-
                                 }
 
                                 Spacer(modifier = Modifier.height(15.dp))
@@ -562,9 +561,9 @@ fun AddProductForm(navController: NavController) {
                                     onValueChange = { price = it },
                                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = price.isBlank()
+                                    isError = isFormSubmitted && price.isBlank() // نمایش خطا فقط پس از ارسال فرم
                                 )
-                                if (price.isBlank()) {
+                                if (isFormSubmitted && price.isBlank()) {
                                     Text(
                                         text = "این فیلد الزامی است.",
                                         color = Color.Red,
@@ -575,6 +574,7 @@ fun AddProductForm(navController: NavController) {
 
                                 Spacer(modifier = Modifier.height(15.dp))
 
+                                // Phone Field
                                 Text(
                                     text = "شماره تماس",
                                     fontSize = 18.sp,
@@ -586,9 +586,9 @@ fun AddProductForm(navController: NavController) {
                                     onValueChange = { phone = it },
                                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = phone.isBlank()
+                                    isError = isFormSubmitted && phone.isBlank() // نمایش خطا فقط پس از ارسال فرم
                                 )
-                                if (phone.isBlank()) {
+                                if (isFormSubmitted && phone.isBlank()) {
                                     Text(
                                         text = "این فیلد الزامی است.",
                                         color = Color.Red,
@@ -599,6 +599,7 @@ fun AddProductForm(navController: NavController) {
 
                                 Spacer(modifier = Modifier.height(15.dp))
 
+                                // City Field
                                 Text(
                                     text = "شهر",
                                     fontSize = 18.sp,
@@ -644,6 +645,7 @@ fun AddProductForm(navController: NavController) {
 
                                 Button(
                                     onClick = {
+                                        isFormSubmitted = true // فرم ارسال شده است
                                         if (name.isNotBlank() &&
                                             description.isNotBlank() &&
                                             price.isNotBlank() &&
@@ -883,6 +885,7 @@ fun FavoritesPage(
     )
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProductsScreen(
@@ -899,7 +902,14 @@ fun UserProductsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "محصولات من") },
+                title = {
+                    Text(
+                        text = "محصولات من",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -919,20 +929,22 @@ fun UserProductsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
+                    .background(Color(0xFFFAFAFA))
             ) {
                 if (userProducts.isEmpty()) {
                     Text(
                         text = "هنوز محصولی اضافه نکرده‌اید.",
                         modifier = Modifier.align(Alignment.Center),
                         fontSize = 18.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Medium
                     )
                 } else {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(userProducts) { product ->
                             ProductItem(
@@ -960,11 +972,11 @@ fun ProductItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                // ناوبری به صفحه محصول
                 navController.navigate("singleProduct/${product.id}")
             },
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(
             modifier = Modifier
@@ -976,7 +988,7 @@ fun ProductItem(
                 modifier = Modifier
                     .size(100.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color.LightGray)
+                    .background(Color(0xFFEEEEEE))
             ) {
                 if (product.images.isNotEmpty()) {
                     AsyncImage(
@@ -995,9 +1007,9 @@ fun ProductItem(
             ) {
                 Text(
                     text = product.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF333333),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1005,7 +1017,7 @@ fun ProductItem(
                 Text(
                     text = product.description,
                     fontSize = 14.sp,
-                    color = Color.Gray,
+                    color = Color(0xFF666666),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1019,12 +1031,13 @@ fun ProductItem(
             }
 
             IconButton(
-                onClick = { onDeleteClick() }
+                onClick = { onDeleteClick() },
+                modifier = Modifier.padding(8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = Icons.Outlined.Delete,
                     contentDescription = "Remove",
-                    tint = Color.Red
+                    tint = Color(0xFFE53935)
                 )
             }
         }
