@@ -73,7 +73,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     fun getAllProducts() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = withTimeout(30_000) {
+                val response = withTimeout(60_000) {
                     UtilsRetrofit.api.getAllProducts()
                 }
 
@@ -110,7 +110,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     suspend fun getProductById(context: Context, productId: Int): ProductModel? {
         return try {
-            withTimeout(30_000) {
+            withTimeout(60_000) {
                 val response = UtilsRetrofit.api.getProductById(productId)
                 if (response.isSuccessful) {
                     response.body()
@@ -243,83 +243,91 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         context: Context
     ) {
         job = viewModelScope.launch(Dispatchers.IO) {
-            try {
 
-                Log.d("sendProduct", "Preparing to send product data...")
-                val contentResolver = context.contentResolver
+            withTimeout(60_000) {
 
-                val imageParts = imageFiles.mapIndexed { index, imageFile ->
-                    val inputStream = contentResolver.openInputStream(imageFile)
-                    val fileBytes = inputStream?.readBytes()
-                        ?: throw IllegalArgumentException("Cannot read image file")
-                    val imageRequestBody =
-                        fileBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData(
-                        "images",
-                        "image$index.jpg",
-                        imageRequestBody
-                    )
-                }
+                try {
 
+                    Log.d("sendProduct", "Preparing to send product data...")
+                    val contentResolver = context.contentResolver
 
-                Log.d("ImageParts", "Image parts count: ${imageParts.size}")
-                imageParts.forEachIndexed { index, part ->
-                    Log.d("ImageParts", "Image $index: ${part.body}")
-                }
-
-                Log.d("sendProduct", "Name: $name")
-                Log.d("sendProduct", "Description: $description")
-                Log.d("sendProduct", "Price: $price")
-                Log.d("sendProduct", "Phone: $phone")
-                Log.d("sendProduct", "NameUser: $nameUser")
-                Log.d("sendProduct", "City: $city")
-
-
-                val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
-                val descriptionBody =
-                    description.toRequestBody("text/plain".toMediaTypeOrNull())
-                val priceBody = price.toRequestBody("text/plain".toMediaTypeOrNull())
-                val phoneBody = phone.toRequestBody("text/plain".toMediaTypeOrNull())
-                val nameUserBody = nameUser.toRequestBody("text/plain".toMediaTypeOrNull())
-                val cityBody = city.toRequestBody("text/plain".toMediaTypeOrNull())
-
-                Log.d("sendProduct", "Calling API to send product...")
-                withTimeout(30_000) {
-                    val response = UtilsRetrofit.api.addProduct(
-                        name = nameBody,
-                        description = descriptionBody,
-                        nameUser = nameUserBody,
-                        phone = phoneBody,
-                        price = priceBody,
-                        city = cityBody,
-                        images = imageParts
-                    )
-
-                    if (response.isSuccessful) {
-                        Log.d("sendProduct", "Product saved successfully.")
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "محصول با موفقیت ذخیره شد", Toast.LENGTH_LONG)
-                                .show()
-                        }
-
-                    } else {
-                        val errorBody = response.errorBody()?.string()
-                        Log.e("sendProduct", "Error response: $errorBody")
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                context,
-                                "خطا در ذخیره محصول: $errorBody",
-                                Toast.LENGTH_LONG
-                            )
-                                .show()
-                        }
-
+                    val imageParts = imageFiles.mapIndexed { index, imageFile ->
+                        val inputStream = contentResolver.openInputStream(imageFile)
+                        val fileBytes = inputStream?.readBytes()
+                            ?: throw IllegalArgumentException("Cannot read image file")
+                        val imageRequestBody =
+                            fileBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                        MultipartBody.Part.createFormData(
+                            "images",
+                            "image$index.jpg",
+                            imageRequestBody
+                        )
                     }
+
+
+                    Log.d("ImageParts", "Image parts count: ${imageParts.size}")
+                    imageParts.forEachIndexed { index, part ->
+                        Log.d("ImageParts", "Image $index: ${part.body}")
+                    }
+
+                    Log.d("sendProduct", "Name: $name")
+                    Log.d("sendProduct", "Description: $description")
+                    Log.d("sendProduct", "Price: $price")
+                    Log.d("sendProduct", "Phone: $phone")
+                    Log.d("sendProduct", "NameUser: $nameUser")
+                    Log.d("sendProduct", "City: $city")
+
+
+                    val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val descriptionBody =
+                        description.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val priceBody = price.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val phoneBody = phone.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val nameUserBody = nameUser.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val cityBody = city.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                    Log.d("sendProduct", "Calling API to send product...")
+                    withTimeout(30_000) {
+                        val response = UtilsRetrofit.api.addProduct(
+                            name = nameBody,
+                            description = descriptionBody,
+                            nameUser = nameUserBody,
+                            phone = phoneBody,
+                            price = priceBody,
+                            city = cityBody,
+                            images = imageParts
+                        )
+
+                        if (response.isSuccessful) {
+                            Log.d("sendProduct", "Product saved successfully.")
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    context,
+                                    "محصول با موفقیت ذخیره شد",
+                                    Toast.LENGTH_LONG
+                                )
+                                    .show()
+                            }
+
+                        } else {
+                            val errorBody = response.errorBody()?.string()
+                            Log.e("sendProduct", "Error response: $errorBody")
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    context,
+                                    "خطا در ذخیره محصول: $errorBody",
+                                    Toast.LENGTH_LONG
+                                )
+                                    .show()
+                            }
+
+                        }
+                    }
+                } catch (e: CancellationException) {
+                    Log.e("sendProduct", "Job cancelled: ${e.message}")
+                } catch (e: Exception) {
+                    Log.e("sendProduct", "Unexpected error occurred", e)
                 }
-            } catch (e: CancellationException) {
-                Log.e("sendProduct", "Job cancelled: ${e.message}")
-            } catch (e: Exception) {
-                Log.e("sendProduct", "Unexpected error occurred", e)
             }
         }
     }
@@ -332,7 +340,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     fun getUserProducts(phone: String, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
 
-            withTimeout(30_000) {
+            withTimeout(60_000) {
                 val response = try {
                     UtilsRetrofit.api.getUserProducts(phone)
                 } catch (e: IOException) {
@@ -341,7 +349,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                         "Network error occurred while fetching user products.",
                         e
                     )
-                    Toast.makeText(context, "Network error occurred.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Network error occurred.", Toast.LENGTH_SHORT)
+                        .show()
                     return@withTimeout
                 } catch (e: HttpException) {
                     Log.e(
@@ -373,7 +382,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                         "Unexpected error occurred while fetching user products.",
                         e
                     )
-                    Toast.makeText(context, "Unexpected error occurred.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Unexpected error occurred.", Toast.LENGTH_SHORT)
+                        .show()
                     return@withTimeout
                 }
                 if (response.isSuccessful && response.body() != null) {
@@ -383,7 +393,11 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                         "UserViewModel",
                         "Failed to fetch user products: ${response.errorBody()?.string()}"
                     )
-                    Toast.makeText(context, "Failed to fetch user products.", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Failed to fetch user products.",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }
@@ -421,6 +435,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
 
 }
+
 
 
 
