@@ -349,6 +349,9 @@ fun ProductItem(
     }
     val formattedPrice = formatter.format(price)
 
+    var Is_Favorite by remember {
+        mutableStateOf(false)
+    }
 
     Card(
         modifier = Modifier
@@ -427,7 +430,7 @@ fun ProductItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "$formattedPrice تومان", // نمایش قیمت با جداکننده‌های سه‌تایی
+                    text = "$formattedPrice تومان",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Green,
@@ -436,83 +439,89 @@ fun ProductItem(
             }
 
             IconButton(
-                onClick = { onSaveClick() },
+                onClick = {
+                    Is_Favorite = !Is_Favorite
+                    onSaveClick()
+                },
                 modifier = Modifier.padding(end = 8.dp)
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_save_alt_24),
-                    contentDescription = "Save"
+                    painter = painterResource(
+                        id = if (Is_Favorite) R.drawable.baseline_favorite_24 else R.drawable.baseline_favorite_border_24
+                    ),
+                    contentDescription = "Save",
+                    tint = if (Is_Favorite) Color.Red else Color.Gray // تغییر رنگ آیکن بر اساس وضعیت
                 )
             }
         }
     }
-}
 
 
-@Composable
-fun AnimalBox(imageRes: Int, backgroundColor: Color, text: String) {
-    Box(
-        modifier = Modifier
-            .size(width = 150.dp, height = 100.dp)
-            .background(color = backgroundColor, shape = RoundedCornerShape(16.dp))
-            .padding(8.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+    @Composable
+    fun AnimalBox(imageRes: Int, backgroundColor: Color, text: String) {
+        Box(
+            modifier = Modifier
+                .size(width = 150.dp, height = 100.dp)
+                .background(color = backgroundColor, shape = RoundedCornerShape(16.dp))
+                .padding(8.dp)
         ) {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = text,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(64.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = text,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = imageRes),
+                    contentDescription = text,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(64.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = text,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
-}
 
-@Composable
-fun AnimalBoxes() {
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            AnimalBox(
-                imageRes = R.drawable.dog,
-                backgroundColor = Color(0xFFFFF3E0),
-                text = "Dog"
-            )
-        }
-        item {
-            AnimalBox(
-                imageRes = R.drawable.cat,
-                backgroundColor = Color(0xFFE0F7FA),
-                text = "Cat"
-            )
-        }
-        item {
-            AnimalBox(
-                imageRes = R.drawable.parrot,
-                backgroundColor = Color(0xFFFFF3E0),
-                text = "Parrot"
-            )
-        }
-        item {
-            AnimalBox(
-                imageRes = R.drawable.tools3,
-                backgroundColor = Color(0xFFE0F7FA),
-                text = "Tools"
-            )
+    @Composable
+    fun AnimalBoxes() {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                AnimalBox(
+                    imageRes = R.drawable.dog,
+                    backgroundColor = Color(0xFFFFF3E0),
+                    text = "Dog"
+                )
+            }
+            item {
+                AnimalBox(
+                    imageRes = R.drawable.cat,
+                    backgroundColor = Color(0xFFE0F7FA),
+                    text = "Cat"
+                )
+            }
+            item {
+                AnimalBox(
+                    imageRes = R.drawable.parrot,
+                    backgroundColor = Color(0xFFFFF3E0),
+                    text = "Parrot"
+                )
+            }
+            item {
+                AnimalBox(
+                    imageRes = R.drawable.tools3,
+                    backgroundColor = Color(0xFFE0F7FA),
+                    text = "Tools"
+                )
+            }
         }
     }
 }
