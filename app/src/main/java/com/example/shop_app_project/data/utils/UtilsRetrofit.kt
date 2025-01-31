@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object UtilsRetrofit {
 
-    const val BaseUrl = "https://petshopdjango.liara.run/"
+    const val BaseUrl = "https://petshopdjango.liara.run"
 
     val okHttpClient by lazy { createOkHttpClient() }
     val api: API by lazy { createRetrofitInstance().create() }
@@ -25,7 +25,7 @@ object UtilsRetrofit {
     private fun createRetrofitInstance(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BaseUrl)
-            .client(okHttpClient) // اضافه کردن OkHttpClient به Retrofit
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

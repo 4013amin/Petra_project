@@ -406,6 +406,32 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun deleteUserProduct(phone: String, id: Int, context: Context) {
+        viewModelScope.launch {
+            withTimeout(30_000) {
+                Log.d("DeleteProduct", "Sending DELETE request: Phone: $phone, Product ID: $id")
+
+                val response = try {
+                    UtilsRetrofit.api.deleteUserProducts(phone, id)
+                } catch (e: IOException) {
+                    Log.e("DeleteProduct", "Network Error: ${e.message}")
+                    return@withTimeout
+                } catch (e: HttpException) {
+                    Log.e("DeleteProduct", "HTTP Error: ${e.message}")
+                    return@withTimeout
+                }
+
+                if (!response.isSuccessful) {
+                    Log.e("DeleteProduct", "Server Response Error: ${response.code()}")
+                    Toast.makeText(context, "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "با موفیت حذف شد", Toast.LENGTH_SHORT).show()
+                    Log.d("DeleteProduct", "Product deleted successfully")
+                }
+            }
+        }
+    }
+
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {
         with(sharedPreferences.edit()) {

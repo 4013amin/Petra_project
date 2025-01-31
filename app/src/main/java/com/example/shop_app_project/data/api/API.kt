@@ -12,6 +12,7 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -73,6 +74,14 @@ interface API {
 
     @GET("user-products/")
     suspend fun getUserProducts(@Query("phone") phone: String): Response<List<ProductModel>>
+
+
+    @DELETE("user-products/")
+    suspend fun deleteUserProducts(
+        @Query("phone") phone: String,
+        @Query("id") id: Int
+    ): Response<ResponseBody>
+
 
 }
 

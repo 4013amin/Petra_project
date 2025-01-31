@@ -950,7 +950,7 @@ fun UserProductsScreen(
                             ProductItem(
                                 product = product,
                                 onDeleteClick = {
-
+                                    userViewModel.deleteUserProduct(phone, product.id, context)
                                 },
                                 navController = navController
                             )
