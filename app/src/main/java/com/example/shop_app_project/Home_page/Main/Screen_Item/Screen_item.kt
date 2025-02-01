@@ -10,6 +10,8 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -88,7 +90,6 @@ import kotlinx.coroutines.launch
 fun ProductDetailScreen(product: ProductModel, onBackClick: () -> Unit) {
     val scroller = rememberScrollState()
     val context = LocalContext.current
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -129,7 +130,8 @@ fun ProductDetailScreen(product: ProductModel, onBackClick: () -> Unit) {
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         InfoRow(title = "نام محصول", value = product.name)
@@ -149,7 +151,8 @@ fun ProductDetailScreen(product: ProductModel, onBackClick: () -> Unit) {
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -201,8 +204,11 @@ fun ProductDetailScreen(product: ProductModel, onBackClick: () -> Unit) {
 
 @Composable
 fun InfoRow(title: String, value: String) {
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = Color.White),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

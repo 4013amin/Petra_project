@@ -2,15 +2,10 @@
 
     <!-- تم اسپلش -->
     <style name="Theme.MySplashScreen" parent="Theme.SplashScreen">
-        <!-- رنگ پس‌زمینه اسپلش -->
         <item name="windowSplashScreenBackground">#03A9F4</item>
-        <!-- آیکون انیمیشن اسپلش -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/baseline_pets_24</item>
-        <!-- تمی که بعد از اسپلش نمایش داده می‌شود -->
         <item name="postSplashScreenTheme">@style/Theme.Shop_App_project</item>
-        <!-- رنگ استاتوس بار در اسپلش -->
         <item name="android:statusBarColor">#03A9F4</item>
-        <!-- غیرفعال کردن حالت تاریک -->
         <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
     </style>
 
