@@ -82,6 +82,7 @@ import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -325,6 +326,7 @@ fun PagerIndicator(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.R)
 @ExperimentalMaterial3Api
 @Composable
 fun AddProductForm(navController: NavController) {
@@ -869,7 +871,10 @@ fun UserProductsScreen(
 ) {
     val userProducts by userViewModel.userProducts
     LaunchedEffect(Unit) {
-        userViewModel.getUserProducts(phone, context)
+        while (true) {
+            userViewModel.getUserProducts(phone, context)
+            delay(4000)
+        }
     }
 
     Scaffold(
