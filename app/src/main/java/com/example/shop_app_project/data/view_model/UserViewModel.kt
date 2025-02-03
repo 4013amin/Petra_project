@@ -25,6 +25,10 @@ import com.example.shop_app_project.data.utils.UtilsRetrofit
 import com.example.shop_app_project.data.utils.UtilsRetrofit.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.withTimeout
 import kotlinx.coroutines.withContext
@@ -272,23 +276,20 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
                     val contentResolver = context.contentResolver
 
-                    val imageParts = imageFiles.mapIndexed { index, imageFile ->
-                        withContext(Dispatchers.Default) { // پردازش موازی
-                            contentResolver.openInputStream(imageFile)?.use { inputStream ->
-                                val resizedBitmap =
-                                    decodeSampledBitmapFromUri(imageFile, context, 800, 800)
-                                val compressedBytes = compressBitmap(resizedBitmap, 75)
-                                val imageRequestBody =
-                                    compressedBytes.toRequestBody("image/webp".toMediaTypeOrNull())
-
-                                MultipartBody.Part.createFormData(
-                                    "images",
-                                    "image$index.webp",
-                                    imageRequestBody
-                                )
-                            } ?: throw IllegalArgumentException("Invalid image file: $imageFile")
+                    val imageParts = imageFiles.map { imageFile ->
+                        async(Dispatchers.IO) {
+                            val resizedBitmap =
+                                decodeSampledBitmapFromUri(imageFile, context, 800, 800)
+                            val compressedBytes = compressBitmap(resizedBitmap, 70)
+                            val imageRequestBody =
+                                compressedBytes.toRequestBody("image/webp".toMediaTypeOrNull())
+                            MultipartBody.Part.createFormData(
+                                "images",
+                                "image${imageFiles.indexOf(imageFile)}.webp",
+                                imageRequestBody
+                            )
                         }
-                    }
+                    }.awaitAll()
 
 
                     Log.d("ImageParts", "Image parts count: ${imageParts.size}")
@@ -354,7 +355,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     // تابع فشرده‌سازی تصویر
     @RequiresApi(Build.VERSION_CODES.R)
-    private fun compressBitmap(bitmap: Bitmap, quality: Int = 75): ByteArray {
+    private fun compressBitmap(bitmap: Bitmap, quality: Int = 70): ByteArray {
         val outputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, quality, outputStream)
         return outputStream.toByteArray()
