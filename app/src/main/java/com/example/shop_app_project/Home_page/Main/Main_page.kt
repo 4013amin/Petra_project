@@ -193,6 +193,7 @@ fun UiHomePage(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .background(color = Color.White)
                 .padding(innerPadding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.Start

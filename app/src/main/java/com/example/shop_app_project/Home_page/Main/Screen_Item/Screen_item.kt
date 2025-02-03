@@ -367,11 +367,13 @@ fun AddProductForm(navController: NavController) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(color = Color.White)
                         .padding(top = 16.dp)
                 ) {
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .background(color = Color.White)
                             .weight(1f),
                         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
                         color = Color.White
@@ -459,7 +461,9 @@ fun AddProductForm(navController: NavController) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.baseline_add_a_photo_24),
                                         contentDescription = null,
-                                        modifier = Modifier.size(25.dp)
+                                        modifier = Modifier
+                                            .size(25.dp),
+                                        tint = colorResource(id = R.color.black)
                                     )
                                 }
 
@@ -483,18 +487,19 @@ fun AddProductForm(navController: NavController) {
                                     }
                                 }
 
-                                // Name Field
                                 Text(
                                     text = "نام محصول",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
                                     modifier = Modifier.padding(5.dp)
                                 )
                                 OutlinedTextField(
                                     value = name,
                                     onValueChange = { name = it },
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = isFormSubmitted && name.isBlank() // نمایش خطا فقط پس از ارسال فرم
+                                    textStyle = TextStyle(color = Color.Black),
+                                    isError = isFormSubmitted && name.isBlank()
                                 )
                                 if (isFormSubmitted && name.isBlank()) {
                                     Text(
@@ -505,61 +510,41 @@ fun AddProductForm(navController: NavController) {
                                     )
                                 }
 
-                                Spacer(modifier = Modifier.height(15.dp))
-
-                                // Description Field
                                 Text(
                                     text = "توضیحات محصول",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
                                     modifier = Modifier.padding(5.dp)
                                 )
                                 OutlinedTextField(
                                     value = description,
                                     onValueChange = { description = it },
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = isFormSubmitted && description.isBlank() // نمایش خطا فقط پس از ارسال فرم
+                                    textStyle = TextStyle(color = Color.Black),
+                                    isError = isFormSubmitted && description.isBlank()
                                 )
-                                if (isFormSubmitted && description.isBlank()) {
-                                    Text(
-                                        text = "این فیلد الزامی است.",
-                                        color = Color.Red,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    )
-                                }
 
-                                Spacer(modifier = Modifier.height(15.dp))
-
-                                // User Name Field
                                 Text(
                                     text = "نام فروشنده",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
                                     modifier = Modifier.padding(5.dp)
                                 )
                                 OutlinedTextField(
                                     value = userName,
                                     onValueChange = { userName = it },
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = isFormSubmitted && userName.isBlank() // نمایش خطا فقط پس از ارسال فرم
+                                    textStyle = TextStyle(color = Color.Black),
+                                    isError = isFormSubmitted && userName.isBlank()
                                 )
-                                if (isFormSubmitted && userName.isBlank()) {
-                                    Text(
-                                        text = "این فیلد الزامی است.",
-                                        color = Color.Red,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    )
-                                }
 
-                                Spacer(modifier = Modifier.height(15.dp))
-
-                                // Price Field
                                 Text(
                                     text = "قیمت محصول",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
                                     modifier = Modifier.padding(5.dp)
                                 )
                                 OutlinedTextField(
@@ -567,24 +552,15 @@ fun AddProductForm(navController: NavController) {
                                     onValueChange = { price = it },
                                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = isFormSubmitted && price.isBlank() // نمایش خطا فقط پس از ارسال فرم
+                                    textStyle = TextStyle(color = Color.Black),
+                                    isError = isFormSubmitted && price.isBlank()
                                 )
-                                if (isFormSubmitted && price.isBlank()) {
-                                    Text(
-                                        text = "این فیلد الزامی است.",
-                                        color = Color.Red,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    )
-                                }
 
-                                Spacer(modifier = Modifier.height(15.dp))
-
-                                // Phone Field
                                 Text(
                                     text = "شماره تماس",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
                                     modifier = Modifier.padding(5.dp)
                                 )
                                 OutlinedTextField(
@@ -592,24 +568,15 @@ fun AddProductForm(navController: NavController) {
                                     onValueChange = { phone = it },
                                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
                                     modifier = Modifier.fillMaxWidth(),
-                                    isError = isFormSubmitted && phone.isBlank() // نمایش خطا فقط پس از ارسال فرم
+                                    textStyle = TextStyle(color = Color.Black),
+                                    isError = isFormSubmitted && phone.isBlank()
                                 )
-                                if (isFormSubmitted && phone.isBlank()) {
-                                    Text(
-                                        text = "این فیلد الزامی است.",
-                                        color = Color.Red,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    )
-                                }
 
-                                Spacer(modifier = Modifier.height(15.dp))
-
-                                // City Field
                                 Text(
                                     text = "شهر",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
                                     modifier = Modifier.padding(5.dp)
                                 )
                                 ExposedDropdownMenuBox(
@@ -651,7 +618,7 @@ fun AddProductForm(navController: NavController) {
 
                                 Button(
                                     onClick = {
-                                        isFormSubmitted = true // فرم ارسال شده است
+                                        isFormSubmitted = true
                                         if (name.isNotBlank() &&
                                             description.isNotBlank() &&
                                             price.isNotBlank() &&
