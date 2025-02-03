@@ -3,6 +3,8 @@ package com.example.shop_app_project.data.view_model
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Base64
@@ -232,6 +234,15 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     var job: Job? = null
 
+    //NetWork
+    fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
+    }
+
+
     fun sendProduct(
         name: String,
         description: String,
@@ -242,42 +253,45 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         imageFiles: List<Uri>,
         context: Context
     ) {
+        if (!isNetworkAvailable(context)) {
+            Toast.makeText(
+                context,
+                "اتصال اینترنت برقرار نیست. لطفا وضعیت شبکه خود را بررسی کنید.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
         job = viewModelScope.launch(Dispatchers.IO) {
-
             withTimeout(60_000) {
-
                 try {
-
                     Log.d("sendProduct", "Preparing to send product data...")
+
                     val contentResolver = context.contentResolver
 
+                    // فشرده‌سازی تصاویر و تبدیل آن‌ها به MultipartBody.Part
                     val imageParts = imageFiles.mapIndexed { index, imageFile ->
-                        val inputStream = contentResolver.openInputStream(imageFile)
-                        val fileBytes = inputStream?.readBytes()
-                            ?: throw IllegalArgumentException("Cannot read image file")
-                        val imageRequestBody =
-                            fileBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                        MultipartBody.Part.createFormData(
-                            "images",
-                            "image$index.jpg",
-                            imageRequestBody
-                        )
-                    }
+                        contentResolver.openInputStream(imageFile)?.use { inputStream ->
+                            // تغییر ابعاد تصویر
+                            val resizedBitmap =
+                                decodeSampledBitmapFromUri(imageFile, context, 1024, 1024)
+                            // فشرده‌سازی تصویر
+                            val compressedBytes = compressBitmap(resizedBitmap, 90)
+                            // تبدیل به MultipartBody.Part
+                            val imageRequestBody =
+                                compressedBytes.toRequestBody("image/webp".toMediaTypeOrNull())
 
+                            MultipartBody.Part.createFormData(
+                                "images",
+                                "image$index.webp",
+                                imageRequestBody
+                            )
+                        } ?: throw IllegalArgumentException("Invalid image file: $imageFile")
+                    }
 
                     Log.d("ImageParts", "Image parts count: ${imageParts.size}")
-                    imageParts.forEachIndexed { index, part ->
-                        Log.d("ImageParts", "Image $index: ${part.body}")
-                    }
 
-                    Log.d("sendProduct", "Name: $name")
-                    Log.d("sendProduct", "Description: $description")
-                    Log.d("sendProduct", "Price: $price")
-                    Log.d("sendProduct", "Phone: $phone")
-                    Log.d("sendProduct", "NameUser: $nameUser")
-                    Log.d("sendProduct", "City: $city")
-
-
+                    // تبدیل داده‌های متنی به RequestBody
                     val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
                     val descriptionBody =
                         description.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -287,7 +301,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                     val cityBody = city.toRequestBody("text/plain".toMediaTypeOrNull())
 
                     Log.d("sendProduct", "Calling API to send product...")
-                    withTimeout(30_000) {
+
+                    withTimeout(120_000) {
                         val response = UtilsRetrofit.api.addProduct(
                             name = nameBody,
                             description = descriptionBody,
@@ -305,10 +320,8 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                                     context,
                                     "محصول با موفقیت ذخیره شد",
                                     Toast.LENGTH_LONG
-                                )
-                                    .show()
+                                ).show()
                             }
-
                         } else {
                             val errorBody = response.errorBody()?.string()
                             Log.e("sendProduct", "Error response: $errorBody")
@@ -317,20 +330,76 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                                     context,
                                     "خطا در ذخیره محصول: $errorBody",
                                     Toast.LENGTH_LONG
-                                )
-                                    .show()
+                                ).show()
                             }
-
                         }
                     }
                 } catch (e: CancellationException) {
                     Log.e("sendProduct", "Job cancelled: ${e.message}")
                 } catch (e: Exception) {
                     Log.e("sendProduct", "Unexpected error occurred", e)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            "خطای ناشناخته رخ داد: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
         }
     }
+
+    // تابع فشرده‌سازی تصویر
+    private fun compressBitmap(bitmap: Bitmap, quality: Int = 90): ByteArray {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.WEBP, quality, outputStream)
+        return outputStream.toByteArray()
+    }
+
+    // تابع تغییر ابعاد تصویر
+    private fun decodeSampledBitmapFromUri(
+        uri: Uri,
+        context: Context,
+        reqWidth: Int,
+        reqHeight: Int
+    ): Bitmap {
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            BitmapFactory.decodeStream(inputStream, null, options)
+        }
+
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+        options.inJustDecodeBounds = false
+
+        return context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            BitmapFactory.decodeStream(inputStream, null, options)
+        } ?: throw IllegalArgumentException("Invalid image file: $uri")
+    }
+
+    // تابع محاسبه inSampleSize برای تغییر ابعاد تصویر
+    private fun calculateInSampleSize(
+        options: BitmapFactory.Options,
+        reqWidth: Int,
+        reqHeight: Int
+    ): Int {
+        val (height: Int, width: Int) = options.run { outHeight to outWidth }
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight: Int = height / 2
+            val halfWidth: Int = width / 2
+
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+
+        return inSampleSize
+    }
+
 
     fun cancelJob() {
         job?.cancel()
