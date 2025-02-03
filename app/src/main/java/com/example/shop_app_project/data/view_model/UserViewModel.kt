@@ -6,10 +6,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -243,6 +245,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.R)
     fun sendProduct(
         name: String,
         description: String,
@@ -269,25 +272,24 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
                     val contentResolver = context.contentResolver
 
-                    // فشرده‌سازی تصاویر و تبدیل آن‌ها به MultipartBody.Part
                     val imageParts = imageFiles.mapIndexed { index, imageFile ->
-                        contentResolver.openInputStream(imageFile)?.use { inputStream ->
-                            // تغییر ابعاد تصویر
-                            val resizedBitmap =
-                                decodeSampledBitmapFromUri(imageFile, context, 1024, 1024)
-                            // فشرده‌سازی تصویر
-                            val compressedBytes = compressBitmap(resizedBitmap, 90)
-                            // تبدیل به MultipartBody.Part
-                            val imageRequestBody =
-                                compressedBytes.toRequestBody("image/webp".toMediaTypeOrNull())
+                        withContext(Dispatchers.Default) { // پردازش موازی
+                            contentResolver.openInputStream(imageFile)?.use { inputStream ->
+                                val resizedBitmap =
+                                    decodeSampledBitmapFromUri(imageFile, context, 800, 800)
+                                val compressedBytes = compressBitmap(resizedBitmap, 75)
+                                val imageRequestBody =
+                                    compressedBytes.toRequestBody("image/webp".toMediaTypeOrNull())
 
-                            MultipartBody.Part.createFormData(
-                                "images",
-                                "image$index.webp",
-                                imageRequestBody
-                            )
-                        } ?: throw IllegalArgumentException("Invalid image file: $imageFile")
+                                MultipartBody.Part.createFormData(
+                                    "images",
+                                    "image$index.webp",
+                                    imageRequestBody
+                                )
+                            } ?: throw IllegalArgumentException("Invalid image file: $imageFile")
+                        }
                     }
+
 
                     Log.d("ImageParts", "Image parts count: ${imageParts.size}")
 
@@ -351,33 +353,38 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // تابع فشرده‌سازی تصویر
-    private fun compressBitmap(bitmap: Bitmap, quality: Int = 90): ByteArray {
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun compressBitmap(bitmap: Bitmap, quality: Int = 75): ByteArray {
         val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.WEBP, quality, outputStream)
+        bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, quality, outputStream)
         return outputStream.toByteArray()
     }
 
-    // تابع تغییر ابعاد تصویر
     private fun decodeSampledBitmapFromUri(
         uri: Uri,
         context: Context,
-        reqWidth: Int,
-        reqHeight: Int
+        reqWidth: Int = 800,
+        reqHeight: Int = 800
     ): Bitmap {
         val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
         }
+
         context.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         }
 
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
         options.inJustDecodeBounds = false
+        options.inPreferredConfig = Bitmap.Config.RGB_565 // کاهش مصرف حافظه
+        options.inDither = false // سریع‌تر کردن پردازش
+        options.inPreferQualityOverSpeed = false // افزایش سرعت دیکودینگ
 
         return context.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         } ?: throw IllegalArgumentException("Invalid image file: $uri")
     }
+
 
     // تابع محاسبه inSampleSize برای تغییر ابعاد تصویر
     private fun calculateInSampleSize(
