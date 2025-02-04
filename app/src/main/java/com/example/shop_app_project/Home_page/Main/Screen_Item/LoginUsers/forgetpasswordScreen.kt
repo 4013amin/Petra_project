@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -53,10 +54,34 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.data.view_model.UserViewModel
+
+
+@Composable
+fun CheckboxMinimalExample() {
+    var checked by remember { mutableStateOf(true) }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            "Minimal checkbox"
+        )
+        Checkbox(
+            checked = checked,
+            onCheckedChange = { checked = it }
+        )
+    }
+
+    Text(
+        if (checked) "Checkbox is checked" else "Checkbox is unchecked"
+    )
+}
+
 
 @Composable
 fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewModel) {
@@ -66,6 +91,10 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
         UserPreferences.getInstance(context)
     }
     var shouldNavigate by remember { mutableStateOf(false) }
+    var rulesAccepted by remember { mutableStateOf(false) }
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(Unit) {
         if (userPreferences.isUserLoggedIn()) {
@@ -176,26 +205,45 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
 
                             Spacer(modifier = Modifier.height(36.dp))
 
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = rulesAccepted,
+                                    onCheckedChange = { rulesAccepted = it }
+                                )
+                                Text(
+                                    "پذیرفتن قوانین",
+                                    modifier = Modifier.clickable { showDialog = true })
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(bottom = 25.dp),
                                 contentAlignment = Alignment.BottomCenter
                             ) {
+
+                                //Cal CheckBox
+
                                 val isPhoneValid = phone.value.length == 11
+                                val isButtonEnabled = isPhoneValid && rulesAccepted
+
                                 Button(
                                     onClick = {
                                         if (isPhoneValid) {
                                             navController.navigate("addCodeScreen?phone=${phone.value}")
                                             userViewModel.sendOPT(phone.value, context)
                                         }
-
                                     },
                                     modifier = Modifier
                                         .width(400.dp)
                                         .height(60.dp),
                                     shape = RoundedCornerShape(6.dp),
-                                    enabled = isPhoneValid,
+                                    enabled = isButtonEnabled,
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = if (isPhoneValid) colorResource(id = R.color.blueM)
                                         else colorResource(id = R.color.graBTN)
@@ -209,7 +257,46 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
                                     )
                                 }
                             }
+                        }
+                    }
+                }
+            }
 
+            if (showDialog) {
+                Dialog(onDismissRequest = { showDialog = false }) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color.White
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "قوانین و مقررات",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = """
+                                1. این اپلیکیشن به شما این امکان را می‌دهد که آگهی‌های فروش حیوانات خانگی ارسال کنید.
+                                2. شماره تلفن شما به صورت عمومی نمایش داده می‌شود.
+                                3. هر گونه سوءاستفاده از اطلاعات کاربران منجر به تعلیق حساب کاربری خواهد شد.
+                                4. مسئولیت امنیت اطلاعات تماس به عهده خود کاربر است.
+                                ...
+                            """.trimIndent(),
+                                fontSize = 14.sp
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { showDialog = false },
+                                modifier = Modifier.align(Alignment.End)
+                            ) {
+                                Text("بستن")
+                            }
                         }
                     }
                 }
@@ -217,6 +304,7 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
         }
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
