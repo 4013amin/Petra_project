@@ -231,7 +231,7 @@ fun NavGraph(
 
 
         composable("forgetPassword") {
-            forgetpasswordScreen(navController, userViewModel)
+            forgetpasswordScreen(navController)
         }
 
 

@@ -2,6 +2,7 @@ package com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers
 
 import UserPreferences
 import android.annotation.SuppressLint
+import android.app.Application
 import com.example.shop_app_project.R
 import android.os.Build
 import android.os.CountDownTimer
@@ -62,30 +63,9 @@ import com.example.shop_app_project.data.view_model.UserViewModel
 
 
 @Composable
-fun CheckboxMinimalExample() {
-    var checked by remember { mutableStateOf(true) }
+fun forgetpasswordScreen(navController: NavController) {
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            "Minimal checkbox"
-        )
-        Checkbox(
-            checked = checked,
-            onCheckedChange = { checked = it }
-        )
-    }
-
-    Text(
-        if (checked) "Checkbox is checked" else "Checkbox is unchecked"
-    )
-}
-
-
-@Composable
-fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewModel) {
-
+    val userViewModel: UserViewModel = viewModel()
     val context = LocalContext.current
     val userPreferences = remember {
         UserPreferences.getInstance(context)
@@ -205,17 +185,7 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
 
                             Spacer(modifier = Modifier.height(36.dp))
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = rulesAccepted,
-                                    onCheckedChange = { rulesAccepted = it }
-                                )
-                                Text(
-                                    "پذیرفتن قوانین",
-                                    modifier = Modifier.clickable { showDialog = true })
-                            }
+
 
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -226,35 +196,51 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
                                     .padding(bottom = 25.dp),
                                 contentAlignment = Alignment.BottomCenter
                             ) {
-
-                                //Cal CheckBox
-
-                                val isPhoneValid = phone.value.length == 11
-                                val isButtonEnabled = isPhoneValid && rulesAccepted
-
-                                Button(
-                                    onClick = {
-                                        if (isPhoneValid) {
-                                            navController.navigate("addCodeScreen?phone=${phone.value}")
-                                            userViewModel.sendOPT(phone.value, context)
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .width(400.dp)
-                                        .height(60.dp),
-                                    shape = RoundedCornerShape(6.dp),
-                                    enabled = isButtonEnabled,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (isPhoneValid) colorResource(id = R.color.blueM)
-                                        else colorResource(id = R.color.graBTN)
-                                    )
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text(
-                                        text = "دریافت کد",
-                                        color = Color.White,
-                                        fontSize = 18.sp,
-                                        modifier = Modifier.padding(8.dp)
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Checkbox(
+                                            checked = rulesAccepted,
+                                            onCheckedChange = { rulesAccepted = it }
+                                        )
+                                        Text(
+                                            "پذیرفتن قوانین",
+                                            modifier = Modifier.clickable { showDialog = true }
+                                        )
+                                    }
+
+                                    val isPhoneValid = phone.value.length == 11
+                                    val isButtonEnabled = isPhoneValid && rulesAccepted
+
+                                    Button(
+                                        onClick = {
+                                            if (isPhoneValid) {
+                                                navController.navigate("addCodeScreen?phone=${phone.value}")
+                                                userViewModel.sendOPT(phone.value, context)
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .width(400.dp)
+                                            .height(60.dp),
+                                        shape = RoundedCornerShape(6.dp),
+                                        enabled = isButtonEnabled,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isPhoneValid) colorResource(id = R.color.blueM)
+                                            else colorResource(id = R.color.graBTN)
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "دریافت کد",
+                                            color = Color.White,
+                                            fontSize = 18.sp,
+                                            modifier = Modifier.padding(8.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -277,18 +263,38 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
                             Text(
                                 text = "قوانین و مقررات",
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Right,
+                                modifier = Modifier.fillMaxWidth()
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
                                 text = """
-                                1. این اپلیکیشن به شما این امکان را می‌دهد که آگهی‌های فروش حیوانات خانگی ارسال کنید.
-                                2. شماره تلفن شما به صورت عمومی نمایش داده می‌شود.
-                                3. هر گونه سوءاستفاده از اطلاعات کاربران منجر به تعلیق حساب کاربری خواهد شد.
-                                4. مسئولیت امنیت اطلاعات تماس به عهده خود کاربر است.
-                                ...
-                            """.trimIndent(),
-                                fontSize = 14.sp
+                             **هدف اپلیکیشن**  
+                               این اپلیکیشن یک بستر آنلاین برای ثبت و نمایش آگهی‌های خرید و فروش حیوانات خانگی و لوازم مرتبط با آن‌هاست.
+
+                             **نمایش شماره تماس**  
+                               شماره تماس شما در آگهی‌ها به صورت عمومی نمایش داده می‌شود و تمامی کاربران قادر به مشاهده آن خواهند بود.
+
+                             **مسئولیت کاربران**  
+                               مسئولیت حفظ حریم خصوصی و امنیت اطلاعات تماس بر عهده خود کاربر است. در صورت عدم تمایل به نمایش شماره تماس، از ثبت آگهی خودداری کنید.
+
+                             **ممنوعیت سوءاستفاده**  
+                               هرگونه سوءاستفاده از اطلاعات کاربران، تبلیغات نامناسب، ارسال اطلاعات نادرست یا ایجاد مزاحمت برای سایر کاربران، منجر به تعلیق یا حذف حساب کاربری خواهد شد.
+
+                             **مسئولیت آگهی‌ها**  
+                               صحت و اعتبار آگهی‌های ثبت‌شده به عهده‌ی آگهی‌دهنده است. اپلیکیشن هیچ‌گونه مسئولیتی در قبال صحت اطلاعات درج‌شده در آگهی‌ها ندارد.
+
+                             **حذف یا ویرایش آگهی**  
+                               مدیریت اپلیکیشن این حق را دارد که در صورت مشاهده‌ی تخلف یا گزارش کاربران، آگهی‌ها را بدون اطلاع قبلی حذف یا ویرایش کند.
+
+                             **تغییر قوانین**  
+                               این قوانین ممکن است در هر زمان تغییر کنند. استفاده مستمر از اپلیکیشن به منزله‌ی پذیرش آخرین نسخه‌ی قوانین خواهد بود.
+                        """.trimIndent(),
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Right,
+                                lineHeight = 20.sp,
+                                modifier = Modifier.fillMaxWidth()
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
@@ -308,7 +314,11 @@ fun forgetpasswordScreen(navController: NavController, userViewModel: UserViewMo
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun addCodeScreen(navController: NavController, userViewModel: UserViewModel, phone: String?) {
+fun addCodeScreen(
+    navController: NavController,
+    userViewModel: UserViewModel,
+    phone: String?
+) {
     val codes = remember { List(5) { mutableStateOf("") } }
     val focusRequesters = remember { List(5) { FocusRequester() } }
     val focusManager = LocalFocusManager.current

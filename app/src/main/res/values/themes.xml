@@ -2,12 +2,14 @@
 
     <!-- تم اسپلش -->
     <style name="Theme.MySplashScreen" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#fff</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/asset</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:ignore="NewApi">
+            @drawable/splash_icon
+        </item>
         <item name="postSplashScreenTheme">@style/Theme.Shop_App_project</item>
-        <item name="android:statusBarColor">#fff</item>
+        <item name="android:statusBarColor">@color/blueM</item>
         <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
     </style>
+
 
     <!-- تم اصلی اپلیکیشن -->
     <style name="Theme.Shop_App_project" parent="android:Theme.Material.Light.NoActionBar">
