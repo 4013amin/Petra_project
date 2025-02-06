@@ -486,43 +486,43 @@ fun ProductItem(
             }
         }
     }
-
-    @Composable
-    fun AnimalBoxes() {
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                AnimalBox(
-                    imageRes = R.drawable.dog,
-                    backgroundColor = Color(0xFFFFF3E0),
-                    text = "Dog"
-                )
-            }
-            item {
-                AnimalBox(
-                    imageRes = R.drawable.cat,
-                    backgroundColor = Color(0xFFE0F7FA),
-                    text = "Cat"
-                )
-            }
-            item {
-                AnimalBox(
-                    imageRes = R.drawable.parrot,
-                    backgroundColor = Color(0xFFFFF3E0),
-                    text = "Parrot"
-                )
-            }
-            item {
-                AnimalBox(
-                    imageRes = R.drawable.tools3,
-                    backgroundColor = Color(0xFFE0F7FA),
-                    text = "Tools"
-                )
-            }
-        }
-    }
 }
+//    @Composable
+//    fun AnimalBoxes() {
+//        LazyRow(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp),
+//            horizontalArrangement = Arrangement.spacedBy(16.dp)
+//        ) {
+//            item {
+//                AnimalBox(
+//                    imageRes = R.drawable.dog,
+//                    backgroundColor = Color(0xFFFFF3E0),
+//                    text = "Dog"
+//                )
+//            }
+//            item {
+//                AnimalBox(
+//                    imageRes = R.drawable.cat,
+//                    backgroundColor = Color(0xFFE0F7FA),
+//                    text = "Cat"
+//                )
+//            }
+//            item {
+//                AnimalBox(
+//                    imageRes = R.drawable.parrot,
+//                    backgroundColor = Color(0xFFFFF3E0),
+//                    text = "Parrot"
+//                )
+//            }
+//            item {
+//                AnimalBox(
+//                    imageRes = R.drawable.tools3,
+//                    backgroundColor = Color(0xFFE0F7FA),
+//                    text = "Tools"
+//                )
+//            }
+//        }
+//    }
+//}
