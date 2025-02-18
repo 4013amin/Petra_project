@@ -1,3 +1,4 @@
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
@@ -43,8 +44,10 @@ import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCod
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.UserProductsScreen
+import com.example.shop_app_project.Home_page.Main.Screen_Item.UserProfileDetailScreen
 
 import com.example.shop_app_project.Home_page.Main.UiHomePage
+import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.ShoppingCartViewModel
@@ -178,6 +181,7 @@ fun BottomNavigations(
     }
 }
 
+@SuppressLint("UnrememberedMutableState", "NewApi")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -249,6 +253,10 @@ fun NavGraph(
             val userPreferences = UserPreferences.getInstance(context)
             val phone = userPreferences.getUserPhone()
             UserProductsScreen(userViewModel, phone.toString(), context, navController)
+        }
+
+        composable("profileDetail") {
+            UserProfileDetailScreen(userViewModel, navController)
         }
     }
 }

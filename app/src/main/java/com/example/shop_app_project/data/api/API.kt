@@ -2,6 +2,7 @@ package com.example.shop_app_project.data.api
 
 import android.telecom.Call
 import com.example.shop_app_project.data.models.Profile.ProdfileModel
+import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.models.register.login_model
@@ -82,6 +83,9 @@ interface API {
         @Query("id") id: Int
     ): Response<ResponseBody>
 
+
+    @GET("/profile/")
+    suspend fun getProfile(@Query("phone") phone: String): Response<UserProfile>
 
 }
 

@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.utils.UtilsRetrofit
@@ -60,6 +61,9 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     var products = mutableStateOf<List<ProductModel>>(arrayListOf())
     var category = mutableStateOf<List<Category>>(arrayListOf())
     var userProducts = mutableStateOf<List<ProductModel>>(arrayListOf())
+    var userProfile = mutableStateOf<UserProfile?>(null)
+
+
 
     //chech_for_login
     var isLoggedIn by mutableStateOf(false)
@@ -504,6 +508,24 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     Toast.makeText(context, "با موفیت حذف شد", Toast.LENGTH_SHORT).show()
                     Log.d("DeleteProduct", "Product deleted successfully")
+                }
+            }
+        }
+    }
+
+
+    fun getProfileViewModel(context: Context, phone: String) {
+        viewModelScope.launch {
+            withTimeout(30_000) {
+                val response = try {
+                    UtilsRetrofit.api.getProfile(phone)
+                } catch (e: IOException) {
+                    Toast.makeText(context, "This is error in ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
+                    return@withTimeout
+                }
+                if (response.isSuccessful && response.body() != null) {
+                    userProfile.value = response.body()!!
                 }
             }
         }

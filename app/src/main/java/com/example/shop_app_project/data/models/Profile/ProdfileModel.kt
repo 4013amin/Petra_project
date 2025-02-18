@@ -5,3 +5,11 @@ data class ProdfileModel(
     val id : Int,
     val password: String
 )
+
+
+data class UserProfile(
+    val id: Int,
+    val name: String,
+    val image: String,
+    val credit: Int
+)
