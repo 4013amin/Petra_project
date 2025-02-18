@@ -64,7 +64,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     var userProfile = mutableStateOf<UserProfile?>(null)
 
 
-
     //chech_for_login
     var isLoggedIn by mutableStateOf(false)
 
@@ -528,6 +527,13 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                     userProfile.value = response.body()!!
                 }
             }
+        }
+    }
+
+
+    fun editProfileViewModel(context: Context, name: String, image: String, credit: Int) {
+        viewModelScope.launch {
+
         }
     }
 

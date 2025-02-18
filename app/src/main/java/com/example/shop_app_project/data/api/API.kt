@@ -87,6 +87,13 @@ interface API {
     @GET("/profile/")
     suspend fun getProfile(@Query("phone") phone: String): Response<UserProfile>
 
+    @POST("/profile/")
+    suspend fun editProfile(
+        @Query("name") name: String,
+        @Query("image") image: String,
+        @Query("credit") credit: Int
+    ): Response<UserProfile>
+
 }
 
 
