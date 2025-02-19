@@ -532,8 +532,13 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun editProfileViewModel(context: Context, name: String, image: String, credit: Int) {
-        viewModelScope.launch {
 
+        viewModelScope.launch {
+            var response = try {
+                UtilsRetrofit.api.editProfile(name, image, credit)
+            } catch (e: IOException) {
+                Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

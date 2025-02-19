@@ -75,8 +75,10 @@ import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1158,7 +1160,7 @@ fun UserProfileDetailScreen(
             // دکمه ویرایش
             Button(
                 onClick = {
-                    navController.navigate("editProfile")
+                    navController.navigate("EditProfileScreen")
                 },
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
@@ -1167,6 +1169,140 @@ fun UserProfileDetailScreen(
                     text = "ویرایش پروفایل",
                     color = Color.White,
                     fontSize = 18.sp
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditProfileScreen(
+    userViewModel: UserViewModel = viewModel(),
+    navController: NavController,
+    context: Context
+) {
+    val userProfile by userViewModel.userProfile
+    val scope = rememberCoroutineScope()
+
+    var name by remember { mutableStateOf(userProfile?.name ?: "") }
+    var imageUrl by remember { mutableStateOf(userProfile?.image ?: "") }
+    var credit by remember { mutableStateOf(userProfile?.credit?.toString() ?: "0") }
+    var creditError by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "ویرایش پروفایل",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "بازگشت",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorResource(id = R.color.blueM)
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            TextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("نام") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+
+                )
+
+            TextField(
+                value = imageUrl,
+                onValueChange = { imageUrl = it },
+                label = { Text("آدرس تصویر") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+
+                )
+
+            TextField(
+                value = credit,
+                onValueChange = {
+                    credit = it
+                    creditError = it.toIntOrNull() == null
+                },
+                label = { Text("اعتبار (تومان)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                isError = creditError,
+                shape = RoundedCornerShape(12.dp),
+
+                )
+
+            if (creditError) {
+                Text(
+                    text = "لطفاً یک عدد معتبر وارد کنید",
+                    color = Color.Red,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    val creditInt = credit.toIntOrNull()
+                    if (creditInt == null) {
+                        creditError = true
+                        return@Button
+                    }
+
+                    scope.launch {
+                        val success = userViewModel.editProfileViewModel(
+                            context = context,
+                            name = name,
+                            image = imageUrl,
+                            credit = creditInt
+                        )
+
+                        if (success != null) {
+                            withContext(Dispatchers.Main) {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = R.color.blueM)
+                )
+            ) {
+                Text(
+                    text = "ذخیره تغییرات",
+                    fontSize = 18.sp,
+                    color = Color.White
                 )
             }
         }

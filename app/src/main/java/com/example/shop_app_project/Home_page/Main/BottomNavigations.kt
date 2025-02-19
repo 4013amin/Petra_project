@@ -39,6 +39,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
+import com.example.shop_app_project.Home_page.Main.Screen_Item.EditProfileScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.FavoritesPage
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.addCodeScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forgetpasswordScreen
@@ -257,6 +258,10 @@ fun NavGraph(
 
         composable("profileDetail") {
             UserProfileDetailScreen(userViewModel, navController)
+        }
+
+        composable("EditProfileScreen") {
+            EditProfileScreen(userViewModel, navController, context)
         }
     }
 }
