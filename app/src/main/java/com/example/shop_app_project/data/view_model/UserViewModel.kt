@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.example.shop_app_project.data.models.Profile.EditProfileRequest
 import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
@@ -531,13 +532,30 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun editProfileViewModel(context: Context, name: String, image: String, credit: Int) {
-
+    fun editProfileViewModel(
+        context: Context,
+        phone: String,
+        name: String,
+        image: String,
+        credit: Int
+    ) {
         viewModelScope.launch {
-            var response = try {
-                UtilsRetrofit.api.editProfile(name, image, credit)
+            try {
+                val request = EditProfileRequest(name = name.trim(), image = image, credit = credit)
+                val response = UtilsRetrofit.api.editProfile(phone, request)
+
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "پروفایل با موفقیت ویرایش شد", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    Toast.makeText(
+                        context,
+                        "خطا: ${response.errorBody()?.string()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } catch (e: IOException) {
-                Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "خطای شبکه: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }

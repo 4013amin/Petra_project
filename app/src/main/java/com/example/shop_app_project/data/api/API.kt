@@ -1,6 +1,7 @@
 package com.example.shop_app_project.data.api
 
 import android.telecom.Call
+import com.example.shop_app_project.data.models.Profile.EditProfileRequest
 import com.example.shop_app_project.data.models.Profile.ProdfileModel
 import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.Category
@@ -19,6 +20,7 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -87,12 +89,13 @@ interface API {
     @GET("/profile/")
     suspend fun getProfile(@Query("phone") phone: String): Response<UserProfile>
 
-    @POST("/profile/")
+    //Edit Profile
+    @PUT("profile/")
     suspend fun editProfile(
-        @Query("name") name: String,
-        @Query("image") image: String,
-        @Query("credit") credit: Int
+        @Query("phone") phone: String,
+        @Body request: EditProfileRequest
     ): Response<UserProfile>
+
 
 }
 
