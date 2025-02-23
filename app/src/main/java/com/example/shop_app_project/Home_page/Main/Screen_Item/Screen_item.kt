@@ -1290,7 +1290,7 @@ fun EditProfileScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
 
-                )
+                    )
 
                 // فیلد آدرس تصویر
                 OutlinedTextField(
@@ -1301,7 +1301,7 @@ fun EditProfileScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
 
-                )
+                    )
 
                 // فیلد اعتبار
                 OutlinedTextField(
@@ -1317,7 +1317,7 @@ fun EditProfileScreen(
                     isError = creditError,
                     shape = RoundedCornerShape(12.dp),
 
-                )
+                    )
 
                 if (creditError) {
                     Text(

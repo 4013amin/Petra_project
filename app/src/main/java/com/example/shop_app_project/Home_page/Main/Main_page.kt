@@ -46,6 +46,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.shop_app_project.Home_page.internet.ConnectivityObserver
 import com.example.shop_app_project.R
+import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.ShoppingCartViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
@@ -74,10 +75,16 @@ class MainActivity : ComponentActivity() {
                 val userViewModel: UserViewModel = viewModel()
                 val shoppingCartViewModel: ShoppingCartViewModel = viewModel()
                 val isConnected = connectivityObserver.isConnected
+                val userProfile by userViewModel.userProfile
 
                 UiHomePage(navController = navController, userViewModel = userViewModel)
 
-                BottomNavigations(navController, userViewModel, shoppingCartViewModel)
+                BottomNavigations(
+                    navController,
+                    userViewModel,
+                    shoppingCartViewModel,
+                    userProfile
+                )
 
                 if (!isConnected) {
                     InternetErrorMessage()

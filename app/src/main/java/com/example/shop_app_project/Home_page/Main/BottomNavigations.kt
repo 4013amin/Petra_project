@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -20,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -38,6 +40,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
 import com.example.shop_app_project.Home_page.Main.Screen_Item.EditProfileScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.FavoritesPage
@@ -69,7 +72,8 @@ val navItems = listOf(
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavHostController
+    navController: NavHostController,
+    userProfile: UserProfile?
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
@@ -101,14 +105,24 @@ fun BottomNavigationBar(
                             }
                         },
                         icon = {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.title,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .graphicsLayer(scaleX = scale, scaleY = scale),
-                                tint = if (isSelected) Color(0xFF007BFF) else Color.Gray
-                            )
+                            if (item.route == "profile" && userProfile?.image != null) {
+                                AsyncImage(
+                                    model = userProfile.image,
+                                    contentDescription = "Profile Image",
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(CircleShape),
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = item.title,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .graphicsLayer(scaleX = scale, scaleY = scale),
+                                    tint = if (isSelected) Color(0xFF007BFF) else Color.Gray
+                                )
+                            }
                         },
                         label = {
                             Text(
@@ -136,6 +150,7 @@ fun BottomNavigations(
     navController: NavHostController,
     userViewModel: UserViewModel,
     shoppingCartViewModel: ShoppingCartViewModel,
+    userProfile: UserProfile?
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -163,7 +178,7 @@ fun BottomNavigations(
                     "addCodeScreen"
                 ) != true
             ) {
-                BottomNavigationBar(navController = navController)
+                BottomNavigationBar(navController = navController, userProfile)
             }
         }
     ) { innerPadding ->
@@ -264,12 +279,4 @@ fun NavGraph(
             EditProfileScreen(userViewModel, navController, context)
         }
     }
-}
-
-
-@Preview
-@Composable
-private fun showBottomNavigation() {
-    val navController = rememberNavController()
-    BottomNavigationBar(navController = navController)
 }
