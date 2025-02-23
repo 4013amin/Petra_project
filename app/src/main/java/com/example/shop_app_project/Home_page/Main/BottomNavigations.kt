@@ -4,6 +4,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -95,6 +96,7 @@ fun BottomNavigationBar(
 
                     NavigationBarItem(
                         selected = isSelected,
+                        modifier = Modifier.height(15.dp),
                         onClick = {
                             navController.navigate(item.route) {
                                 popUpTo(navController.graph.startDestinationId) {
@@ -279,4 +281,17 @@ fun NavGraph(
             EditProfileScreen(userViewModel, navController, context)
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewBottomNavigationBar() {
+    val navController = rememberNavController()
+
+    // داده آزمایشی برای userProfile
+    val sampleUserProfile =
+        UserProfile(1, "username", image = "https://via.placeholder.com/150", 5000)
+
+    BottomNavigationBar(navController = navController, userProfile = sampleUserProfile)
+
 }
