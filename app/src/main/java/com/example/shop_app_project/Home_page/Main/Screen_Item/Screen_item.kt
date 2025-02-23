@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.shop_app_project.Home_page.Main.Screen_Item
 
 import UserPreferences
@@ -59,6 +61,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -1028,10 +1032,11 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { navController.navigate("profileDetail") },
+            .clickable { navController.navigate("profileDetail") }
+            .shadow(8.dp, shape = RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -1039,12 +1044,20 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // تصویر پروفایل
+            // تصویر پروفایل با افکت مدرن
             Box(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFEEEEEE))
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color(0xFF6A1B9A),
+                                Color(0xFFAB47BC)
+                            )
+                        )
+                    )
+                    .border(2.dp, Color.White, CircleShape)
             ) {
                 AsyncImage(
                     model = userProfile.image,
@@ -1074,10 +1087,14 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                     fontWeight = FontWeight.Medium
                 )
             }
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "جزئیات بیشتر",
+                tint = Color(0xFF757575)
+            )
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1132,12 +1149,20 @@ fun UserProfileDetailScreen(
                     .padding(paddingValues)
                     .padding(16.dp)
             ) {
-                // تصویر پروفایل
+                // تصویر پروفایل با افکت مدرن
                 Box(
                     modifier = Modifier
                         .size(150.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFEEEEEE))
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+                                    Color(0xFF6A1B9A),
+                                    Color(0xFFAB47BC)
+                                )
+                            )
+                        )
+                        .border(4.dp, Color.White, CircleShape)
                         .align(Alignment.CenterHorizontally)
                 ) {
                     AsyncImage(
@@ -1173,13 +1198,17 @@ fun UserProfileDetailScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // دکمه ویرایش
+                // دکمه ویرایش با افکت مدرن
                 Button(
                     onClick = {
                         navController.navigate("EditProfileScreen")
                     },
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .fillMaxWidth(0.8f)
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         text = "ویرایش پروفایل",
@@ -1219,7 +1248,6 @@ fun EditProfileScreen(
             isRefreshing = false
         }
     ) {
-
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -1253,7 +1281,8 @@ fun EditProfileScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                TextField(
+                // فیلد نام
+                OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("نام") },
@@ -1261,9 +1290,10 @@ fun EditProfileScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
 
-                    )
+                )
 
-                TextField(
+                // فیلد آدرس تصویر
+                OutlinedTextField(
                     value = imageUrl,
                     onValueChange = { imageUrl = it },
                     label = { Text("آدرس تصویر") },
@@ -1271,9 +1301,10 @@ fun EditProfileScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
 
-                    )
+                )
 
-                TextField(
+                // فیلد اعتبار
+                OutlinedTextField(
                     value = credit,
                     onValueChange = {
                         credit = it
@@ -1286,7 +1317,7 @@ fun EditProfileScreen(
                     isError = creditError,
                     shape = RoundedCornerShape(12.dp),
 
-                    )
+                )
 
                 if (creditError) {
                     Text(
@@ -1298,6 +1329,7 @@ fun EditProfileScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
+                // دکمه ذخیره تغییرات
                 Button(
                     onClick = {
                         val creditInt = credit.toIntOrNull()
@@ -1343,5 +1375,3 @@ fun EditProfileScreen(
         }
     }
 }
-
-
