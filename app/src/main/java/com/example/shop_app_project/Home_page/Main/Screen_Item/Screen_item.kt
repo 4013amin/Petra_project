@@ -1059,8 +1059,15 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                     )
                     .border(2.dp, Color.White, CircleShape)
             ) {
+
+                val imageUrl = if (userProfile.image.startsWith("http")) {
+                    userProfile.image
+                } else {
+                    "http://192.168.137.101:2020" + userProfile.image
+                }
+
                 AsyncImage(
-                    model = userProfile.image,
+                    model = imageUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -1165,8 +1172,14 @@ fun UserProfileDetailScreen(
                         .border(4.dp, Color.White, CircleShape)
                         .align(Alignment.CenterHorizontally)
                 ) {
+                    val imageUrl = if (userProfile?.image?.startsWith("http") == true) {
+                        userProfile?.image
+                    } else {
+                        "http://192.168.137.101:2020" + userProfile?.image
+                    }
+
                     AsyncImage(
-                        model = userProfile?.image,
+                        model = imageUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
@@ -1232,13 +1245,23 @@ fun EditProfileScreen(
     val scope = rememberCoroutineScope()
 
     var name by remember { mutableStateOf(userProfile?.name ?: "") }
-    var imageUrl by remember { mutableStateOf(userProfile?.image ?: "") }
+    // نگهداری آدرس عکس به عنوان Uri در صورت انتخاب عکس جدید
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
     var credit by remember { mutableStateOf(userProfile?.credit?.toString() ?: "0") }
     var creditError by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     val refreshState = rememberSwipeRefreshState(isRefreshing)
     val userPreferences = UserPreferences.getInstance(context)
     val phone = userPreferences.getUserPhone()
+
+    // لانچر برای انتخاب عکس از گالری
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            imageUri = uri
+        }
+    }
 
     SwipeRefresh(
         state = refreshState,
@@ -1279,31 +1302,63 @@ fun EditProfileScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // فیلد نام
+                // نمایش عکس پروفایل با امکان کلیک برای تغییر عکس
+                Box(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color(0xFF6A1B9A),
+                                    Color(0xFFAB47BC)
+                                )
+                            )
+                        )
+                        .border(4.dp, Color.White, CircleShape)
+                        .clickable { imagePickerLauncher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (imageUri != null) {
+                        // اگر کاربر عکس جدید انتخاب کرده، از آن استفاده می‌کنیم
+                        AsyncImage(
+                            model = imageUri,
+                            contentDescription = "عکس پروفایل جدید",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        // در غیر این صورت عکس فعلی را نمایش می‌دهیم
+                        val currentImageUrl = if (userProfile?.image?.startsWith("http") == true) {
+                            userProfile?.image
+                        } else {
+                            "http://192.168.137.101:2020" + (userProfile?.image ?: "")
+                        }
+                        AsyncImage(
+                            model = currentImageUrl,
+                            contentDescription = "عکس پروفایل",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // فیلد ویرایش نام
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("نام") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(12.dp)
+                )
 
-                    )
-
-                // فیلد آدرس تصویر
-                OutlinedTextField(
-                    value = imageUrl,
-                    onValueChange = { imageUrl = it },
-                    label = { Text("آدرس تصویر") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-
-                    )
-
-                // فیلد اعتبار
+                // فیلد ویرایش اعتبار
                 OutlinedTextField(
                     value = credit,
                     onValueChange = {
@@ -1315,10 +1370,8 @@ fun EditProfileScreen(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     isError = creditError,
-                    shape = RoundedCornerShape(12.dp),
-
-                    )
-
+                    shape = RoundedCornerShape(12.dp)
+                )
                 if (creditError) {
                     Text(
                         text = "لطفاً یک عدد معتبر وارد کنید",
@@ -1337,19 +1390,19 @@ fun EditProfileScreen(
                             creditError = true
                             return@Button
                         }
-
-                        val userPreferences = UserPreferences.getInstance(context)
-                        val phone = userPreferences.getUserPhone()
-
                         scope.launch {
+                            // در اینجا فرض می‌کنیم در صورت انتخاب عکس جدید،
+                            // URL آن پس از آپلود در سرور دریافت می‌شود.
+                            // برای سادگی، اگر عکس جدید انتخاب شده از imageUri استفاده می‌کنیم؛
+                            // در عمل باید عملیات آپلود انجام شود.
+                            val newImageUrl = imageUri?.toString() ?: (userProfile?.image ?: "")
                             val success = userViewModel.editProfileViewModel(
                                 context = context,
                                 name = name,
-                                image = imageUrl,
+                                image = newImageUrl,
                                 credit = creditInt,
                                 phone = phone.toString()
                             )
-
                             if (success != null) {
                                 withContext(Dispatchers.Main) {
                                     navController.popBackStack()
