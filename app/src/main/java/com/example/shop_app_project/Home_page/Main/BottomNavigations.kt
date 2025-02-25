@@ -3,12 +3,15 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -30,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
@@ -108,12 +112,19 @@ fun BottomNavigationBar(
                         },
                         icon = {
                             if (item.route == "profile" && userProfile?.image != null) {
+                                val imageUrl = if (userProfile?.image?.startsWith("http") == true) {
+                                    userProfile?.image
+                                } else {
+                                    "http://192.168.137.101:2020" + userProfile?.image
+                                }
                                 AsyncImage(
-                                    model = userProfile.image,
-                                    contentDescription = "Profile Image",
+                                    model = imageUrl,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Inside,
                                     modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape),
+                                        .size(20.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+
                                 )
                             } else {
                                 Icon(
