@@ -23,6 +23,7 @@ import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.utils.UtilsRetrofit
+import com.example.shop_app_project.data.utils.UtilsRetrofit.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -37,6 +38,7 @@ import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.log
 
 
 data class OPT_Model(
@@ -531,16 +533,19 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         context: Context,
         phone: String,
         name: String,
-        image: Unit?,
+        image: MultipartBody.Part?,
         credit: Int
     ) {
         viewModelScope.launch {
             try {
-                val response = UtilsRetrofit.api.editProfile(phone, name, credit, image)
+                val namePart = name.toRequestBody("text/plain".toMediaTypeOrNull())
+                val creditPart = credit.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+
+                // تصویر مستقیماً ارسال شود
+                val response = api.editProfile(phone, namePart, creditPart, image)
 
                 if (response.isSuccessful) {
-                    Toast.makeText(context, "پروفایل با موفقیت ویرایش شد", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(context, "پروفایل با موفقیت ویرایش شد", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(
                         context,
@@ -550,9 +555,11 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 }
             } catch (e: IOException) {
                 Toast.makeText(context, "خطای شبکه: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("EditProfile", "خطای شبکه: ${e.message}", e)
             }
         }
     }
+
 
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {

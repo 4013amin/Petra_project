@@ -84,14 +84,16 @@ interface API {
     @GET("/profile/")
     suspend fun getProfile(@Query("phone") phone: String): Response<UserProfile>
 
-    //Edit Profile
+
+
+
     @Multipart
     @PUT("profile/")
     suspend fun editProfile(
         @Query("phone") phone: String,
-        @Part("name") name: String,
-        @Part("credit") credit: Int,
-        @Part image: Unit?
+        @Part("name") name: RequestBody,
+        @Part("credit") credit: RequestBody,
+        @Part image: MultipartBody.Part? // حتماً `MultipartBody.Part` باشد
     ): Response<UserProfile>
 
 

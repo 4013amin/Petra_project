@@ -86,6 +86,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.io.IOException
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -1234,6 +1239,26 @@ fun UserProfileDetailScreen(
     }
 }
 
+fun uriToFile(context: Context, uri: Uri): File? {
+    val contentResolver = context.contentResolver
+    val fileName = "temp_image_${System.currentTimeMillis()}.jpg" // نام فایل موقت
+    val file = File(context.cacheDir, fileName)
+
+    return try {
+        contentResolver.openInputStream(uri)?.use { inputStream ->
+            file.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+        Log.d("EditProfile", "فایل کپی شد: ${file.absolutePath}")
+        file
+    } catch (e: IOException) {
+        Log.e("EditProfile", "خطا در تبدیل URI به فایل: ${e.message}")
+        null
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
@@ -1392,11 +1417,21 @@ fun EditProfileScreen(
                         }
                         scope.launch {
                             val imagePart = imageUri?.let { uri ->
+                                val file = uriToFile(context, uri)
+                                if (file == null || !file.exists()) {
+                                    Log.e("EditProfile", "فایل ساخته نشد یا وجود ندارد!")
+                                    return@let null
+                                }
+
+                                val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+                                MultipartBody.Part.createFormData("image", file.name, requestBody)
                             }
+
+
                             val success = userViewModel.editProfileViewModel(
                                 context = context,
                                 name = name,
-                                image = imagePart, // تغییر مقدار image
+                                image = imagePart,
                                 credit = creditInt,
                                 phone = phone.toString()
                             )
