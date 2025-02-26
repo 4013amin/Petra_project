@@ -12,7 +12,6 @@ import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,15 +23,11 @@ import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.utils.UtilsRetrofit
-import com.example.shop_app_project.data.utils.UtilsRetrofit.api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.withTimeout
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -536,13 +531,12 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         context: Context,
         phone: String,
         name: String,
-        image: String,
+        image: Unit?,
         credit: Int
     ) {
         viewModelScope.launch {
             try {
-                val request = EditProfileRequest(name = name.trim(), image = image, credit = credit)
-                val response = UtilsRetrofit.api.editProfile(phone, request)
+                val response = UtilsRetrofit.api.editProfile(phone, name, credit, image)
 
                 if (response.isSuccessful) {
                     Toast.makeText(context, "پروفایل با موفقیت ویرایش شد", Toast.LENGTH_SHORT)

@@ -1,19 +1,14 @@
 package com.example.shop_app_project.data.api
 
-import android.telecom.Call
-import com.example.shop_app_project.data.models.Profile.EditProfileRequest
 import com.example.shop_app_project.data.models.Profile.ProdfileModel
 import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
-import com.example.shop_app_project.data.models.register.login_model
 import com.example.shop_app_project.data.view_model.OPT_Model
-import com.google.gson.JsonObject
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
-import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -90,10 +85,13 @@ interface API {
     suspend fun getProfile(@Query("phone") phone: String): Response<UserProfile>
 
     //Edit Profile
+    @Multipart
     @PUT("profile/")
     suspend fun editProfile(
         @Query("phone") phone: String,
-        @Body request: EditProfileRequest
+        @Part("name") name: String,
+        @Part("credit") credit: Int,
+        @Part image: Unit?
     ): Response<UserProfile>
 
 

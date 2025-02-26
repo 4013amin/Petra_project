@@ -1,5 +1,7 @@
 package com.example.shop_app_project.data.models.Profile
 
+import okhttp3.MultipartBody
+
 data class ProdfileModel(
     val phone: String,
     val id: Int,
@@ -16,6 +18,6 @@ data class UserProfile(
 
 data class EditProfileRequest(
     val name: String,
-    val image: String,
+    val image: MultipartBody.Part,
     val credit: Int
 )

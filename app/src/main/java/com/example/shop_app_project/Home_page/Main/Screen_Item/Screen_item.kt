@@ -1391,15 +1391,12 @@ fun EditProfileScreen(
                             return@Button
                         }
                         scope.launch {
-                            // در اینجا فرض می‌کنیم در صورت انتخاب عکس جدید،
-                            // URL آن پس از آپلود در سرور دریافت می‌شود.
-                            // برای سادگی، اگر عکس جدید انتخاب شده از imageUri استفاده می‌کنیم؛
-                            // در عمل باید عملیات آپلود انجام شود.
-                            val newImageUrl = imageUri?.toString() ?: (userProfile?.image ?: "")
+                            val imagePart = imageUri?.let { uri ->
+                            }
                             val success = userViewModel.editProfileViewModel(
                                 context = context,
                                 name = name,
-                                image = newImageUrl,
+                                image = imagePart, // تغییر مقدار image
                                 credit = creditInt,
                                 phone = phone.toString()
                             )
@@ -1424,6 +1421,7 @@ fun EditProfileScreen(
                         color = Color.White
                     )
                 }
+
             }
         }
     }
