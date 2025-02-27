@@ -46,6 +46,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.shop_app_project.Home_page.Main.ChatScreen.ChatScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
 import com.example.shop_app_project.Home_page.Main.Screen_Item.EditProfileScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.FavoritesPage
@@ -249,7 +250,7 @@ fun NavGraph(
                 }
 
                 product.value?.let { productDetails ->
-                    ProductDetailScreen(product = productDetails, onBackClick = {})
+                    ProductDetailScreen(product = productDetails, onBackClick = {}, navController)
                 } ?: Text("Loading...")
             } else {
                 Text("Invalid product ID")
@@ -291,6 +292,10 @@ fun NavGraph(
         composable("EditProfileScreen") {
             EditProfileScreen(userViewModel, navController, context)
         }
+
+//        composable("ChatScreen") {
+//            ChatScreen(navController = navController, )
+//        }
     }
 }
 

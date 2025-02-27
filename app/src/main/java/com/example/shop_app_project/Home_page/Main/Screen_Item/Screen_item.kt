@@ -214,7 +214,7 @@ fun ProductDetailScreen(
                 }
 
                 Button(
-                    onClick = { navController.navigate("") },
+                    onClick = { navController.navigate("ChatScreen") },
                     modifier = Modifier
                         .width(260.dp)
                         .align(Alignment.CenterHorizontally)
