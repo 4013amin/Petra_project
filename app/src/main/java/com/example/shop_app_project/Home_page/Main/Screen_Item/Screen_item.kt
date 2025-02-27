@@ -70,10 +70,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.shop_app_project.R
 import com.example.shop_app_project.data.models.Profile.UserProfile
@@ -96,7 +98,11 @@ import java.io.IOException
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailScreen(product: ProductModel, onBackClick: () -> Unit) {
+fun ProductDetailScreen(
+    product: ProductModel,
+    onBackClick: () -> Unit,
+    navController: NavController
+) {
     val scroller = rememberScrollState()
     val context = LocalContext.current
     Scaffold(
@@ -206,10 +212,49 @@ fun ProductDetailScreen(product: ProductModel, onBackClick: () -> Unit) {
                         modifier = Modifier.padding(8.dp)
                     )
                 }
+
+                Button(
+                    onClick = { navController.navigate("") },
+                    modifier = Modifier
+                        .width(260.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = "چت با فروشنده",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun ShowButton() {
+    val sampleProduct = ProductModel(
+        name = "محصول تستی",
+        images = listOf("https://via.placeholder.com/300"),  // لینک نمونه تصویر
+        city = "تهران",
+        nameUser = "فروشنده تستی",
+        price = 100,
+        description = "این یک توضیح تستی است.",
+        phone = "09123456789",
+        id = 0,
+        address = "daihdwi",
+        family = "dadaw",
+        image = "Image",
+        created_at = "dawd",
+        updated_at = "dadwa"
+    )
+    val navController = rememberNavController()
+    ProductDetailScreen(product = sampleProduct, onBackClick = {}, navController)
+}
+
 
 @Composable
 fun InfoRow(title: String, value: String) {

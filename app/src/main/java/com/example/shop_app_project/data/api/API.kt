@@ -85,8 +85,6 @@ interface API {
     suspend fun getProfile(@Query("phone") phone: String): Response<UserProfile>
 
 
-
-
     @Multipart
     @PUT("profile/")
     suspend fun editProfile(
@@ -95,8 +93,6 @@ interface API {
         @Part("credit") credit: RequestBody,
         @Part image: MultipartBody.Part?
     ): Response<UserProfile>
-
-
 
 
 }
