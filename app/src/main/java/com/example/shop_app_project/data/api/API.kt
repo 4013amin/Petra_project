@@ -93,8 +93,10 @@ interface API {
         @Query("phone") phone: String,
         @Part("name") name: RequestBody,
         @Part("credit") credit: RequestBody,
-        @Part image: MultipartBody.Part? // حتماً `MultipartBody.Part` باشد
+        @Part image: MultipartBody.Part?
     ): Response<UserProfile>
+
+
 
 
 }

@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.example.shop_app_project.Home_page.Main.Screen_Item.uriToFile
 import com.example.shop_app_project.data.models.Profile.EditProfileRequest
 import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.Category
@@ -33,6 +34,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
@@ -533,7 +535,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         context: Context,
         phone: String,
         name: String,
-        image: MultipartBody.Part?,
+        imageUri: Uri?, // اضافه کردن imageUri به پارامترها
         credit: Int
     ) {
         viewModelScope.launch {
@@ -541,25 +543,42 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 val namePart = name.toRequestBody("text/plain".toMediaTypeOrNull())
                 val creditPart = credit.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-                // تصویر مستقیماً ارسال شود
-                val response = api.editProfile(phone, namePart, creditPart, image)
+                // بررسی و ساخت MultipartBody.Part برای تصویر
+                val imagePart = imageUri?.let { uri ->
+                    val file = uriToFile(context, uri)
+                    if (file != null && file.exists()) {
+                        val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+                        MultipartBody.Part.createFormData("image", file.name, requestBody)
+                    } else {
+                        null
+                    }
+                }
+
+                // ارسال درخواست به سرور
+                val response = api.editProfile(phone, namePart, creditPart, imagePart)
 
                 if (response.isSuccessful) {
-                    Toast.makeText(context, "پروفایل با موفقیت ویرایش شد", Toast.LENGTH_SHORT).show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "پروفایل با موفقیت ویرایش شد", Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 } else {
-                    Toast.makeText(
-                        context,
-                        "خطا: ${response.errorBody()?.string()}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            "خطا: ${response.errorBody()?.string()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             } catch (e: IOException) {
-                Toast.makeText(context, "خطای شبکه: ${e.message}", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "خطای شبکه: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
                 Log.e("EditProfile", "خطای شبکه: ${e.message}", e)
             }
         }
     }
-
 
 
     fun saveCredentials(username: String, password: String, phone: String, location: String) {

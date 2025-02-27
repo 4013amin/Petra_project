@@ -1416,22 +1416,10 @@ fun EditProfileScreen(
                             return@Button
                         }
                         scope.launch {
-                            val imagePart = imageUri?.let { uri ->
-                                val file = uriToFile(context, uri)
-                                if (file == null || !file.exists()) {
-                                    Log.e("EditProfile", "فایل ساخته نشد یا وجود ندارد!")
-                                    return@let null
-                                }
-
-                                val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                                MultipartBody.Part.createFormData("image", file.name, requestBody)
-                            }
-
-
                             val success = userViewModel.editProfileViewModel(
                                 context = context,
                                 name = name,
-                                image = imagePart,
+                                imageUri = imageUri,
                                 credit = creditInt,
                                 phone = phone.toString()
                             )
