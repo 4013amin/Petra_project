@@ -43,7 +43,7 @@ fun ChatScreen(navController: NavController, username: String, receiver: String)
     val messages = remember { mutableStateListOf<MessageModel>() }
     var inputMessage by remember { mutableStateOf("") }
 
-    val chatUrl = "wss://your-server.com/ws/chat/$username/"
+    val chatUrl = "ws://192.168.137.101:2020/ws/chat/$username/"
     val webSocketListener = ChatWebSocketListener { message ->
         messages.add(MessageModel(message, false))
     }
@@ -58,14 +58,20 @@ fun ChatScreen(navController: NavController, username: String, receiver: String)
             title = { Text(text = "چت", color = Color.White) },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "بازگشت", tint = Color.White)
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "بازگشت",
+                        tint = Color.White
+                    )
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF6200EE))
         )
 
         LazyColumn(
-            modifier = Modifier.weight(1f).padding(8.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp),
             reverseLayout = true
         ) {
             items(messages) { message ->
@@ -74,7 +80,9 @@ fun ChatScreen(navController: NavController, username: String, receiver: String)
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(
@@ -100,7 +108,11 @@ fun ChatScreen(navController: NavController, username: String, receiver: String)
                 },
                 modifier = Modifier.padding(start = 8.dp)
             ) {
-                Icon(imageVector = Icons.Default.Send, contentDescription = "ارسال", tint = Color(0xFF6200EE))
+                Icon(
+                    imageVector = Icons.Default.Send,
+                    contentDescription = "ارسال",
+                    tint = Color(0xFF6200EE)
+                )
             }
         }
     }

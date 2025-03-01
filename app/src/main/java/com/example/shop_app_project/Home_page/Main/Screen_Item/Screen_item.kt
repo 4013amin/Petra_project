@@ -214,7 +214,11 @@ fun ProductDetailScreen(
                 }
 
                 Button(
-                    onClick = { navController.navigate("ChatScreen") },
+                    onClick = {
+                        val receiverPhone = UserPreferences.getInstance(context)
+                        val phone = receiverPhone.getUserPhone()
+                        navController.navigate("chat/${phone}/${receiverPhone}")
+                    },
                     modifier = Modifier
                         .width(260.dp)
                         .align(Alignment.CenterHorizontally)

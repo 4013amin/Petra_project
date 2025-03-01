@@ -55,6 +55,7 @@ import com.example.shop_app_project.Home_page.Main.Screen_Item.LoginUsers.forget
 import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.UserProductsScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.UserProfileDetailScreen
+import com.example.shop_app_project.Home_page.Main.SharedPreferencesManager.SharedPreferencesManager
 
 import com.example.shop_app_project.Home_page.Main.UiHomePage
 import com.example.shop_app_project.data.models.Profile.UserProfile
@@ -293,9 +294,16 @@ fun NavGraph(
             EditProfileScreen(userViewModel, navController, context)
         }
 
-//        composable("ChatScreen") {
-//            ChatScreen(navController = navController, )
-//        }
+        composable("chat/{username}/{receiver}") { backStackEntry ->
+            val context = LocalContext.current
+            val userPreferences = UserPreferences.getInstance(context)
+            val phone = userPreferences.getUserPhone()
+            val receiver = backStackEntry.arguments?.getString("receiver") ?: ""
+
+            ChatScreen(navController, phone ?: "", receiver)
+        }
+
+
     }
 }
 
