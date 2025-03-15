@@ -535,13 +535,17 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         context: Context,
         phone: String,
         name: String,
-        imageUri: Uri?, // اضافه کردن imageUri به پارامترها
-        credit: Int
+        gender: String?,
+        bio: String?,
+        address: String?,
+        imageUri: Uri?,
     ) {
         viewModelScope.launch {
             try {
                 val namePart = name.toRequestBody("text/plain".toMediaTypeOrNull())
-                val creditPart = credit.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+                val genderPart = gender?.toRequestBody("text/plain".toMediaTypeOrNull())
+                val bioPart = bio?.toRequestBody("text/plain".toMediaTypeOrNull())
+                val addressPart = address?.toRequestBody("text/plain".toMediaTypeOrNull())
 
                 // بررسی و ساخت MultipartBody.Part برای تصویر
                 val imagePart = imageUri?.let { uri ->
@@ -555,7 +559,14 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 // ارسال درخواست به سرور
-                val response = api.editProfile(phone, namePart, creditPart, imagePart)
+                val response = api.editProfile(
+                    phone = phone,
+                    name = namePart,
+                    gender = genderPart,
+                    bio = bioPart,
+                    address = addressPart,
+                    image = imagePart
+                )
 
                 if (response.isSuccessful) {
                     withContext(Dispatchers.Main) {

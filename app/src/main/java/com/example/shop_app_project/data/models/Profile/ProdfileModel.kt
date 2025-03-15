@@ -13,9 +13,10 @@ data class UserProfile(
     val id: Int,
     val name: String,
     val image: String,
-    val credit: Int
+    val gender: String?,
+    val bio: String?,
+    val address: String?
 )
-
 data class EditProfileRequest(
     val name: String,
     val image: MultipartBody.Part,

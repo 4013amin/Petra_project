@@ -307,15 +307,15 @@ fun NavGraph(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewBottomNavigationBar() {
-    val navController = rememberNavController()
-
-    // داده آزمایشی برای userProfile
-    val sampleUserProfile =
-        UserProfile(1, "username", image = "https://via.placeholder.com/150", 5000)
-
-    BottomNavigationBar(navController = navController, userProfile = sampleUserProfile)
-
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewBottomNavigationBar() {
+//    val navController = rememberNavController()
+//
+//    // داده آزمایشی برای userProfile
+//    val sampleUserProfile =
+//        UserProfile(1, "username", image = "https://via.placeholder.com/150")
+//
+//    BottomNavigationBar(navController = navController, userProfile = sampleUserProfile)
+//
+//}

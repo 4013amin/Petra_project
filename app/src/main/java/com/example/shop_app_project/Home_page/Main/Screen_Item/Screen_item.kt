@@ -1141,12 +1141,7 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                     color = Color(0xFF333333)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "اعتبار: ${userProfile.credit} تومان",
-                    fontSize = 16.sp,
-                    color = Color(0xFF00C853),
-                    fontWeight = FontWeight.Medium
-                )
+
             }
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
@@ -1253,15 +1248,6 @@ fun UserProfileDetailScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "اعتبار: ${userProfile?.credit} تومان",
-                    fontSize = 20.sp,
-                    color = Color(0xFF00C853),
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -1315,26 +1301,24 @@ fun EditProfileScreen(
     navController: NavController,
     context: Context
 ) {
-    val userProfile by userViewModel.userProfile
+    val userProfile = userViewModel.userProfile.value
     val scope = rememberCoroutineScope()
 
     var name by remember { mutableStateOf(userProfile?.name ?: "") }
-    // نگهداری آدرس عکس به عنوان Uri در صورت انتخاب عکس جدید
+    var gender by remember { mutableStateOf(userProfile?.gender ?: "") }
+    var bio by remember { mutableStateOf(userProfile?.bio ?: "") }
+    var address by remember { mutableStateOf(userProfile?.address ?: "") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var credit by remember { mutableStateOf(userProfile?.credit?.toString() ?: "0") }
-    var creditError by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
+
     val refreshState = rememberSwipeRefreshState(isRefreshing)
     val userPreferences = UserPreferences.getInstance(context)
     val phone = userPreferences.getUserPhone()
 
-    // لانچر برای انتخاب عکس از گالری
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        if (uri != null) {
-            imageUri = uri
-        }
+        imageUri = uri
     }
 
     SwipeRefresh(
@@ -1350,7 +1334,7 @@ fun EditProfileScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "ویرایش پروفایل",
+                            "ویرایش پروفایل",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White
@@ -1365,9 +1349,7 @@ fun EditProfileScreen(
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = colorResource(id = R.color.blueM)
-                    )
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.blueM))
                 )
             }
         ) { paddingValues ->
@@ -1379,14 +1361,13 @@ fun EditProfileScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // نمایش عکس پروفایل با امکان کلیک برای تغییر عکس
                 Box(
                     modifier = Modifier
                         .size(150.dp)
                         .clip(CircleShape)
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(
+                                listOf(
                                     Color(0xFF6A1B9A),
                                     Color(0xFFAB47BC)
                                 )
@@ -1396,33 +1377,17 @@ fun EditProfileScreen(
                         .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    if (imageUri != null) {
-                        // اگر کاربر عکس جدید انتخاب کرده، از آن استفاده می‌کنیم
-                        AsyncImage(
-                            model = imageUri,
-                            contentDescription = "عکس پروفایل جدید",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        // در غیر این صورت عکس فعلی را نمایش می‌دهیم
-                        val currentImageUrl = if (userProfile?.image?.startsWith("http") == true) {
-                            userProfile?.image
-                        } else {
-                            "http://192.168.137.101:2020" + (userProfile?.image ?: "")
-                        }
-                        AsyncImage(
-                            model = currentImageUrl,
-                            contentDescription = "عکس پروفایل",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                    val currentImageUrl =
+                        if (userProfile?.image?.startsWith("http") == true) userProfile.image else "http://192.168.137.101:2020" + (userProfile?.image
+                            ?: "")
+                    AsyncImage(
+                        model = imageUri ?: currentImageUrl,
+                        contentDescription = "عکس پروفایل",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // فیلد ویرایش نام
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -1431,69 +1396,56 @@ fun EditProfileScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp)
                 )
-
-                // فیلد ویرایش اعتبار
                 OutlinedTextField(
-                    value = credit,
-                    onValueChange = {
-                        credit = it
-                        creditError = it.toIntOrNull() == null
-                    },
-                    label = { Text("اعتبار (تومان)") },
+                    value = gender,
+                    onValueChange = { gender = it },
+                    label = { Text("جنسیت") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    isError = creditError,
                     shape = RoundedCornerShape(12.dp)
                 )
-                if (creditError) {
-                    Text(
-                        text = "لطفاً یک عدد معتبر وارد کنید",
-                        color = Color.Red,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
+                OutlinedTextField(
+                    value = bio,
+                    onValueChange = { bio = it },
+                    label = { Text("بیوگرافی") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text("آدرس") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // دکمه ذخیره تغییرات
                 Button(
                     onClick = {
-                        val creditInt = credit.toIntOrNull()
-                        if (creditInt == null) {
-                            creditError = true
-                            return@Button
-                        }
                         scope.launch {
                             val success = userViewModel.editProfileViewModel(
                                 context = context,
                                 name = name,
+                                gender = gender,
+                                bio = bio,
+                                address = address,
                                 imageUri = imageUri,
-                                credit = creditInt,
                                 phone = phone.toString()
                             )
-                            if (success != null) {
-                                withContext(Dispatchers.Main) {
-                                    navController.popBackStack()
-                                }
-                            }
+//                            if (success) {
+//                                withContext(Dispatchers.Main) { navController.popBackStack() }
+//                            }
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.blueM)
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.blueM))
                 ) {
-                    Text(
-                        text = "ذخیره تغییرات",
-                        fontSize = 18.sp,
-                        color = Color.White
-                    )
+                    Text(text = "ذخیره تغییرات", fontSize = 18.sp, color = Color.White)
                 }
-
             }
         }
     }

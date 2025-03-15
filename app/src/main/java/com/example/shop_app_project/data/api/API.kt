@@ -90,7 +90,9 @@ interface API {
     suspend fun editProfile(
         @Query("phone") phone: String,
         @Part("name") name: RequestBody,
-        @Part("credit") credit: RequestBody,
+        @Part("gender") gender: RequestBody?,
+        @Part("bio") bio: RequestBody?,
+        @Part("address") address: RequestBody?,
         @Part image: MultipartBody.Part?
     ): Response<UserProfile>
 
