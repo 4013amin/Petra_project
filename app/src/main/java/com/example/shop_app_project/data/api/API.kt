@@ -96,7 +96,6 @@ interface API {
         @Part image: MultipartBody.Part?
     ): Response<UserProfile>
 
-
 }
 
 

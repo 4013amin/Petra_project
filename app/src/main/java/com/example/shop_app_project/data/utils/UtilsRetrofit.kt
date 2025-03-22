@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object UtilsRetrofit {
 
-    const val BaseUrl = "http://192.168.1.186:2020/"
+    const val BaseUrl = "http://192.168.1.110:2020/"
 
     val okHttpClient by lazy { createOkHttpClient() }
     val api: API by lazy { createRetrofitInstance().create() }

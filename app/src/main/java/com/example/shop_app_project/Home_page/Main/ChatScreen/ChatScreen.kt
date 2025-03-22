@@ -43,7 +43,7 @@ fun ChatScreen(navController: NavController, username: String, receiver: String)
     val messages = remember { mutableStateListOf<MessageModel>() }
     var inputMessage by remember { mutableStateOf("") }
 
-    val chatUrl = "ws://192.168.137.101:2020/ws/chat/$username/"
+    val chatUrl = "ws://192.168.1.110:2020/ws/chat/$username/"
     val webSocketListener = ChatWebSocketListener { message ->
         messages.add(MessageModel(message, false))
     }
