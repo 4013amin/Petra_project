@@ -1312,9 +1312,9 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                 val imageUrl = if (userProfile.image.startsWith("http")) {
                     userProfile.image
                 } else {
-                    "http://192.168.1.110:2020${userProfile.image}"
+                    "http://192.168.1.105:2020${userProfile.image}"
                 }
-
+    
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = "Profile Image",
@@ -1444,7 +1444,7 @@ fun UserProfileDetailScreen(
                         val imageUrl = if (userProfile?.image?.startsWith("http") == true) {
                             userProfile!!.image
                         } else {
-                            "http://192.168.1.110:2020${userProfile?.image}"
+                            "http://192.168.1.105:2020${userProfile?.image}"
                         }
 
                         AsyncImage(
@@ -1693,7 +1693,7 @@ fun EditProfileScreen(
                         val currentImageUrl = if (userProfile?.image?.startsWith("http") == true) {
                             userProfile.image
                         } else {
-                            "http://192.168.1.110:2020${userProfile?.image ?: ""}"
+                            "http://192.168.1.105:2020${userProfile?.image ?: ""}"
                         }
 
                         AsyncImage(
