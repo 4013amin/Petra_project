@@ -237,27 +237,27 @@ fun ProductDetailScreen(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun ShowButton() {
-    val sampleProduct = ProductModel(
-        name = "محصول تستی",
-        images = listOf("https://via.placeholder.com/300"),  // لینک نمونه تصویر
-        city = "تهران",
-        nameUser = "فروشنده تستی",
-        price = 100,
-        description = "این یک توضیح تستی است.",
-        phone = "09123456789",
-        id = 0,
-        address = "daihdwi",
-        family = "dadaw",
-        image = "Image",
-        created_at = "dawd",
-        updated_at = "dadwa"
-    )
-    val navController = rememberNavController()
-    ProductDetailScreen(product = sampleProduct, onBackClick = {}, navController)
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun ShowButton() {
+//    val sampleProduct = ProductModel(
+//        name = "محصول تستی",
+//        images = listOf("https://via.placeholder.com/300"),  // لینک نمونه تصویر
+//        city = "تهران",
+//        nameUser = "فروشنده تستی",
+//        price = 100,
+//        description = "این یک توضیح تستی است.",
+//        phone = "09123456789",
+//        id = 0,
+//        address = "daihdwi",
+//        family = "dadaw",
+//        image = "Image",
+//        created_at = "dawd",
+//        updated_at = "dadwa"
+//    )
+//    val navController = rememberNavController()
+//    ProductDetailScreen(product = sampleProduct, onBackClick = {}, navController)
+//}
 
 
 @Composable
@@ -913,19 +913,17 @@ fun FavoritesPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProductsScreen(
-    userViewModel: UserViewModel,
+    userViewModel: UserViewModel = viewModel(),
     phone: String,
     context: Context,
     navController: NavController
 ) {
     val userProducts by userViewModel.userProducts
     val userProfile by userViewModel.userProfile
+
     LaunchedEffect(Unit) {
-        while (true) {
-            userViewModel.getUserProducts(phone, context)
-            userViewModel.getProfileViewModel(context, phone)
-            delay(4000)
-        }
+        userViewModel.getUserProducts(phone, context)
+        userViewModel.getProfileViewModel(context, phone)
     }
 
     Scaffold(
@@ -960,35 +958,50 @@ fun UserProductsScreen(
                     .padding(paddingValues)
                     .background(Color(0xFFFAFAFA))
             ) {
-                if (userProducts.isEmpty()) {
-                    Text(
-                        text = "هنوز محصولی اضافه نکرده‌اید.",
-                        modifier = Modifier.align(Alignment.Center),
-                        fontSize = 18.sp,
-                        color = Color.Gray,
-                        fontWeight = FontWeight.Medium
-                    )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
+                        userProfile?.let {
+                            val defaultName = if (it.name.isNullOrBlank()) "نام خود را تکمیل کنید" else it.name
+                            val defaultImage = if (it.image.isNullOrBlank()) "/images/default_profile.png" else it.image
 
-                        item {
-                            userProfile?.let {
-                                ProfileSection(it, navController)
-                            }
+                            ProfileSection(
+                                userProfile!!.copy(name = defaultName, image = defaultImage),
+                                navController
+                            )
+                        } ?: run {
+                            Text(
+                                text = "لطفاً اطلاعات پروفایل خود را تکمیل کنید.",
+                                fontSize = 18.sp,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(16.dp)
+                            )
                         }
+                    }
 
-                        items(userProducts) { product ->
-                            ProductItem(
-                                product = product,
-                                onDeleteClick = {
-                                    userViewModel.deleteUserProduct(phone, product.id, context)
-                                },
-                                navController = navController
+
+                    items(userProducts) { product ->
+                        ProductItem(
+                            product = product,
+                            onDeleteClick = {
+                                userViewModel.deleteUserProduct(phone, product.id, context)
+                            },
+                            navController = navController
+                        )
+                    }
+
+                    if (userProducts.isEmpty()) {
+                        item {
+                            Text(
+                                text = "هنوز محصولی اضافه نکرده‌اید.",
+                                fontSize = 18.sp,
+                                color = Color.Gray,
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     }
@@ -1059,7 +1072,7 @@ fun ProductItem(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "$${product.price} تومان",
+                    text = "${product.price} تومان",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF00C853)
@@ -1098,7 +1111,6 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // تصویر پروفایل با افکت مدرن
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -1113,7 +1125,6 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                     )
                     .border(2.dp, Color.White, CircleShape)
             ) {
-
                 val imageUrl = if (userProfile.image.startsWith("http")) {
                     userProfile.image
                 } else {
@@ -1130,7 +1141,6 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // اطلاعات کاربر
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -1141,8 +1151,8 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                     color = Color(0xFF333333)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-
             }
+
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = "جزئیات بیشتر",
@@ -1151,6 +1161,22 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
         }
     }
 }
+
+@Preview
+@Composable
+private fun ProfileSectionPreview() {
+    val userProfile = UserProfile(
+        id = 1,
+        name = "John Doe",
+        image = "/path/to/image.jpg",
+        gender = "Male",
+        bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        address = "1234 Main St, Anytown, USA"
+    )
+    val navController = rememberNavController()
+    ProfileSection(userProfile, navController)
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1204,6 +1230,7 @@ fun UserProfileDetailScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp)
+                    .background(Color(0xFFF5F5F5))
             ) {
                 // تصویر پروفایل با افکت مدرن
                 Box(
@@ -1247,6 +1274,42 @@ fun UserProfileDetailScreen(
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    it.bio?.let { bio ->
+                        Text(
+                            text = bio,
+                            fontSize = 16.sp,
+                            color = Color(0xFF666666),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    it.gender?.let { gender ->
+                        Text(
+                            text = gender,
+                            fontSize = 16.sp,
+                            color = Color(0xFF666666),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    it.address?.let { address ->
+                        Text(
+                            text = address,
+                            fontSize = 16.sp,
+                            color = Color(0xFF666666),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -1433,9 +1496,8 @@ fun EditProfileScreen(
                                 imageUri = imageUri,
                                 phone = phone.toString()
                             )
-//                            if (success) {
-//                                withContext(Dispatchers.Main) { navController.popBackStack() }
-//                            }
+                                withContext(Dispatchers.Main) { navController.popBackStack() }
+
                         }
                     },
                     modifier = Modifier
