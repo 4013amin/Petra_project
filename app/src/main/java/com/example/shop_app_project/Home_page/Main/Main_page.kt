@@ -28,6 +28,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -348,27 +349,19 @@ fun ProductItem(
     onClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-
-    val formatter = NumberFormat.getInstance(Locale.US).apply {
-        isGroupingUsed = true
-    }
+    val formatter = NumberFormat.getInstance(Locale.US).apply { isGroupingUsed = true }
     val formattedPrice = formatter.format(price)
-
-    var Is_Favorite by remember {
-        mutableStateOf(false)
-    }
+    var isFavorite by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable(onClick = onClick)
-            .background(color = Color.White),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-        )
+            .shadow(6.dp, shape = RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -377,60 +370,57 @@ fun ProductItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Product Image
             if (images.isNotEmpty()) {
                 AsyncImage(
                     model = "https://petshopdjango.liara.run/${images.first()}",
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(120.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.LightGray),
-                    onError = {
-                        Log.e("ProductItem", "Error loading image: ${it.result.throwable?.message}")
-                    },
-                    onSuccess = {
-                        Log.d("ProductItem", "Image loaded successfully")
-                    }
+                        .size(130.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(2.dp, Color(0xFF1976D2), RoundedCornerShape(12.dp))
+                        .shadow(4.dp, RoundedCornerShape(12.dp)),
+                    onError = { Log.e("ProductItem", "Error: ${it.result.throwable?.message}") },
+                    onSuccess = { Log.d("ProductItem", "Image loaded successfully") }
                 )
             } else {
-
                 Box(
                     modifier = Modifier
-                        .size(120.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.LightGray),
+                        .size(130.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFEEEEEE))
+                        .shadow(4.dp, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_pets_24),
                         contentDescription = "No Image",
-                        tint = Color.White,
+                        tint = Color(0xFF757575),
                         modifier = Modifier.size(40.dp)
                     )
                 }
             }
 
+            // Product Details
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = name,
-                    fontSize = 18.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = Color(0xFF212121),
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
                     text = description,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    color = Color(0xFF757575),
+                    modifier = Modifier.padding(bottom = 4.dp),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -438,59 +428,61 @@ fun ProductItem(
                     text = "$formattedPrice تومان",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Green,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    color = Color(0xFF1976D2),
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
 
+            // Favorite Button
             IconButton(
                 onClick = {
-                    Is_Favorite = !Is_Favorite
+                    isFavorite = !isFavorite
                     onSaveClick()
                 },
                 modifier = Modifier.padding(end = 8.dp)
             ) {
                 Icon(
                     painter = painterResource(
-                        id = if (Is_Favorite) R.drawable.baseline_favorite_24 else R.drawable.baseline_favorite_border_24
+                        id = if (isFavorite) R.drawable.baseline_favorite_24 else R.drawable.baseline_favorite_border_24
                     ),
                     contentDescription = "Save",
-                    tint = if (Is_Favorite) Color.Red else Color.Gray // تغییر رنگ آیکن بر اساس وضعیت
-                )
-            }
-        }
-    }
-
-
-    @Composable
-    fun AnimalBox(imageRes: Int, backgroundColor: Color, text: String) {
-        Box(
-            modifier = Modifier
-                .size(width = 150.dp, height = 100.dp)
-                .background(color = backgroundColor, shape = RoundedCornerShape(16.dp))
-                .padding(8.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = imageRes),
-                    contentDescription = text,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(64.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = text,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    tint = if (isFavorite) Color(0xFFE91E63) else Color(0xFF757575),
+                    modifier = Modifier.size(28.dp)
                 )
             }
         }
     }
 }
+
+@Composable
+fun AnimalBox(imageRes: Int, backgroundColor: Color, text: String) {
+    Box(
+        modifier = Modifier
+            .size(width = 150.dp, height = 100.dp)
+            .background(color = backgroundColor, shape = RoundedCornerShape(16.dp))
+            .padding(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = text,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(64.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = text,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
 //    @Composable
 //    fun AnimalBoxes() {
 //        LazyRow(

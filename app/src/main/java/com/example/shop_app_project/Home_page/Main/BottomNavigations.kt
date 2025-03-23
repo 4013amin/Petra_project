@@ -117,7 +117,7 @@ fun BottomNavigationBar(
                                 val imageUrl = if (userProfile?.image?.startsWith("http") == true) {
                                     userProfile?.image
                                 } else {
-                                    "http://192.168.137.101:2020" + userProfile?.image
+                                    "http://192.168.1.110:2020" + userProfile?.image
                                 }
                                 AsyncImage(
                                     model = imageUrl,

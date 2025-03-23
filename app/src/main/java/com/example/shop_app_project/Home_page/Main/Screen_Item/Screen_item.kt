@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,7 +42,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,6 +72,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -94,7 +104,6 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.IOException
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,12 +112,19 @@ fun ProductDetailScreen(
     onBackClick: () -> Unit,
     navController: NavController
 ) {
-    val scroller = rememberScrollState()
     val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = product.name, color = Color.White) },
+                title = {
+                    Text(
+                        text = product.name,
+                        color = Color.White,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -120,76 +136,105 @@ fun ProductDetailScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorResource(id = R.color.blueM)
-                )
+                ),
             )
         },
-        content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scroller)
-                    .padding(paddingValues)
-                    .background(color = Color.White)
-            ) {
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Color.White, RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                .padding(horizontal = 16.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                // Image Slider
                 ImageSlider(
                     images = product.images,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(300.dp)
+                        .height(320.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .shadow(6.dp, RoundedCornerShape(16.dp))
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
+                // Product Info Card
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        InfoRow(title = "نام محصول", value = product.name)
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
-                        InfoRow(title = "شهر", value = product.city)
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
-                        InfoRow(title = "فروشنده", value = product.nameUser)
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
-                        InfoRow(title = "قیمت", value = "${product.price} تومان")
+                        InfoRow(
+                            title = "نام محصول",
+                            value = product.name,
+                            icon = Icons.Outlined.ShoppingCart
+                        )
+                        Divider(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            color = Color(0xFFEEEEEE)
+                        )
+                        InfoRow(
+                            title = "شهر",
+                            value = product.city,
+                            icon = Icons.Outlined.LocationOn
+                        )
+                        Divider(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            color = Color(0xFFEEEEEE)
+                        )
+                        InfoRow(
+                            title = "فروشنده",
+                            value = product.nameUser,
+                            icon = Icons.Outlined.Person
+                        )
+                        Divider(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            color = Color(0xFFEEEEEE)
+                        )
+                        InfoRow(
+                            title = "قیمت",
+                            value = "${product.price} تومان",
+                            icon = Icons.Outlined.ShoppingCart
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
+                // Description Card
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = "توضیحات",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
+                            color = Color(0xFF212121),
                             modifier = Modifier.padding(bottom = 8.dp),
                             textAlign = TextAlign.End
                         )
                         Text(
                             text = product.description,
                             fontSize = 16.sp,
-                            color = Color.Gray,
+                            color = Color(0xFF757575),
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.End
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // دکمه تماس
+                // Contact Button
                 Button(
                     onClick = {
                         val intent = Intent(Intent.ACTION_DIAL).apply {
@@ -198,43 +243,101 @@ fun ProductDetailScreen(
                         ContextCompat.startActivity(context, intent, null)
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .fillMaxWidth(0.85f)
+                        .height(56.dp)
+                        .shadow(6.dp, RoundedCornerShape(12.dp)),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF6200EE)
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
+                    elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 4.dp)
                 ) {
-                    Text(
-                        text = "تماس با فروشنده: ${product.phone}",
-                        fontSize = 16.sp,
-                        color = Color.White,
-                        modifier = Modifier.padding(8.dp)
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Phone,
+                            contentDescription = "تماس",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "تماس: ${product.phone}",
+                            fontSize = 16.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Chat Button
                 Button(
                     onClick = {
                         val receiverPhone = UserPreferences.getInstance(context)
                         val phone = receiverPhone.getUserPhone()
-                        navController.navigate("chat/${phone}/${receiverPhone}")
+                        navController.navigate("chat/${phone}/${product.phone}")
                     },
                     modifier = Modifier
-                        .width(260.dp)
-                        .align(Alignment.CenterHorizontally)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(12.dp)
+                        .fillMaxWidth(0.85f)
+                        .height(56.dp)
+                        .shadow(6.dp, RoundedCornerShape(12.dp)),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
+                    elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 4.dp)
                 ) {
-                    Text(
-                        text = "چت با فروشنده",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.ThumbUp,
+                            contentDescription = "چت",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "چت با فروشنده",
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
-    )
+    }
+}
+
+// Updated InfoRow with Icon
+@Composable
+fun InfoRow(title: String, value: String, icon: ImageVector) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color(0xFF1976D2),
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(
+                text = title,
+                fontSize = 14.sp,
+                color = Color(0xFF757575),
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = value,
+                fontSize = 16.sp,
+                color = Color(0xFF212121),
+                fontWeight = FontWeight.Normal
+            )
+        }
+    }
 }
 
 //@Preview(showBackground = true)
@@ -384,18 +487,24 @@ fun PagerIndicator(
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddProductForm(navController: NavController) {
-    val scroller = rememberScrollState()
     val scope = rememberCoroutineScope()
-    var IsLoading by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
     var isFormSubmitted by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "ثبت آگهی جدید", color = Color.White) },
+                title = {
+                    Text(
+                        text = "ثبت آگهی جدید",
+                        color = Color.White,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -407,125 +516,128 @@ fun AddProductForm(navController: NavController) {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorResource(id = R.color.blueM)
-                )
+                ),
             )
         },
-        content = { paddingValues ->
-            Box(
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            // Background Image
+            Image(
+                painter = painterResource(id = R.drawable.rectangle),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            // Form Content
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+                    .background(Color.White, RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.rectangle),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
+                item {
+                    val context = LocalContext.current
+                    val userViewModel: UserViewModel = viewModel()
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = Color.White)
-                        .padding(top = 16.dp)
-                ) {
-                    Surface(
+                    var name by remember { mutableStateOf("") }
+                    var description by remember { mutableStateOf("") }
+                    var price by remember { mutableStateOf("") }
+                    var phone by remember { mutableStateOf("") }
+                    var userName by remember { mutableStateOf("") }
+                    var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
+                    var selectedCity by remember { mutableStateOf("تهران") }
+                    var expanded by remember { mutableStateOf(false) }
+
+                    val cities = listOf(
+                        "تهران",
+                        "شیراز",
+                        "اصفهان",
+                        "مشهد",
+                        "تبریز",
+                        "کرج",
+                        "قم",
+                        "رشت",
+                        "کرمان",
+                        "اهواز",
+                        "زاهدان",
+                        "اردبیل",
+                        "اراک",
+                        "بوشهر",
+                        "قزوین",
+                        "همدان",
+                        "یاسوج",
+                        "یزد",
+                        "گرگان",
+                        "خرم‌آباد",
+                        "سنندج",
+                        "زنجان",
+                        "ایلام",
+                        "بیرجند",
+                        "بندرعباس",
+                        "سبزوار",
+                        "سمنان",
+                        "کاشان",
+                        "کیش"
+                    ).sorted()
+
+                    val imagePickerLauncher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.GetMultipleContents()
+                    ) { uris ->
+                        if (uris.size <= 10) {
+                            images = uris
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "حداکثر 10 تصویر می‌توانید انتخاب کنید.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                    // Image Picker Section
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(color = Color.White)
-                            .weight(1f),
-                        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-                        color = Color.White
+                            .padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(color = Color.White)
-                                .padding(16.dp)
-                                .verticalScroll(scroller),
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            val context = LocalContext.current
-                            val userViewModel: UserViewModel = viewModel()
-
-                            var name by remember { mutableStateOf("") }
-                            var description by remember { mutableStateOf("") }
-                            var price by remember { mutableStateOf("") }
-                            var phone by remember { mutableStateOf("") }
-                            var userName by remember { mutableStateOf("") }
-                            var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
-                            var selectedCity by remember { mutableStateOf("تهران") }
-                            var expanded by remember { mutableStateOf(false) }
-
-                            val cities = listOf(
-                                "تهران",
-                                "شیراز",
-                                "اصفهان",
-                                "مشهد",
-                                "تبریز",
-                                "کرج",
-                                "قم",
-                                "رشت",
-                                "کرمان",
-                                "اهواز",
-                                "زاهدان",
-                                "اردبیل",
-                                "اراک",
-                                "بوشهر",
-                                "قزوین",
-                                "همدان",
-                                "یاسوج",
-                                "یزد",
-                                "گرگان",
-                                "خرم‌آباد",
-                                "سنندج",
-                                "زنجان",
-                                "ایلام",
-                                "بیرجند",
-                                "بندرعباس",
-                                "سبزوار",
-                                "سمنان",
-                                "کاشان",
-                                "کیش"
-                            ).sorted()
-
-                            val imagePickerLauncher = rememberLauncherForActivityResult(
-                                contract = ActivityResultContracts.GetMultipleContents(),
-                                onResult = { uris ->
-                                    if (uris.size <= 10) {
-                                        images = uris
-                                    } else {
-                                        Toast.makeText(
-                                            context,
-                                            "حداکثر 10 تصویر می‌توانید انتخاب کنید.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            )
-
-                            // Form UI
-                            Column(
+                            Button(
+                                onClick = { imagePickerLauncher.launch("image/*") },
                                 modifier = Modifier
-                                    .padding(16.dp)
-                                    .background(color = Color.White),
-                                horizontalAlignment = Alignment.End
+                                    .fillMaxWidth(0.7f)
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(
+                                        0xFF1976D2
+                                    )
+                                )
                             ) {
-                                IconButton(
-                                    onClick = {
-                                        imagePickerLauncher.launch("image/*")
-                                    },
-                                    modifier = Modifier.padding(top = 16.dp)
-                                ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.baseline_add_a_photo_24),
                                         contentDescription = null,
-                                        modifier = Modifier
-                                            .size(25.dp),
-                                        tint = colorResource(id = R.color.black)
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
                                     )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("افزودن تصاویر", color = Color.White, fontSize = 16.sp)
                                 }
+                            }
 
+                            if (images.isNotEmpty()) {
                                 LazyRow(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     modifier = Modifier.padding(top = 16.dp)
@@ -535,223 +647,256 @@ fun AddProductForm(navController: NavController) {
                                             painter = rememberImagePainter(uri),
                                             contentDescription = null,
                                             modifier = Modifier
-                                                .size(80.dp)
+                                                .size(90.dp)
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .border(
                                                     2.dp,
-                                                    MaterialTheme.colorScheme.primary,
+                                                    Color(0xFF1976D2),
                                                     RoundedCornerShape(8.dp)
                                                 )
+                                                .shadow(4.dp, RoundedCornerShape(8.dp))
                                         )
-                                    }
-                                }
-
-                                Text(
-                                    text = "نام محصول",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(5.dp)
-                                )
-                                OutlinedTextField(
-                                    value = name,
-                                    onValueChange = { name = it },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textStyle = TextStyle(color = Color.Black),
-                                    isError = isFormSubmitted && name.isBlank()
-                                )
-                                if (isFormSubmitted && name.isBlank()) {
-                                    Text(
-                                        text = "این فیلد الزامی است.",
-                                        color = Color.Red,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    )
-                                }
-
-                                Text(
-                                    text = "توضیحات محصول",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(5.dp)
-                                )
-                                OutlinedTextField(
-                                    value = description,
-                                    onValueChange = { description = it },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textStyle = TextStyle(color = Color.Black),
-                                    isError = isFormSubmitted && description.isBlank()
-                                )
-
-                                Text(
-                                    text = "نام فروشنده",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(5.dp)
-                                )
-                                OutlinedTextField(
-                                    value = userName,
-                                    onValueChange = { userName = it },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textStyle = TextStyle(color = Color.Black),
-                                    isError = isFormSubmitted && userName.isBlank()
-                                )
-
-                                Text(
-                                    text = "قیمت محصول",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(5.dp)
-                                )
-                                OutlinedTextField(
-                                    value = price,
-                                    onValueChange = { price = it },
-                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textStyle = TextStyle(color = Color.Black),
-                                    isError = isFormSubmitted && price.isBlank()
-                                )
-
-                                Text(
-                                    text = "شماره تماس",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(5.dp)
-                                )
-                                OutlinedTextField(
-                                    value = phone,
-                                    onValueChange = { phone = it },
-                                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textStyle = TextStyle(color = Color.Black),
-                                    isError = isFormSubmitted && phone.isBlank()
-                                )
-
-                                Text(
-                                    text = "شهر",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(5.dp)
-                                )
-                                ExposedDropdownMenuBox(
-                                    expanded = expanded,
-                                    onExpandedChange = { expanded = !expanded }
-                                ) {
-                                    OutlinedTextField(
-                                        value = selectedCity,
-                                        onValueChange = { },
-                                        readOnly = true,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .menuAnchor(),
-                                        trailingIcon = {
-                                            Icon(
-                                                imageVector = if (expanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropDown,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    )
-
-                                    DropdownMenu(
-                                        expanded = expanded,
-                                        onDismissRequest = { expanded = false }
-                                    ) {
-                                        cities.forEach { city ->
-                                            DropdownMenuItem(
-                                                text = { Text(text = city, fontSize = 16.sp) },
-                                                onClick = {
-                                                    selectedCity = city
-                                                    expanded = false
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(30.dp))
-
-                                Button(
-                                    onClick = {
-                                        isFormSubmitted = true
-                                        if (name.isNotBlank() &&
-                                            description.isNotBlank() &&
-                                            price.isNotBlank() &&
-                                            phone.isNotBlank() &&
-                                            images.isNotEmpty()
-                                        ) {
-                                            scope.launch {
-                                                try {
-                                                    IsLoading = true
-                                                    userViewModel.sendProduct(
-                                                        name,
-                                                        description,
-                                                        price,
-                                                        phone,
-                                                        userName,
-                                                        selectedCity,
-                                                        images,
-                                                        context
-                                                    )
-                                                    userViewModel.job?.join()
-                                                    navController.popBackStack()
-                                                } catch (e: Exception) {
-                                                    Log.e("AddProductForm", "Error: ${e.message}")
-                                                    Toast.makeText(
-                                                        context,
-                                                        "خطا در ارسال درخواست: ${e.message}",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                } finally {
-                                                    IsLoading = false
-                                                }
-                                            }
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 45.dp),
-                                    shape = RoundedCornerShape(8.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (name.isNotBlank() &&
-                                            description.isNotBlank() &&
-                                            price.isNotBlank() &&
-                                            phone.isNotBlank() &&
-                                            images.isNotEmpty()
-                                        ) {
-                                            colorResource(id = R.color.blueM)
-                                        } else {
-                                            Color.Gray
-                                        }
-                                    ),
-                                    enabled = !IsLoading && name.isNotBlank() &&
-                                            description.isNotBlank() &&
-                                            price.isNotBlank() &&
-                                            phone.isNotBlank() &&
-                                            images.isNotEmpty()
-                                ) {
-                                    if (IsLoading) {
-                                        CircularProgressIndicator(
-                                            color = Color.White,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    } else {
-                                        Text(text = "ثبت آگهی")
                                     }
                                 }
                             }
                         }
                     }
+
+                    // Form Fields Card
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // Product Name
+                            FormField(
+                                label = "نام محصول",
+                                value = name,
+                                onValueChange = { name = it },
+                                isError = isFormSubmitted && name.isBlank(),
+                                errorMessage = "این فیلد الزامی است"
+                            )
+
+                            // Description
+                            FormField(
+                                label = "توضیحات محصول",
+                                value = description,
+                                onValueChange = { description = it },
+                                isError = isFormSubmitted && description.isBlank(),
+                                errorMessage = "این فیلد الزامی است",
+                                maxLines = 3
+                            )
+
+                            // Seller Name
+                            FormField(
+                                label = "نام فروشنده",
+                                value = userName,
+                                onValueChange = { userName = it },
+                                isError = isFormSubmitted && userName.isBlank(),
+                                errorMessage = "این فیلد الزامی است"
+                            )
+
+                            // Price
+                            FormField(
+                                label = "قیمت محصول",
+                                value = price,
+                                onValueChange = { price = it },
+                                isError = isFormSubmitted && price.isBlank(),
+                                errorMessage = "این فیلد الزامی است",
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            )
+
+                            // Phone
+                            FormField(
+                                label = "شماره تماس",
+                                value = phone,
+                                onValueChange = { phone = it },
+                                isError = isFormSubmitted && phone.isBlank(),
+                                errorMessage = "این فیلد الزامی است",
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                            )
+
+                            // City Dropdown
+                            Text(
+                                text = "شهر",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF212121),
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            ExposedDropdownMenuBox(
+                                expanded = expanded,
+                                onExpandedChange = { expanded = !expanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedCity,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .menuAnchor(),
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = if (expanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropDown,
+                                            contentDescription = null,
+                                            tint = Color(0xFF1976D2)
+                                        )
+                                    },
+                                    colors = TextFieldDefaults.colors(
+                                        focusedIndicatorColor = Color(0xFF1976D2),
+                                        unfocusedIndicatorColor = Color(0xFF757575),
+                                        cursorColor = Color(0xFF1976D2)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false },
+                                    modifier = Modifier.heightIn(max = 300.dp)
+                                ) {
+                                    cities.forEach { city ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = city,
+                                                    fontSize = 16.sp,
+                                                    color = Color(0xFF212121)
+                                                )
+                                            },
+                                            onClick = {
+                                                selectedCity = city
+                                                expanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Submit Button
+                    Button(
+                        onClick = {
+                            isFormSubmitted = true
+                            if (name.isNotBlank() && description.isNotBlank() && price.isNotBlank() &&
+                                phone.isNotBlank() && userName.isNotBlank() && images.isNotEmpty()
+                            ) {
+                                scope.launch {
+                                    try {
+                                        isLoading = true
+                                        userViewModel.sendProduct(
+                                            name,
+                                            description,
+                                            price,
+                                            phone,
+                                            userName,
+                                            selectedCity,
+                                            images,
+                                            context
+                                        )
+                                        userViewModel.job?.join()
+                                        navController.popBackStack()
+                                    } catch (e: Exception) {
+                                        Log.e("AddProductForm", "Error: ${e.message}")
+                                        Toast.makeText(
+                                            context,
+                                            "خطا در ارسال درخواست: ${e.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } finally {
+                                        isLoading = false
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(0.85f)
+                            .height(56.dp)
+                            .shadow(6.dp, RoundedCornerShape(12.dp)),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (name.isNotBlank() && description.isNotBlank() &&
+                                price.isNotBlank() && phone.isNotBlank() && userName.isNotBlank() && images.isNotEmpty()
+                            ) Color(0xFF1976D2) else Color(0xFFB0BEC5)
+                        ),
+                        enabled = !isLoading
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        } else {
+                            Text(
+                                text = "ثبت آگهی",
+                                color = Color.White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
-    )
+    }
 }
 
+// Reusable Form Field Composable
+@Composable
+fun FormField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    isError: Boolean,
+    errorMessage: String,
+    maxLines: Int = 1,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+) {
+    Column {
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF212121),
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(color = Color(0xFF212121)),
+            isError = isError,
+            maxLines = maxLines,
+            keyboardOptions = keyboardOptions,
+            shape = RoundedCornerShape(12.dp),
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color(0xFF1976D2),
+                unfocusedIndicatorColor = Color(0xFF757575),
+                cursorColor = Color(0xFF1976D2),
+                errorIndicatorColor = Color.Red
+            )
+        )
+        if (isError) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -764,7 +909,14 @@ fun FavoritesPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "محصولات ذخیره‌شده", color = Color.White) },
+                title = {
+                    Text(
+                        text = "محصولات ذخیره‌شده",
+                        color = Color.White,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -776,137 +928,134 @@ fun FavoritesPage(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorResource(id = R.color.blueM)
-                )
+                ),
             )
         },
-        content = { paddingValues ->
-            Column(
+    ) { paddingValues ->
+        if (savedProducts.isEmpty()) {
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(Color(0xFFF5F5F5))
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
             ) {
-                if (savedProducts.isEmpty()) {
-                    Box(
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_note_add_24),
+                        contentDescription = "Empty",
+                        tint = Color(0xFF1976D2),
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
+                            .size(100.dp)
+                            .clickable { navController.navigate("home") }
+                            .background(Color(0xFFE3F2FD), CircleShape)
+                            .padding(24.dp)
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(
+                        text = "هنوز محصولی ذخیره نکرده‌اید!",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF212121)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "محصولات مورد علاقه خود را اینجا ذخیره کنید.",
+                        fontSize = 16.sp,
+                        color = Color(0xFF757575),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(savedProducts) { product ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { navController.navigate("singleProduct/${product.id}") }
+                            .shadow(6.dp, RoundedCornerShape(16.dp)),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.baseline_note_add_24),
-                                contentDescription = "Empty",
-                                tint = colorResource(id = R.color.blueM),
+                            // Product Image
+                            Box(
                                 modifier = Modifier
-                                    .size(80.dp)
-                                    .clickable {
-                                        navController.navigate("home")
-                                    }
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "هنوز محصولی ذخیره نکرده‌اید!",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Gray
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "محصولات مورد علاقه خود را اینجا ذخیره کنید.",
-                                fontSize = 14.sp,
-                                color = Color.Gray
-                            )
-                        }
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(savedProducts) { product ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        navController.navigate("singleProduct/${product.id}")
-                                    },
-                                shape = RoundedCornerShape(16.dp),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                                    .size(110.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color(0xFFEEEEEE))
+                                    .shadow(4.dp, RoundedCornerShape(12.dp))
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(100.dp)
-                                            .clip(RoundedCornerShape(12.dp))
-                                            .background(Color.LightGray)
-                                    ) {
-                                        if (product.images.isNotEmpty()) {
-                                            AsyncImage(
-                                                model = "https://petshopdjango.liara.run/${product.images.first()}",
-                                                contentDescription = null,
-                                                contentScale = ContentScale.Crop,
-                                                modifier = Modifier.fillMaxSize()
-                                            )
-                                        }
-                                    }
-
-                                    Spacer(modifier = Modifier.width(16.dp))
-
-                                    Column(
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Text(
-                                            text = product.name,
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Black,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = product.description,
-                                            fontSize = 14.sp,
-                                            color = Color.Gray,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = "$${product.price} تومان",
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF00C853)
-                                        )
-                                    }
-
-                                    IconButton(
-                                        onClick = { viewModel.removeSavedProduct(product) }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = "Remove",
-                                            tint = Color.Red
-                                        )
-                                    }
+                                if (product.images.isNotEmpty()) {
+                                    AsyncImage(
+                                        model = "https://petshopdjango.liara.run/${product.images.first()}",
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
                                 }
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            // Product Details
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = product.name,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF212121),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = product.description,
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF757575),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "${product.price} تومان",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF1976D2)
+                                )
+                            }
+
+                            // Delete Button
+                            IconButton(onClick = { viewModel.removeSavedProduct(product) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Remove",
+                                    tint = Color(0xFFE53935),
+                                    modifier = Modifier.size(28.dp)
+                                )
                             }
                         }
                     }
                 }
             }
         }
-    )
+    }
 }
 
 
@@ -948,67 +1097,100 @@ fun UserProductsScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colorResource(id = R.color.blueM)
-                )
+                ),
             )
         },
-        content = { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(Color(0xFFFAFAFA))
-            ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    item {
-                        userProfile?.let {
-                            val defaultName = if (it.name.isNullOrBlank()) "نام خود را تکمیل کنید" else it.name
-                            val defaultImage = if (it.image.isNullOrBlank()) "/images/default_profile.png" else it.image
-
-                            ProfileSection(
-                                userProfile!!.copy(name = defaultName, image = defaultImage),
-                                navController
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                userProfile?.let {
+                    val defaultName =
+                        if (it.name.isNullOrBlank()) "نام خود را تکمیل کنید" else it.name
+                    val defaultImage =
+                        if (it.image.isNullOrBlank()) "/images/default_profile.png" else it.image
+                    ProfileSection(
+                        userProfile = it.copy(name = defaultName, image = defaultImage),
+                        navController = navController
+                    )
+                } ?: run {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Warning",
+                                tint = Color(0xFFE53935),
+                                modifier = Modifier.size(28.dp)
                             )
-                        } ?: run {
+                            Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = "لطفاً اطلاعات پروفایل خود را تکمیل کنید.",
-                                fontSize = 18.sp,
-                                color = Color.Red,
-                                fontWeight = FontWeight.Medium,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
-                    }
-
-
-                    items(userProducts) { product ->
-                        ProductItem(
-                            product = product,
-                            onDeleteClick = {
-                                userViewModel.deleteUserProduct(phone, product.id, context)
-                            },
-                            navController = navController
-                        )
-                    }
-
-                    if (userProducts.isEmpty()) {
-                        item {
-                            Text(
-                                text = "هنوز محصولی اضافه نکرده‌اید.",
-                                fontSize = 18.sp,
-                                color = Color.Gray,
+                                fontSize = 16.sp,
+                                color = Color(0xFF212121),
                                 fontWeight = FontWeight.Medium
                             )
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
+            if (userProducts.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_note_add_24),
+                                contentDescription = "Empty",
+                                tint = Color(0xFF1976D2),
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .background(Color(0xFFE3F2FD), CircleShape)
+                                    .padding(20.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "هنوز محصولی اضافه نکرده‌اید.",
+                                fontSize = 18.sp,
+                                color = Color(0xFF212121),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+            } else {
+                items(userProducts) { product ->
+                    ProductItem(
+                        product = product,
+                        onDeleteClick = {
+                            userViewModel.deleteUserProduct(phone, product.id, context)
+                        },
+                        navController = navController
+                    )
+                }
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -1020,12 +1202,11 @@ fun ProductItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                navController.navigate("singleProduct/${product.id}")
-            },
+            .clickable { navController.navigate("singleProduct/${product.id}") }
+            .shadow(6.dp, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -1033,11 +1214,13 @@ fun ProductItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Product Image
             Box(
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(110.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFFEEEEEE))
+                    .shadow(4.dp, RoundedCornerShape(12.dp))
             ) {
                 if (product.images.isNotEmpty()) {
                     AsyncImage(
@@ -1051,14 +1234,13 @@ fun ProductItem(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            // Product Details
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = product.name,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF333333),
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF212121),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1066,7 +1248,7 @@ fun ProductItem(
                 Text(
                     text = product.description,
                     fontSize = 14.sp,
-                    color = Color(0xFF666666),
+                    color = Color(0xFF757575),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1075,18 +1257,20 @@ fun ProductItem(
                     text = "${product.price} تومان",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00C853)
+                    color = Color(0xFF1976D2)
                 )
             }
 
+            // Delete Button
             IconButton(
-                onClick = { onDeleteClick() },
-                modifier = Modifier.padding(8.dp)
+                onClick = onDeleteClick,
+                modifier = Modifier.padding(end = 8.dp)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Delete,
                     contentDescription = "Remove",
-                    tint = Color(0xFFE53935)
+                    tint = Color(0xFFE53935),
+                    modifier = Modifier.size(28.dp)
                 )
             }
         }
@@ -1098,12 +1282,12 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable { navController.navigate("profileDetail") }
-            .shadow(8.dp, shape = RoundedCornerShape(16.dp)),
+            .shadow(6.dp, shape = RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -1111,29 +1295,29 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Profile Image
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(90.dp)
                     .clip(CircleShape)
                     .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                Color(0xFF6A1B9A),
-                                Color(0xFFAB47BC)
-                            )
+                        Brush.radialGradient(
+                            colors = listOf(Color(0xFF6A1B9A), Color(0xFFAB47BC)),
+                            radius = 150f
                         )
                     )
-                    .border(2.dp, Color.White, CircleShape)
+                    .border(3.dp, Color.White, CircleShape)
+                    .shadow(4.dp, CircleShape)
             ) {
                 val imageUrl = if (userProfile.image.startsWith("http")) {
                     userProfile.image
                 } else {
-                    "http://192.168.137.101:2020" + userProfile.image
+                    "http://192.168.1.110:2020${userProfile.image}"
                 }
 
                 AsyncImage(
                     model = imageUrl,
-                    contentDescription = null,
+                    contentDescription = "Profile Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -1141,22 +1325,31 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
+            // User Name
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = userProfile.name,
-                    fontSize = 22.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF333333)
+                    color = Color(0xFF212121)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "مشاهده جزئیات",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF757575)
+                )
             }
 
+            // Arrow Icon
             Icon(
-                imageVector = Icons.Default.ArrowDropDown,
+                imageVector = Icons.Default.ArrowDropDown, // Changed to Chevron for a sleeker look
                 contentDescription = "جزئیات بیشتر",
-                tint = Color(0xFF757575)
+                tint = Color(0xFF1976D2),
+                modifier = Modifier.size(28.dp)
             )
         }
     }
@@ -1170,13 +1363,12 @@ private fun ProfileSectionPreview() {
         name = "John Doe",
         image = "/path/to/image.jpg",
         gender = "Male",
-        bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        bio = "Lorem ipsum dolor sit amet.",
         address = "1234 Main St, Anytown, USA"
     )
     val navController = rememberNavController()
     ProfileSection(userProfile, navController)
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1221,118 +1413,174 @@ fun UserProfileDetailScreen(
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = colorResource(id = R.color.blueM)
-                    )
+                    ),
                 )
-            }
+            },
         ) { paddingValues ->
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp)
-                    .background(Color(0xFFF5F5F5))
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // تصویر پروفایل با افکت مدرن
-                Box(
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape)
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    Color(0xFF6A1B9A),
-                                    Color(0xFFAB47BC)
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Profile Image with Modern Effects
+                    Box(
+                        modifier = Modifier
+                            .size(160.dp)
+                            .clip(CircleShape)
+                            .background(
+                                Brush.radialGradient(
+                                    colors = listOf(Color(0xFF6A1B9A), Color(0xFFAB47BC)),
+                                    radius = 200f
                                 )
                             )
+                            .border(5.dp, Color.White, CircleShape)
+                            .shadow(8.dp, CircleShape)
+                    ) {
+                        val imageUrl = if (userProfile?.image?.startsWith("http") == true) {
+                            userProfile!!.image
+                        } else {
+                            "http://192.168.1.110:2020${userProfile?.image}"
+                        }
+
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = "Profile Image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape)
                         )
-                        .border(4.dp, Color.White, CircleShape)
-                        .align(Alignment.CenterHorizontally)
-                ) {
-                    val imageUrl = if (userProfile?.image?.startsWith("http") == true) {
-                        userProfile?.image
-                    } else {
-                        "http://192.168.137.101:2020" + userProfile?.image
                     }
 
-                    AsyncImage(
-                        model = imageUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // User Name
+                    userProfile?.let {
+                        Text(
+                            text = it.name,
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF212121),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                // User Info Card
+                item {
+                    userProfile?.let { profile ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            shape = RoundedCornerShape(16.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                profile.bio?.let { bio ->
+                                    ProfileInfoRow(
+                                        icon = Icons.Outlined.Info,
+                                        label = "بیوگرافی",
+                                        value = bio
+                                    )
+                                    Divider(
+                                        modifier = Modifier.padding(vertical = 8.dp),
+                                        color = Color(0xFFEEEEEE)
+                                    )
+                                }
 
-                // اطلاعات کاربر
-                userProfile?.let {
-                    Text(
-                        text = it.name,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF333333),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                                profile.gender?.let { gender ->
+                                    ProfileInfoRow(
+                                        icon = Icons.Outlined.Person,
+                                        label = "جنسیت",
+                                        value = gender
+                                    )
+                                    Divider(
+                                        modifier = Modifier.padding(vertical = 8.dp),
+                                        color = Color(0xFFEEEEEE)
+                                    )
+                                }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    it.bio?.let { bio ->
-                        Text(
-                            text = bio,
-                            fontSize = 16.sp,
-                            color = Color(0xFF666666),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    it.gender?.let { gender ->
-                        Text(
-                            text = gender,
-                            fontSize = 16.sp,
-                            color = Color(0xFF666666),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    it.address?.let { address ->
-                        Text(
-                            text = address,
-                            fontSize = 16.sp,
-                            color = Color(0xFF666666),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                                profile.address?.let { address ->
+                                    ProfileInfoRow(
+                                        icon = Icons.Outlined.LocationOn,
+                                        label = "آدرس",
+                                        value = address
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                // دکمه ویرایش با افکت مدرن
-                Button(
-                    onClick = {
-                        navController.navigate("EditProfileScreen")
-                    },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .fillMaxWidth(0.8f)
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "ویرایش پروفایل",
-                        color = Color.White,
-                        fontSize = 18.sp
-                    )
+                    // Edit Profile Button
+                    Button(
+                        onClick = { navController.navigate("EditProfileScreen") },
+                        modifier = Modifier
+                            .fillMaxWidth(0.85f)
+                            .height(56.dp)
+                            .shadow(6.dp, RoundedCornerShape(12.dp)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 4.dp)
+                    ) {
+                        Text(
+                            text = "ویرایش پروفایل",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
+        }
+    }
+}
+
+// Helper Composable for Profile Info Row
+@Composable
+fun ProfileInfoRow(icon: ImageVector, label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color(0xFF1976D2),
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(
+                text = label,
+                fontSize = 14.sp,
+                color = Color(0xFF757575),
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = value,
+                fontSize = 16.sp,
+                color = Color(0xFF212121),
+                fontWeight = FontWeight.Normal
+            )
         }
     }
 }
@@ -1356,17 +1604,17 @@ fun uriToFile(context: Context, uri: Uri): File? {
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
     userViewModel: UserViewModel = viewModel(),
     navController: NavController,
-    context: Context
+    context: Context = LocalContext.current
 ) {
     val userProfile = userViewModel.userProfile.value
     val scope = rememberCoroutineScope()
-
+    var expanded by remember { mutableStateOf(false) }
+    val genderOptions = listOf("مرد", "زن")
     var name by remember { mutableStateOf(userProfile?.name ?: "") }
     var gender by remember { mutableStateOf(userProfile?.gender ?: "") }
     var bio by remember { mutableStateOf(userProfile?.bio ?: "") }
@@ -1380,9 +1628,7 @@ fun EditProfileScreen(
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        imageUri = uri
-    }
+    ) { uri: Uri? -> imageUri = uri }
 
     SwipeRefresh(
         state = refreshState,
@@ -1397,7 +1643,7 @@ fun EditProfileScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            "ویرایش پروفایل",
+                            text = "ویرایش پروفایل",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White
@@ -1412,101 +1658,191 @@ fun EditProfileScreen(
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.blueM))
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = colorResource(id = R.color.blueM)
+                    ),
                 )
-            }
+            },
         ) { paddingValues ->
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape)
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    Color(0xFF6A1B9A),
-                                    Color(0xFFAB47BC)
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Profile Image
+                    Box(
+                        modifier = Modifier
+                            .size(160.dp)
+                            .clip(CircleShape)
+                            .background(
+                                Brush.radialGradient(
+                                    colors = listOf(Color(0xFF6A1B9A), Color(0xFFAB47BC)),
+                                    radius = 200f
                                 )
                             )
-                        )
-                        .border(4.dp, Color.White, CircleShape)
-                        .clickable { imagePickerLauncher.launch("image/*") },
-                    contentAlignment = Alignment.Center
-                ) {
-                    val currentImageUrl =
-                        if (userProfile?.image?.startsWith("http") == true) userProfile.image else "http://192.168.137.101:2020" + (userProfile?.image
-                            ?: "")
-                    AsyncImage(
-                        model = imageUri ?: currentImageUrl,
-                        contentDescription = "عکس پروفایل",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("نام") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                OutlinedTextField(
-                    value = gender,
-                    onValueChange = { gender = it },
-                    label = { Text("جنسیت") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                OutlinedTextField(
-                    value = bio,
-                    onValueChange = { bio = it },
-                    label = { Text("بیوگرافی") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                OutlinedTextField(
-                    value = address,
-                    onValueChange = { address = it },
-                    label = { Text("آدرس") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Button(
-                    onClick = {
-                        scope.launch {
-                            val success = userViewModel.editProfileViewModel(
-                                context = context,
-                                name = name,
-                                gender = gender,
-                                bio = bio,
-                                address = address,
-                                imageUri = imageUri,
-                                phone = phone.toString()
-                            )
-                                withContext(Dispatchers.Main) { navController.popBackStack() }
-
+                            .border(5.dp, Color.White, CircleShape)
+                            .shadow(8.dp, CircleShape)
+                            .clickable { imagePickerLauncher.launch("image/*") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val currentImageUrl = if (userProfile?.image?.startsWith("http") == true) {
+                            userProfile.image
+                        } else {
+                            "http://192.168.1.110:2020${userProfile?.image ?: ""}"
                         }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.blueM))
-                ) {
-                    Text(text = "ذخیره تغییرات", fontSize = 18.sp, color = Color.White)
+
+                        AsyncImage(
+                            model = imageUri ?: currentImageUrl,
+                            contentDescription = "عکس پروفایل",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+
+                        // Overlay Icon for Edit
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(40.dp)
+                                .background(Color(0xFF1976D2), CircleShape)
+                                .border(2.dp, Color.White, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "تغییر عکس",
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Input Fields Card
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = name,
+                                onValueChange = { name = it },
+                                label = { Text("نام") },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedIndicatorColor = Color(0xFF1976D2),
+                                    cursorColor = Color(0xFF1976D2),
+                                    unfocusedIndicatorColor = Color(0xFF757575)
+                                )
+                            )
+                            ExposedDropdownMenuBox(
+                                expanded = expanded,
+                                onExpandedChange = { expanded = !expanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = gender,
+                                    onValueChange = { },
+                                    readOnly = true,
+                                    label = { Text("جنسیت") },
+                                    trailingIcon = {
+                                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .menuAnchor()
+                                )
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    genderOptions.forEach { option ->
+                                        DropdownMenuItem(
+                                            text = { Text(option) },
+                                            onClick = {
+                                                gender = option
+                                                expanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            OutlinedTextField(
+                                value = bio,
+                                onValueChange = { bio = it },
+                                label = { Text("بیوگرافی") },
+                                modifier = Modifier.fillMaxWidth(),
+                                maxLines = 3,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedIndicatorColor = Color(0xFF1976D2),
+                                    cursorColor = Color(0xFF1976D2),
+                                    unfocusedIndicatorColor = Color(0xFF757575)
+                                )
+                            )
+                            OutlinedTextField(
+                                value = address,
+                                onValueChange = { address = it },
+                                label = { Text("آدرس") },
+                                modifier = Modifier.fillMaxWidth(),
+                                maxLines = 2,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedIndicatorColor = Color(0xFF1976D2),
+                                    cursorColor = Color(0xFF1976D2),
+                                    unfocusedIndicatorColor = Color(0xFF757575)
+                                )
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Save Button
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                val success = userViewModel.editProfileViewModel(
+                                    context = context,
+                                    name = name,
+                                    gender = gender,
+                                    bio = bio,
+                                    address = address,
+                                    imageUri = imageUri,
+                                    phone = phone.toString()
+                                )
+                                withContext(Dispatchers.Main) { navController.popBackStack() }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth(0.85f)
+                            .height(56.dp)
+                            .shadow(6.dp, RoundedCornerShape(12.dp)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 4.dp)
+                    ) {
+                        Text(
+                            text = "ذخیره تغییرات",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }

@@ -72,7 +72,7 @@ dependencies {
     implementation("com.airbnb.android:lottie-compose:6.4.1")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("com.google.accompanist:accompanist-swiperefresh:0.36.0") // نسخه به‌روز
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.36.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
