@@ -1,6 +1,7 @@
 package com.example.shop_app_project.Home_page.Main.ChatScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,18 +16,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.shop_app_project.data.models.chat.ChatUser
+import com.example.shop_app_project.data.utils.UtilsRetrofit
+import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(navController: NavController, username: String, receiver: String) {
+fun ChatScreen(navController: NavController, phone: String, receiver: String) {
     val messages = remember { mutableStateListOf<MessageModel>() }
     var inputMessage by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
-    val chatUrl = "ws://192.168.1.105:2020/ws/chat/$receiver/"
+    val chatUrl = "ws://192.168.1.110:2020/ws/chat/$phone/$receiver/"
 
     val webSocketListener = ChatWebSocketListener { message ->
-        messages.add(MessageModel(message, false))
+        val json = JSONObject(message)
+        val text = json.getString("message")
+        val sender = json.getString("sender")
+        messages.add(MessageModel(text, sender == phone))
     }
     val webSocketClient = remember { WebSocketClient(chatUrl, webSocketListener) }
 
@@ -35,24 +44,17 @@ fun ChatScreen(navController: NavController, username: String, receiver: String)
     }
 
     DisposableEffect(Unit) {
-        onDispose {
-            webSocketClient.close()
-        }
+        onDispose { webSocketClient.close() }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
-            title = { Text(text = "چت", color = Color.White) },
+            title = { Text("Chat with $receiver") },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "بازگشت",
-                        tint = Color.White
-                    )
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF6200EE))
+            }
         )
 
         LazyColumn(
@@ -62,7 +64,7 @@ fun ChatScreen(navController: NavController, username: String, receiver: String)
             reverseLayout = true
         ) {
             items(messages) { message ->
-                ChatBubble(message = message)
+                ChatBubble(message)
             }
         }
 
@@ -72,34 +74,27 @@ fun ChatScreen(navController: NavController, username: String, receiver: String)
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextField(
+            OutlinedTextField(
                 value = inputMessage,
                 onValueChange = { inputMessage = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("پیام خود را بنویسید...") },
-                singleLine = true,
+                placeholder = { Text("Type a message...") },
+                singleLine = true
             )
             IconButton(
                 onClick = {
                     if (inputMessage.isNotBlank()) {
                         val jsonMessage = JSONObject().apply {
-                            put("sender", username)
+                            put("sender", phone)
                             put("receiver", receiver)
                             put("message", inputMessage)
                         }.toString()
-
                         webSocketClient.sendMessage(jsonMessage)
-                        messages.add(MessageModel(inputMessage, true))
                         inputMessage = ""
                     }
-                },
-                modifier = Modifier.padding(start = 8.dp)
+                }
             ) {
-                Icon(
-                    imageVector = Icons.Default.Send,
-                    contentDescription = "ارسال",
-                    tint = Color(0xFF6200EE)
-                )
+                Icon(Icons.Default.Send, contentDescription = "Send")
             }
         }
     }
@@ -129,6 +124,97 @@ fun ChatBubble(message: MessageModel) {
                 .padding(8.dp)
         ) {
             Text(text = message.text, color = textColor)
+        }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChatUsersScreen(navController: NavController, phone: String) {
+    val chatUsers = remember { mutableStateListOf<String>() }
+    val coroutineScope = rememberCoroutineScope()
+    var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(phone) {
+        coroutineScope.launch {
+            try {
+                val response = UtilsRetrofit.api.getChatUsers(phone)
+                if (response.isSuccessful) {
+                    response.body()?.let { users ->
+                        chatUsers.clear()
+                        chatUsers.addAll(users)
+                    }
+                } else {
+                    error = "Failed to load users"
+                }
+            } catch (e: Exception) {
+                error = "Error: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(
+            title = { Text("Messages From Users") },
+            navigationIcon = {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+            }
+        )
+
+        when {
+            isLoading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
+            error != null -> {
+                Text(
+                    text = error ?: "Unknown error",
+                    color = Color.Red,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+            chatUsers.isEmpty() -> {
+                Text(
+                    text = "No messages yet",
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+            else -> {
+                LazyColumn(modifier = Modifier.padding(16.dp)) {
+                    items(chatUsers) { senderPhone ->
+                        UserItem(
+                            phone = senderPhone,
+                            onClick = {
+                                navController.navigate("chat/$phone/$senderPhone")
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UserItem(phone: String, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = phone,
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }

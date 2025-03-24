@@ -1,5 +1,6 @@
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -41,12 +43,15 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import com.example.shop_app_project.Home_page.Main.ChatScreen.ChatScreen
+import com.example.shop_app_project.Home_page.Main.ChatScreen.ChatUsersScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.AddProductForm
 import com.example.shop_app_project.Home_page.Main.Screen_Item.EditProfileScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.FavoritesPage
@@ -72,15 +77,16 @@ data class NavigationsItem(
 
 val navItems = listOf(
     NavigationsItem("profile", "پروفایل", Icons.Default.Person),
+    NavigationsItem("chat_users", "پیام ها", Icons.Default.ThumbUp),
     NavigationsItem("favorites", "نشان ها", Icons.Default.FavoriteBorder),
     NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
     NavigationsItem("home", "خانه", Icons.Default.Home),
 )
-
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,
-    userProfile: UserProfile?
+    userProfile: UserProfile?,
+    userPhone: String // Add userPhone parameter
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
@@ -96,15 +102,19 @@ fun BottomNavigationBar(
                 tonalElevation = 0.dp,
             ) {
                 navItems.reversed().forEach { item ->
-                    val isSelected = currentDestination?.route == item.route
-                    val scale =
-                        animateFloatAsState(targetValue = if (isSelected) 1.2f else 1f).value
+                    val isSelected = currentDestination?.route?.startsWith(item.route) == true
+                    val scale = animateFloatAsState(targetValue = if (isSelected) 1.2f else 1f).value
 
                     NavigationBarItem(
                         selected = isSelected,
                         modifier = Modifier.height(15.dp),
                         onClick = {
-                            navController.navigate(item.route) {
+                            val route = if (item.route == "chat_users") {
+                                "chat_users/$userPhone" // Use phone for chat_users route
+                            } else {
+                                item.route
+                            }
+                            navController.navigate(route) {
                                 popUpTo(navController.graph.startDestinationId) {
                                     saveState = true
                                 }
@@ -114,10 +124,10 @@ fun BottomNavigationBar(
                         },
                         icon = {
                             if (item.route == "profile" && userProfile?.image != null) {
-                                val imageUrl = if (userProfile?.image?.startsWith("http") == true) {
-                                    userProfile?.image
+                                val imageUrl = if (userProfile.image.startsWith("http")) {
+                                    userProfile.image
                                 } else {
-                                    "http://192.168.1.110:2020" + userProfile?.image
+                                    "http://192.168.1.110:2020${userProfile.image}"
                                 }
                                 AsyncImage(
                                     model = imageUrl,
@@ -126,7 +136,6 @@ fun BottomNavigationBar(
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clip(RoundedCornerShape(10.dp))
-
                                 )
                             } else {
                                 Icon(
@@ -157,8 +166,6 @@ fun BottomNavigationBar(
         }
     }
 }
-
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BottomNavigations(
@@ -172,6 +179,9 @@ fun BottomNavigations(
 
     val isBottomBarVisible = remember { mutableStateOf(true) }
     val scrollState = rememberLazyListState()
+    val context = LocalContext.current
+    val userPreferences = remember { UserPreferences.getInstance(context) }
+    val userPhone = userPreferences.getUserPhone() ?: "09052278519"
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -193,7 +203,11 @@ fun BottomNavigations(
                     "addCodeScreen"
                 ) != true
             ) {
-                BottomNavigationBar(navController = navController, userProfile)
+                BottomNavigationBar(
+                    navController = navController,
+                    userProfile = userProfile,
+                    userPhone = userPhone
+                )
             }
         }
     ) { innerPadding ->
@@ -206,7 +220,7 @@ fun BottomNavigations(
                 navController = navController,
                 shoppingCartViewModel = shoppingCartViewModel,
                 modifier = Modifier,
-                userViewModel
+                userViewModel = userViewModel
             )
         }
     }
@@ -294,13 +308,26 @@ fun NavGraph(
             EditProfileScreen(userViewModel, navController, context)
         }
 
-        composable("chat/{username}/{receiver}") { backStackEntry ->
-            val context = LocalContext.current
-            val userPreferences = UserPreferences.getInstance(context)
-            val phone = userPreferences.getUserPhone()
-            val receiver = backStackEntry.arguments?.getString("receiver") ?: ""
 
-            ChatScreen(navController, phone ?: "", receiver)
+
+        composable(
+            "chat_users/{phone}",
+            arguments = listOf(navArgument("phone") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val phone = backStackEntry.arguments?.getString("phone") ?: ""
+            ChatUsersScreen(navController, phone)
+        }
+
+        composable(
+            "chat/{phone}/{receiver}",
+            arguments = listOf(
+                navArgument("phone") { type = NavType.StringType },
+                navArgument("receiver") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val phone = backStackEntry.arguments?.getString("phone") ?: ""
+            val receiver = backStackEntry.arguments?.getString("receiver") ?: ""
+            ChatScreen(navController, phone, receiver)
         }
 
 

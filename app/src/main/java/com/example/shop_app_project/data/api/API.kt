@@ -2,6 +2,7 @@ package com.example.shop_app_project.data.api
 
 import com.example.shop_app_project.data.models.Profile.ProdfileModel
 import com.example.shop_app_project.data.models.Profile.UserProfile
+import com.example.shop_app_project.data.models.chat.ChatUser
 import com.example.shop_app_project.data.models.product.Category
 import com.example.shop_app_project.data.models.product.ProductModel
 import com.example.shop_app_project.data.view_model.OPT_Model
@@ -96,6 +97,8 @@ interface API {
         @Part image: MultipartBody.Part?
     ): Response<UserProfile>
 
+    @GET("api/chat_users/")
+    suspend fun getChatUsers(@Query("phone") phone: String): Response<List<String>>
 }
 
 
