@@ -1,11 +1,9 @@
 package com.example.shop_app_project.Home_page.Main.ChatScreen
 
-
 import android.util.Log
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import org.json.JSONObject
 
 class ChatWebSocketListener(private val onMessageReceived: (String) -> Unit) : WebSocketListener() {
     override fun onOpen(webSocket: WebSocket, response: Response) {

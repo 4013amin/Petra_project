@@ -272,9 +272,9 @@ fun ProductDetailScreen(
                 // Chat Button
                 Button(
                     onClick = {
-                        val receiverPhone = UserPreferences.getInstance(context)
-                        val phone = receiverPhone.getUserPhone()
-                        navController.navigate("chat/${phone}/${product.phone}")
+                        val receiverPhone = product.phone
+                        val userPhone = UserPreferences.getInstance(context).getUserPhone()
+                        navController.navigate("chat/$userPhone/$receiverPhone")
                     },
                     modifier = Modifier
                         .fillMaxWidth(0.85f)

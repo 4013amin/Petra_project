@@ -1,9 +1,7 @@
 package com.example.shop_app_project.Home_page.Main.ChatScreen
 
-
 import android.util.Log
 import okhttp3.*
-import okio.ByteString
 
 class WebSocketClient(private val url: String, private val listener: WebSocketListener) {
     private var webSocket: WebSocket? = null
