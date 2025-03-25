@@ -101,8 +101,3 @@ interface API {
     @GET("api/chat_users/")
     suspend fun getChatUsers(@Query("phone") phone: String): Response<ChatUsersResponse>
 }
-
-
-
-
-
