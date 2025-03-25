@@ -16,11 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.shop_app_project.data.models.chat.ChatUser
 import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +30,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
     val chatUrl = "ws://192.168.1.110:2020/ws/chat/$phone/$receiver/"
 
     val webSocketListener = ChatWebSocketListener { message ->
+        println("Received message: $message") // دیباگ
         val json = JSONObject(message)
         val text = json.getString("message")
         val sender = json.getString("sender")
@@ -89,7 +88,9 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
                             put("receiver", receiver)
                             put("message", inputMessage)
                         }.toString()
+                        println("Sending message: $jsonMessage")
                         webSocketClient.sendMessage(jsonMessage)
+                        messages.add(MessageModel(inputMessage, true))
                         inputMessage = ""
                     }
                 }
@@ -140,9 +141,10 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
             try {
                 val response = UtilsRetrofit.api.getChatUsers(phone)
                 if (response.isSuccessful) {
-                    response.body()?.let { users ->
+                    response.body()?.let { chatUsersResponse ->
                         chatUsers.clear()
-                        chatUsers.addAll(users)
+                        // فقط مقادیر غیر null را اضافه می‌کنیم
+                        chatUsers.addAll(chatUsersResponse.users.mapNotNull { it.phone })
                     }
                 } else {
                     error = "Failed to load users"
@@ -199,7 +201,8 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
 }
 
 @Composable
-fun UserItem(phone: String, onClick: () -> Unit) {
+fun UserItem(phone: String?, onClick: () -> Unit) {
+    if (phone == null) return // اگر phone null باشد، چیزی نمایش داده نمی‌شود
     Card(
         modifier = Modifier
             .fillMaxWidth()
