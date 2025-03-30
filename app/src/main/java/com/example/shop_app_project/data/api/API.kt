@@ -100,4 +100,10 @@ interface API {
 
     @GET("api/chat_users/")
     suspend fun getChatUsers(@Query("phone") phone: String): Response<ChatUsersResponse>
+
+    @DELETE("chat/{sender}/{receiver}/")
+    suspend fun deleteChat(
+        @Path("sender") sender: String,
+        @Path("receiver") receiver: String
+    ): Response<Void>
 }

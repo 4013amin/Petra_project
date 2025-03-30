@@ -1,7 +1,9 @@
 package com.example.shop_app_project.Home_page.Main.ChatScreen
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -320,6 +322,23 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
         }
     }
 
+    // متد حذف چت‌ها
+    fun deleteChat(senderPhone: String) {
+        coroutineScope.launch {
+            try {
+                // فرض می‌کنیم یک API برای حذف چت‌ها داریم
+                val response = UtilsRetrofit.api.deleteChat(phone, senderPhone)
+                if (response.isSuccessful) {
+                    chatUsers.remove(senderPhone) // حذف از لیست محلی
+                } else {
+                    error = "Failed to delete chat"
+                }
+            } catch (e: Exception) {
+                error = "Error deleting chat: ${e.message}"
+            }
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = { Text("Messages From Users") },
@@ -338,31 +357,43 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
                 color = Color.Red,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-
             chatUsers.isEmpty() -> Text(
                 text = "No messages yet",
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-
             else -> LazyColumn(modifier = Modifier.padding(16.dp)) {
                 items(chatUsers) { senderPhone ->
                     UserItem(
                         phone = senderPhone,
-                        onClick = { navController.navigate("chat/$phone/$senderPhone") })
+                        onClick = { navController.navigate("chat/$phone/$senderPhone") },
+                        onDeleteChat = { deleteChat(it) } // ارسال متد حذف
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun UserItem(phone: String?, onClick: () -> Unit) {
+fun UserItem(
+    phone: String?,
+    onClick: () -> Unit,
+    onDeleteChat: (String) -> Unit // تغییر به دریافت phone به عنوان پارامتر
+) {
     if (phone == null) return
+
+    var showDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(15.dp)
-            .clickable { onClick() },
+            .combinedClickable(
+                onClick = { onClick() },
+                onLongClick = { showDialog = true }
+            ),
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E88E5))
     ) {
@@ -376,7 +407,31 @@ fun UserItem(phone: String?, onClick: () -> Unit) {
             )
         }
     }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("حذف چت") },
+            text = { Text("آیا می‌خواهید این چت را حذف کنید؟") },
+            confirmButton = {
+                TextButton(onClick = {
+                    coroutineScope.launch {
+                        onDeleteChat(phone) // ارسال phone به متد حذف
+                        showDialog = false
+                    }
+                }) {
+                    Text("بله")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("خیر")
+                }
+            }
+        )
+    }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -393,7 +448,7 @@ private fun ShowChatScreen() {
                 .fillMaxSize()
                 .padding(it)
         ) {
-            UserItem(phone = "09362629118", onClick = { /* Handle click event */ })
+            UserItem(phone = "09362629118", onClick = { /* Handle click event */ } , onDeleteChat = {})
         }
     }
 }
