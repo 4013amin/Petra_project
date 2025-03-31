@@ -5,7 +5,9 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,19 +28,24 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -64,7 +71,7 @@ import com.example.shop_app_project.Home_page.Main.Screen_Item.ProductDetailScre
 import com.example.shop_app_project.Home_page.Main.Screen_Item.UserProductsScreen
 import com.example.shop_app_project.Home_page.Main.Screen_Item.UserProfileDetailScreen
 import com.example.shop_app_project.Home_page.Main.SharedPreferencesManager.SharedPreferencesManager
-
+import com.example.shop_app_project.R
 import com.example.shop_app_project.Home_page.Main.UiHomePage
 import com.example.shop_app_project.data.models.Profile.UserProfile
 import com.example.shop_app_project.data.models.product.ProductModel
@@ -72,28 +79,70 @@ import com.example.shop_app_project.data.view_model.SavedProductsViewModel
 import com.example.shop_app_project.data.view_model.ShoppingCartViewModel
 import com.example.shop_app_project.data.view_model.UserViewModel
 
-data class NavigationsItem(
+
+// **مدل آیتم‌های نوار ناوبری**
+data class NavigationItem(
     val route: String,
     val title: String,
-    val icon: ImageVector,
+    val icon: Painter,
+    val modifier: Modifier = Modifier
 )
 
-val navItems = listOf(
-    NavigationsItem("profile", "پروفایل", Icons.Default.Person),
-    NavigationsItem("chat_users", "پیام ها", Icons.Default.ThumbUp),
-    NavigationsItem("favorites", "نشان ها", Icons.Default.FavoriteBorder),
-    NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
-    NavigationsItem("home", "خانه", Icons.Default.Home),
-)
+@Composable
+fun getNavItems(): List<NavigationItem> {
+    return listOf(
+        NavigationItem("profile", "پروفایل", painterResource(id = R.drawable.baseline_person_24)),
+        NavigationItem(
+            "chat_users",
+            "پیام ها",
+            painterResource(id = R.drawable.chaticon),
+            modifier = Modifier.size(37.dp)
+        ),
+        NavigationItem(
+            "favorites",
+            "نشان ها",
+            painterResource(id = R.drawable.baseline_favorite_24)
+        ),
+        NavigationItem(
+            "addProduct",
+            "ثبت آگهی",
+            painterResource(id = R.drawable.baseline_note_add_24)
+        ),
+        NavigationItem("home", "خانه", painterResource(id = R.drawable.baseline_home_24))
+    )
+}
 
+@Composable
+fun NavigationItemsList(navItems: List<NavigationItem>) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+        modifier = Modifier.padding(16.dp)
+    ) {
+        navItems.forEach { item ->
+            Icon(
+                painter = item.icon,
+                contentDescription = item.title,
+                modifier = item.modifier
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ShowButtons() {
+    NavigationItemsList(getNavItems())
+}
+
+// **نوار ناوبری پایین**
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,
     userProfile: UserProfile?,
-    userPhone: String // Add userPhone parameter
+    userPhone: String
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = currentBackStackEntry?.destination
+    val currentDestination = rememberUpdatedState(currentBackStackEntry?.destination?.route)
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Surface(
@@ -101,54 +150,39 @@ fun BottomNavigationBar(
             color = Color.White,
             shadowElevation = 8.dp
         ) {
-            NavigationBar(
-                containerColor = Color.Transparent,
-                tonalElevation = 0.dp,
-            ) {
-                navItems.reversed().forEach { item ->
-                    val isSelected = currentDestination?.route?.startsWith(item.route) == true
-                    val scale =
-                        animateFloatAsState(targetValue = if (isSelected) 1.2f else 1f).value
+            NavigationBar(containerColor = Color.Transparent, tonalElevation = 0.dp) {
+                getNavItems().reversed().forEach { item ->
+                    val isSelected = currentDestination.value?.startsWith(item.route) == true
 
                     NavigationBarItem(
                         selected = isSelected,
-                        modifier = Modifier.height(15.dp),
+                        modifier = Modifier.height(56.dp),
                         onClick = {
                             val route = if (item.route == "chat_users") {
-                                "chat_users/$userPhone" // Use phone for chat_users route
+                                "chat_users/$userPhone"
                             } else {
                                 item.route
                             }
                             navController.navigate(route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
                             }
                         },
                         icon = {
                             if (item.route == "profile" && userProfile?.image != null) {
-                                val imageUrl = if (userProfile.image.startsWith("http")) {
-                                    userProfile.image
-                                } else {
-                                    "http://192.168.1.110:2020${userProfile.image}"
-                                }
                                 AsyncImage(
-                                    model = imageUrl,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Inside,
+                                    model = "http://192.168.1.110:2020${userProfile.image}",
+                                    contentDescription = "Profile Image",
                                     modifier = Modifier
-                                        .size(20.dp)
-                                        .clip(RoundedCornerShape(10.dp))
+                                        .size(24.dp)
+                                        .clip(RoundedCornerShape(12.dp))
                                 )
                             } else {
                                 Icon(
-                                    imageVector = item.icon,
+                                    painter = item.icon,
                                     contentDescription = item.title,
-                                    modifier = Modifier
-                                        .size(20.dp)
-                                        .graphicsLayer(scaleX = scale, scaleY = scale),
+                                    modifier = Modifier.size(24.dp),
                                     tint = if (isSelected) Color(0xFF007BFF) else Color.Gray
                                 )
                             }
