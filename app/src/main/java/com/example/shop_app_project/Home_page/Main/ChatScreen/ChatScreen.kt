@@ -32,6 +32,7 @@ import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
+
 data class MessageModel(
     val id: Int? = null,
     val text: String,
@@ -84,8 +85,11 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
             messages.add(MessageModel(id, text, sender == phone, replyTo, status, timestamp))
             messages.sortBy { it.timestamp }
         }
+        // اسکرول فقط وقتی لیست خالی نیست
         coroutineScope.launch {
-            listState.animateScrollToItem(messages.size - 1)
+            if (messages.isNotEmpty()) {
+                listState.animateScrollToItem(messages.size - 1)
+            }
         }
     }
     val webSocketClient = remember { WebSocketClient(chatUrl, webSocketListener) }
@@ -97,7 +101,6 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
                 val jsonMessage = JSONObject().apply {
                     put("sender", phone)
                     put("receiver", receiver)
-                    put("message", msg.text)
                     put("status", "SEEN")
                 }.toString()
                 webSocketClient.sendMessage(jsonMessage)
@@ -111,7 +114,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF0F4F8))
-    ) { // پس‌زمینه آبی روشن
+    ) {
         TopAppBar(
             title = { Text("Chat with $receiver", color = Color.White) },
             navigationIcon = {
@@ -119,7 +122,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF1E88E5)) // آبی تیره
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF1E88E5))
         )
 
         LazyColumn(
@@ -129,9 +132,21 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
             state = listState,
             reverseLayout = false
         ) {
-            items(messages) { message ->
-                ChatBubble(message = message, onReplyClick = { replyingTo = it })
-                Spacer(modifier = Modifier.height(4.dp))
+            if (messages.isEmpty()) {
+                item {
+                    Text(
+                        text = "هیچ پیامی وجود ندارد",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        color = Color.Gray
+                    )
+                }
+            } else {
+                items(messages) { message ->
+                    ChatBubble(message = message, onReplyClick = { replyingTo = it })
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
             }
         }
 
@@ -140,7 +155,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .background(Color(0xFFE3F2FD)), // آبی خیلی روشن
+                    .background(Color(0xFFE3F2FD)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -180,7 +195,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
                 singleLine = true,
                 shape = RoundedCornerShape(24.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF1E88E5), // آبی تیره
+                    focusedBorderColor = Color(0xFF1E88E5),
                     unfocusedBorderColor = Color.Gray,
                     cursorColor = Color(0xFF1E88E5),
                     focusedTextColor = Color.Black,
@@ -199,8 +214,12 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
                             replyingTo?.let { put("reply_to_id", it.id) }
                         }.toString()
                         webSocketClient.sendMessage(jsonMessage)
-                        // پیام را اینجا به لیست اضافه نمی‌کنیم، منتظر پاسخ سرور می‌مانیم
-                        coroutineScope.launch { listState.animateScrollToItem(messages.size - 1) }
+                        // اسکرول فقط وقتی لیست خالی نیست
+                        coroutineScope.launch {
+                            if (messages.isNotEmpty()) {
+                                listState.animateScrollToItem(messages.size - 1)
+                            }
+                        }
                         inputMessage = ""
                         replyingTo = null
                     }
@@ -208,7 +227,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
                 modifier = Modifier.background(
                     Color(0xFF1E88E5),
                     RoundedCornerShape(50)
-                ) // آبی تیره
+                )
             ) {
                 Icon(Icons.Default.Send, contentDescription = "Send", tint = Color.White)
             }
@@ -220,7 +239,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
 fun ChatBubble(message: MessageModel, onReplyClick: (MessageModel) -> Unit) {
     val alignment = if (message.isSent) Alignment.End else Alignment.Start
     val backgroundColor =
-        if (message.isSent) Color(0xFFB3E5FC) else Color.White // آبی روشن برای ارسالی
+        if (message.isSent) Color(0xFFB3E5FC) else Color.White
     val textColor = Color.Black
 
     Row(
@@ -272,14 +291,12 @@ fun ChatBubble(message: MessageModel, onReplyClick: (MessageModel) -> Unit) {
                             tint = Color.Gray,
                             modifier = Modifier.size(14.dp)
                         )
-
                         MessageStatus.DELIVERED -> Icon(
                             Icons.Default.Done,
                             "Delivered",
                             tint = Color.Black,
                             modifier = Modifier.size(14.dp)
                         )
-
                         MessageStatus.SEEN -> Icon(
                             painterResource(id = R.drawable.seen),
                             "Seen",
@@ -292,7 +309,6 @@ fun ChatBubble(message: MessageModel, onReplyClick: (MessageModel) -> Unit) {
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
