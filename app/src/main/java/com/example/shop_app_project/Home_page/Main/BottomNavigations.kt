@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -38,9 +39,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -82,6 +85,7 @@ val navItems = listOf(
     NavigationsItem("addProduct", "ثبت آگهی", Icons.Default.Add),
     NavigationsItem("home", "خانه", Icons.Default.Home),
 )
+
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,
@@ -103,7 +107,8 @@ fun BottomNavigationBar(
             ) {
                 navItems.reversed().forEach { item ->
                     val isSelected = currentDestination?.route?.startsWith(item.route) == true
-                    val scale = animateFloatAsState(targetValue = if (isSelected) 1.2f else 1f).value
+                    val scale =
+                        animateFloatAsState(targetValue = if (isSelected) 1.2f else 1f).value
 
                     NavigationBarItem(
                         selected = isSelected,
@@ -166,6 +171,7 @@ fun BottomNavigationBar(
         }
     }
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BottomNavigations(
@@ -259,16 +265,71 @@ fun NavGraph(
             if (productId != null) {
                 val context = LocalContext.current
                 val product = remember { mutableStateOf<ProductModel?>(null) }
+                val isLoading = remember { mutableStateOf(true) }
+                val errorMessage = remember { mutableStateOf<String?>(null) }
 
                 LaunchedEffect(productId) {
-                    product.value = userViewModel.getProductById(context, productId)
+                    try {
+                        isLoading.value = true
+                        errorMessage.value = null
+                        product.value = userViewModel.getProductById(context, productId)
+                        if (product.value == null) {
+                            errorMessage.value = "محصول پیدا نشد."
+                        }
+                    } catch (e: Exception) {
+                        errorMessage.value = "خطا در دریافت اطلاعات محصول."
+                    } finally {
+                        isLoading.value = false
+                    }
                 }
 
-                product.value?.let { productDetails ->
-                    ProductDetailScreen(product = productDetails, onBackClick = {}, navController)
-                } ?: Text("Loading...")
+                when {
+                    isLoading.value -> {
+                        // نمایش حالت بارگذاری
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    errorMessage.value != null -> {
+                        // نمایش پیام خطا
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = errorMessage.value ?: "خطای ناشناخته",
+                                color = Color.Red,
+                                fontSize = 18.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+
+                    product.value != null -> {
+                        // نمایش جزئیات محصول
+                        ProductDetailScreen(
+                            product = product.value!!,
+                            onBackClick = { navController.popBackStack() },
+                            navController = navController
+                        )
+                    }
+                }
             } else {
-                Text("Invalid product ID")
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "شناسه محصول نامعتبر است.",
+                        color = Color.Red,
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
 

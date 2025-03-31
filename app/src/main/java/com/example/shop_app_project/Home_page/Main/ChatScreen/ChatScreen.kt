@@ -312,7 +312,7 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
                         chatUsers.addAll(chatUsersResponse.users.mapNotNull { it.phone })
                     }
                 } else {
-                    error = "Failed to load users"
+                    error = "خطای سیستمی"
                 }
             } catch (e: Exception) {
                 error = "Error: ${e.message}"
@@ -355,18 +355,22 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
             error != null -> Text(
                 text = error ?: "Unknown error",
                 color = Color.Red,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(15.dp)
             )
+
             chatUsers.isEmpty() -> Text(
-                text = "No messages yet",
+                text = "هنوز پیامی وجود ندارد",
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
+
             else -> LazyColumn(modifier = Modifier.padding(16.dp)) {
                 items(chatUsers) { senderPhone ->
                     UserItem(
                         phone = senderPhone,
                         onClick = { navController.navigate("chat/$phone/$senderPhone") },
-                        onDeleteChat = { deleteChat(it) } // ارسال متد حذف
+                        onDeleteChat = { deleteChat(it) }
                     )
                 }
             }
@@ -379,7 +383,7 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
 fun UserItem(
     phone: String?,
     onClick: () -> Unit,
-    onDeleteChat: (String) -> Unit // تغییر به دریافت phone به عنوان پارامتر
+    onDeleteChat: (String) -> Unit
 ) {
     if (phone == null) return
 
@@ -448,7 +452,10 @@ private fun ShowChatScreen() {
                 .fillMaxSize()
                 .padding(it)
         ) {
-            UserItem(phone = "09362629118", onClick = { /* Handle click event */ } , onDeleteChat = {})
+            UserItem(
+                phone = "09362629118",
+                onClick = { /* Handle click event */ },
+                onDeleteChat = {})
         }
     }
 }
