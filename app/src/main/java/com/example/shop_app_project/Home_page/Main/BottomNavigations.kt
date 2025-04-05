@@ -172,7 +172,7 @@ fun BottomNavigationBar(
                         icon = {
                             if (item.route == "profile" && userProfile?.image != null) {
                                 AsyncImage(
-                                    model = "http://192.168.1.110:2020${userProfile.image}",
+                                    model = "https://petshopdjango.liara.run/${userProfile.image}",
                                     contentDescription = "Profile Image",
                                     modifier = Modifier
                                         .size(24.dp)
@@ -429,15 +429,3 @@ fun NavGraph(
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewBottomNavigationBar() {
-//    val navController = rememberNavController()
-//
-//    // داده آزمایشی برای userProfile
-//    val sampleUserProfile =
-//        UserProfile(1, "username", image = "https://via.placeholder.com/150")
-//
-//    BottomNavigationBar(navController = navController, userProfile = sampleUserProfile)
-//
-//}

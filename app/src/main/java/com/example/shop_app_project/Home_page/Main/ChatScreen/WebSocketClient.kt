@@ -10,6 +10,7 @@ class WebSocketClient(private val url: String, private val listener: WebSocketLi
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
         webSocket = client.newWebSocket(request, listener)
+
     }
 
     fun sendMessage(message: String) {

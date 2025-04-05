@@ -53,7 +53,9 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
-    val chatUrl = "ws://192.168.1.110:2020/ws/chat/$phone/$receiver/"
+    val chatUrl = "wss://petshopdjango.liara.run/ws/chat/$phone/$receiver/"
+
+
     val webSocketListener = ChatWebSocketListener { message ->
         val json = JSONObject(message)
         val id = json.optInt("id", -1).takeIf { it != -1 }
@@ -96,6 +98,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
 
     LaunchedEffect(Unit) {
         webSocketClient.connect()
+        println("WebSocket Connecting to $chatUrl")
         coroutineScope.launch {
             messages.filter { !it.isSent && it.status != MessageStatus.SEEN }.forEach { msg ->
                 val jsonMessage = JSONObject().apply {
@@ -291,12 +294,14 @@ fun ChatBubble(message: MessageModel, onReplyClick: (MessageModel) -> Unit) {
                             tint = Color.Gray,
                             modifier = Modifier.size(14.dp)
                         )
+
                         MessageStatus.DELIVERED -> Icon(
                             Icons.Default.Done,
                             "Delivered",
                             tint = Color.Black,
                             modifier = Modifier.size(14.dp)
                         )
+
                         MessageStatus.SEEN -> Icon(
                             painterResource(id = R.drawable.seen),
                             "Seen",
