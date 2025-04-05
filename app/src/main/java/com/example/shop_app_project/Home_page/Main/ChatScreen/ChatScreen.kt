@@ -53,7 +53,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
-    val chatUrl = "wss://petshopdjango.liara.run/ws/chat/$phone/$receiver/"
+    val chatUrl = "ws://192.168.121.101:2020/ws/chat/$phone/$receiver/"
 
 
     val webSocketListener = ChatWebSocketListener { message ->
