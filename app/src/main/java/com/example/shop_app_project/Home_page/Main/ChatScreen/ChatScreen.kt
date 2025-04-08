@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,6 +45,7 @@ data class MessageModel(
 
 enum class MessageStatus { SENT, DELIVERED, SEEN }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(navController: NavController, phone: String, receiver: String) {
@@ -52,9 +54,14 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
     var replyingTo by remember { mutableStateOf<MessageModel?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
+    val context = LocalContext.current
 
     val chatUrl = "ws://192.168.121.101:2020/ws/chat/$phone/$receiver/"
 
+    // ایجاد کانال نوتیفیکیشن در هنگام شروع
+    LaunchedEffect(Unit) {
+        NotificationHelper.createNotificationChannel(context)
+    }
 
     val webSocketListener = ChatWebSocketListener { message ->
         val json = JSONObject(message)
@@ -86,14 +93,27 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
         } else {
             messages.add(MessageModel(id, text, sender == phone, replyTo, status, timestamp))
             messages.sortBy { it.timestamp }
+
+            // نمایش نوتیفیکیشن فقط برای پیام‌های دریافتی
+            if (sender != phone) {
+                NotificationHelper.showNotification(
+                    context = context,
+                    title = "پیام جدید از $sender",
+                    message = text,
+                    phone = phone,
+                    receiver = receiver
+                )
+            }
         }
-        // اسکرول فقط وقتی لیست خالی نیست
+
+        // اسکرول به آخرین پیام
         coroutineScope.launch {
             if (messages.isNotEmpty()) {
                 listState.animateScrollToItem(messages.size - 1)
             }
         }
     }
+
     val webSocketClient = remember { WebSocketClient(chatUrl, webSocketListener) }
 
     LaunchedEffect(Unit) {
@@ -217,7 +237,6 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
                             replyingTo?.let { put("reply_to_id", it.id) }
                         }.toString()
                         webSocketClient.sendMessage(jsonMessage)
-                        // اسکرول فقط وقتی لیست خالی نیست
                         coroutineScope.launch {
                             if (messages.isNotEmpty()) {
                                 listState.animateScrollToItem(messages.size - 1)
@@ -241,8 +260,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
 @Composable
 fun ChatBubble(message: MessageModel, onReplyClick: (MessageModel) -> Unit) {
     val alignment = if (message.isSent) Alignment.End else Alignment.Start
-    val backgroundColor =
-        if (message.isSent) Color(0xFFB3E5FC) else Color.White
+    val backgroundColor = if (message.isSent) Color(0xFFB3E5FC) else Color.White
     val textColor = Color.Black
 
     Row(
@@ -343,14 +361,12 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
         }
     }
 
-    // متد حذف چت‌ها
     fun deleteChat(senderPhone: String) {
         coroutineScope.launch {
             try {
-                // فرض می‌کنیم یک API برای حذف چت‌ها داریم
                 val response = UtilsRetrofit.api.deleteChat(phone, senderPhone)
                 if (response.isSuccessful) {
-                    chatUsers.remove(senderPhone) // حذف از لیست محلی
+                    chatUsers.remove(senderPhone)
                 } else {
                     error = "Failed to delete chat"
                 }
@@ -441,7 +457,7 @@ fun UserItem(
             confirmButton = {
                 TextButton(onClick = {
                     coroutineScope.launch {
-                        onDeleteChat(phone) // ارسال phone به متد حذف
+                        onDeleteChat(phone)
                         showDialog = false
                     }
                 }) {
@@ -456,7 +472,6 @@ fun UserItem(
         )
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -476,7 +491,8 @@ private fun ShowChatScreen() {
             UserItem(
                 phone = "09362629118",
                 onClick = { /* Handle click event */ },
-                onDeleteChat = {})
+                onDeleteChat = {}
+            )
         }
     }
 }
