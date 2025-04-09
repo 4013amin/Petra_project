@@ -1,10 +1,12 @@
 package com.example.shop_app_project.Home_page.Main.ChatScreen
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -31,7 +33,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.shop_app_project.Home_page.Main.MainActivity
@@ -41,13 +45,12 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 
-
-// شیء NotificationHelper
 object NotificationHelper {
     private const val CHANNEL_ID = "chat_notifications"
     private const val CHANNEL_NAME = "Chat Messages"
     private const val CHANNEL_DESCRIPTION = "Notifications for new chat messages"
 
+    // ساخت کانال اعلان
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -62,15 +65,15 @@ object NotificationHelper {
         }
     }
 
+    // نمایش اعلان
     fun showNotification(context: Context, title: String, message: String, phone: String, receiver: String) {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        // Intent برای باز کردن ChatScreen هنگام کلیک روی نوتیفیکیشن
         val intent = Intent(context, MainActivity::class.java).apply {
             putExtra("phone", phone)
             putExtra("receiver", receiver)
+            putExtra("navigate_to", "chat") // برای هدایت به صفحه چت
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
+
         val pendingIntent = PendingIntent.getActivity(
             context,
             0,
@@ -78,19 +81,23 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // ساخت نوتیفیکیشن
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.baseline_notifications_24)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
+            .setAutoCancel(true) // بعد از کلیک، اعلان حذف بشه
 
-        // نمایش نوتیفیکیشن با یک ID منحصربه‌فرد
-        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+        // نمایش اعلان اگر مجوز داده شده باشه
+        with(NotificationManagerCompat.from(context)) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                notify(System.currentTimeMillis().toInt(), builder.build()) // ID منحصربه‌فرد برای هر اعلان
+            }
+        }
     }
 }
-
-

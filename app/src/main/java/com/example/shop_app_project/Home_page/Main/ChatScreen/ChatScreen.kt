@@ -33,7 +33,6 @@ import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-
 data class MessageModel(
     val id: Int? = null,
     val text: String,
@@ -45,7 +44,6 @@ data class MessageModel(
 
 enum class MessageStatus { SENT, DELIVERED, SEEN }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(navController: NavController, phone: String, receiver: String) {
@@ -56,9 +54,8 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
     val listState = rememberLazyListState()
     val context = LocalContext.current
 
-    val chatUrl = "ws://192.168.121.101:2020/ws/chat/$phone/$receiver/"
+    val chatUrl = "ws://192.168.218.101:2020/ws/chat/$phone/$receiver/"
 
-    // ایجاد کانال نوتیفیکیشن در هنگام شروع
     LaunchedEffect(Unit) {
         NotificationHelper.createNotificationChannel(context)
     }
@@ -93,8 +90,6 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
         } else {
             messages.add(MessageModel(id, text, sender == phone, replyTo, status, timestamp))
             messages.sortBy { it.timestamp }
-
-            // نمایش نوتیفیکیشن فقط برای پیام‌های دریافتی
             if (sender != phone) {
                 NotificationHelper.showNotification(
                     context = context,
@@ -105,8 +100,6 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
                 )
             }
         }
-
-        // اسکرول به آخرین پیام
         coroutineScope.launch {
             if (messages.isNotEmpty()) {
                 listState.animateScrollToItem(messages.size - 1)
@@ -118,7 +111,6 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
 
     LaunchedEffect(Unit) {
         webSocketClient.connect()
-        println("WebSocket Connecting to $chatUrl")
         coroutineScope.launch {
             messages.filter { !it.isSent && it.status != MessageStatus.SEEN }.forEach { msg ->
                 val jsonMessage = JSONObject().apply {
@@ -312,14 +304,12 @@ fun ChatBubble(message: MessageModel, onReplyClick: (MessageModel) -> Unit) {
                             tint = Color.Gray,
                             modifier = Modifier.size(14.dp)
                         )
-
                         MessageStatus.DELIVERED -> Icon(
                             Icons.Default.Done,
                             "Delivered",
                             tint = Color.Black,
                             modifier = Modifier.size(14.dp)
                         )
-
                         MessageStatus.SEEN -> Icon(
                             painterResource(id = R.drawable.seen),
                             "Seen",
@@ -396,12 +386,10 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
                     .align(Alignment.CenterHorizontally)
                     .padding(15.dp)
             )
-
             chatUsers.isEmpty() -> Text(
                 text = "هنوز پیامی وجود ندارد",
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-
             else -> LazyColumn(modifier = Modifier.padding(16.dp)) {
                 items(chatUsers) { senderPhone ->
                     UserItem(
@@ -490,7 +478,7 @@ private fun ShowChatScreen() {
         ) {
             UserItem(
                 phone = "09362629118",
-                onClick = { /* Handle click event */ },
+                onClick = {},
                 onDeleteChat = {}
             )
         }
