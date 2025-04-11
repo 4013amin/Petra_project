@@ -304,12 +304,14 @@ fun ChatBubble(message: MessageModel, onReplyClick: (MessageModel) -> Unit) {
                             tint = Color.Gray,
                             modifier = Modifier.size(14.dp)
                         )
+
                         MessageStatus.DELIVERED -> Icon(
                             Icons.Default.Done,
                             "Delivered",
                             tint = Color.Black,
                             modifier = Modifier.size(14.dp)
                         )
+
                         MessageStatus.SEEN -> Icon(
                             painterResource(id = R.drawable.seen),
                             "Seen",
@@ -386,10 +388,12 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
                     .align(Alignment.CenterHorizontally)
                     .padding(15.dp)
             )
+
             chatUsers.isEmpty() -> Text(
                 text = "هنوز پیامی وجود ندارد",
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
+
             else -> LazyColumn(modifier = Modifier.padding(16.dp)) {
                 items(chatUsers) { senderPhone ->
                     UserItem(
