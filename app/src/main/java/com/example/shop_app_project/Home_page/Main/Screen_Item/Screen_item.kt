@@ -50,6 +50,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -405,7 +406,7 @@ fun ImageSlider(images: List<String>, modifier: Modifier) {
                 .padding(15.dp)
         ) { page ->
             AsyncImage(
-                model = "https://petshopdjango.liara.run/${images[page]}",
+                model = "http://192.168.13.101:2020${images[page]}",
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -413,7 +414,7 @@ fun ImageSlider(images: List<String>, modifier: Modifier) {
                     .height(400.dp)
                     .clip(RoundedCornerShape(5.dp))
                     .clickable {
-                        selectedImage.value = "https://petshopdjango.liara.run/${images[page]}"
+                        selectedImage.value = "http://192.168.13.101:2020${images[page]}"
                         openDialog.value = true
                     },
                 onError = {
@@ -1004,7 +1005,7 @@ fun FavoritesPage(
                             ) {
                                 if (product.images.isNotEmpty()) {
                                     AsyncImage(
-                                        model = "https://petshopdjango.liara.run/${product.images.first()}",
+                                        model = "http://192.168.13.101:2020${product.images.first()}",
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier.fillMaxSize()
@@ -1224,7 +1225,7 @@ fun ProductItem(
             ) {
                 if (product.images.isNotEmpty()) {
                     AsyncImage(
-                        model = "https://petshopdjango.liara.run/${product.images.first()}",
+                        model = "http://192.168.13.101:2020${product.images.first()}",
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
@@ -1312,9 +1313,9 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                 val imageUrl = if (userProfile.image.startsWith("http")) {
                     userProfile.image
                 } else {
-                    "https://petshopdjango.liara.run/${userProfile.image}"
+                    "http://192.168.13.101:2020${userProfile.image}"
                 }
-    
+
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = "Profile Image",
@@ -1344,30 +1345,15 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                 )
             }
 
-            // Arrow Icon
+
             Icon(
-                imageVector = Icons.Default.ArrowDropDown, // Changed to Chevron for a sleeker look
+                imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = "جزئیات بیشتر",
                 tint = Color(0xFF1976D2),
                 modifier = Modifier.size(28.dp)
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun ProfileSectionPreview() {
-    val userProfile = UserProfile(
-        id = 1,
-        name = "John Doe",
-        image = "/path/to/image.jpg",
-        gender = "Male",
-        bio = "Lorem ipsum dolor sit amet.",
-        address = "1234 Main St, Anytown, USA"
-    )
-    val navController = rememberNavController()
-    ProfileSection(userProfile, navController)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1413,9 +1399,9 @@ fun UserProfileDetailScreen(
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = colorResource(id = R.color.blueM)
-                    ),
+                    )
                 )
-            },
+            }
         ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
@@ -1444,7 +1430,7 @@ fun UserProfileDetailScreen(
                         val imageUrl = if (userProfile?.image?.startsWith("http") == true) {
                             userProfile!!.image
                         } else {
-                            "https://petshopdjango.liara.run/${userProfile?.image}"
+                            "http://192.168.13.101:2020${userProfile?.image}"
                         }
 
                         AsyncImage(
@@ -1480,11 +1466,10 @@ fun UserProfileDetailScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = RoundedCornerShape(16.dp)
                         ) {
                             Column(
-                                modifier = Modifier
-                                    .padding(16.dp),
+                                modifier = Modifier.padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 profile.bio?.let { bio ->
@@ -1499,17 +1484,18 @@ fun UserProfileDetailScreen(
                                     )
                                 }
 
-                                profile.gender?.let { gender ->
+                                phone?.let { phone ->
                                     ProfileInfoRow(
-                                        icon = Icons.Outlined.Person,
-                                        label = "جنسیت",
-                                        value = gender
-                                    )
-                                    Divider(
-                                        modifier = Modifier.padding(vertical = 8.dp),
-                                        color = Color(0xFFEEEEEE)
+                                        icon = Icons.Outlined.Phone,
+                                        label = "شماره تماس شما",
+                                        value = phone
                                     )
                                 }
+
+                                Divider(
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    color = Color(0xFFEEEEEE)
+                                )
 
                                 profile.address?.let { address ->
                                     ProfileInfoRow(
@@ -1552,9 +1538,12 @@ fun UserProfileDetailScreen(
     }
 }
 
-// Helper Composable for Profile Info Row
 @Composable
-fun ProfileInfoRow(icon: ImageVector, label: String, value: String) {
+fun ProfileInfoRow(
+    icon: ImageVector,
+    label: String,
+    value: String
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1587,7 +1576,7 @@ fun ProfileInfoRow(icon: ImageVector, label: String, value: String) {
 
 fun uriToFile(context: Context, uri: Uri): File? {
     val contentResolver = context.contentResolver
-    val fileName = "temp_image_${System.currentTimeMillis()}.jpg" // نام فایل موقت
+    val fileName = "temp_image_${System.currentTimeMillis()}.jpg"
     val file = File(context.cacheDir, fileName)
 
     return try {
@@ -1614,14 +1603,11 @@ fun EditProfileScreen(
     val userProfile = userViewModel.userProfile.value
     val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
-    val genderOptions = listOf("مرد", "زن")
     var name by remember { mutableStateOf(userProfile?.name ?: "") }
-    var gender by remember { mutableStateOf(userProfile?.gender ?: "") }
     var bio by remember { mutableStateOf(userProfile?.bio ?: "") }
     var address by remember { mutableStateOf(userProfile?.address ?: "") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var isRefreshing by remember { mutableStateOf(false) }
-
     val refreshState = rememberSwipeRefreshState(isRefreshing)
     val userPreferences = UserPreferences.getInstance(context)
     val phone = userPreferences.getUserPhone()
@@ -1660,9 +1646,9 @@ fun EditProfileScreen(
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = colorResource(id = R.color.blueM)
-                    ),
+                    )
                 )
-            },
+            }
         ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
@@ -1693,7 +1679,7 @@ fun EditProfileScreen(
                         val currentImageUrl = if (userProfile?.image?.startsWith("http") == true) {
                             userProfile.image
                         } else {
-                            "https://petshopdjango.liara.run/${userProfile?.image ?: ""}"
+                            "http://192.168.13.101:2020${userProfile?.image ?: ""}"
                         }
 
                         AsyncImage(
@@ -1749,37 +1735,7 @@ fun EditProfileScreen(
                                     unfocusedIndicatorColor = Color(0xFF757575)
                                 )
                             )
-                            ExposedDropdownMenuBox(
-                                expanded = expanded,
-                                onExpandedChange = { expanded = !expanded }
-                            ) {
-                                OutlinedTextField(
-                                    value = gender,
-                                    onValueChange = { },
-                                    readOnly = true,
-                                    label = { Text("جنسیت") },
-                                    trailingIcon = {
-                                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .menuAnchor()
-                                )
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false }
-                                ) {
-                                    genderOptions.forEach { option ->
-                                        DropdownMenuItem(
-                                            text = { Text(option) },
-                                            onClick = {
-                                                gender = option
-                                                expanded = false
-                                            }
-                                        )
-                                    }
-                                }
-                            }
+
                             OutlinedTextField(
                                 value = bio,
                                 onValueChange = { bio = it },
@@ -1793,6 +1749,7 @@ fun EditProfileScreen(
                                     unfocusedIndicatorColor = Color(0xFF757575)
                                 )
                             )
+
                             OutlinedTextField(
                                 value = address,
                                 onValueChange = { address = it },
@@ -1808,16 +1765,16 @@ fun EditProfileScreen(
                             )
                         }
                     }
+
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Save Button
                     Button(
                         onClick = {
                             scope.launch {
-                                val success = userViewModel.editProfileViewModel(
+                                userViewModel.editProfileViewModel(
                                     context = context,
                                     name = name,
-                                    gender = gender,
                                     bio = bio,
                                     address = address,
                                     imageUri = imageUri,

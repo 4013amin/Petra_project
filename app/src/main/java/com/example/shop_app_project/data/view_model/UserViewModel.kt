@@ -535,7 +535,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         context: Context,
         phone: String,
         name: String,
-        gender: String?,
         bio: String?,
         address: String?,
         imageUri: Uri?,
@@ -543,7 +542,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 val namePart = name.toRequestBody("text/plain".toMediaTypeOrNull())
-                val genderPart = gender?.toRequestBody("text/plain".toMediaTypeOrNull())
                 val bioPart = bio?.toRequestBody("text/plain".toMediaTypeOrNull())
                 val addressPart = address?.toRequestBody("text/plain".toMediaTypeOrNull())
 
@@ -562,7 +560,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 val response = api.editProfile(
                     phone = phone,
                     name = namePart,
-                    gender = genderPart,
                     bio = bioPart,
                     address = addressPart,
                     image = imagePart

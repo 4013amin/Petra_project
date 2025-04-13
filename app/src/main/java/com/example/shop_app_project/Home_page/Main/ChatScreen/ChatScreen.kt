@@ -54,7 +54,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
     val listState = rememberLazyListState()
     val context = LocalContext.current
 
-    val chatUrl = "ws://192.168.218.101:2020/ws/chat/$phone/$receiver/"
+    val chatUrl = "ws://192.168.13.101:2020/ws/chat/$phone/$receiver/"
 
     LaunchedEffect(Unit) {
         NotificationHelper.createNotificationChannel(context)

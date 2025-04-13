@@ -13,9 +13,9 @@ data class UserProfile(
     val id: Int,
     val name: String,
     val image: String,
-    val gender: String?,
     val bio: String?,
-    val address: String?
+    val address: String?,
+    val phone : String?
 )
 data class EditProfileRequest(
     val name: String,
