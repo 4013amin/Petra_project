@@ -454,6 +454,22 @@ fun ProductItem(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun ProductItemPreview() {
+    Shop_App_projectTheme {
+        ProductItem(
+            name = "محصول نمونه",
+            description = "این یک توضیح کوتاه برای محصول نمونه است که در پیش‌نمایش نمایش داده می‌شود.",
+            price = 1500000,
+            images = listOf("/media/images/sample.jpg"),
+            onClick = {},
+            onSaveClick = {}
+        )
+    }
+}
+
+
 @Composable
 fun AnimalBox(imageRes: Int, backgroundColor: Color, text: String) {
     Box(
