@@ -172,7 +172,7 @@ fun BottomNavigationBar(
                         icon = {
                             if (item.route == "profile" && userProfile?.image != null) {
                                 AsyncImage(
-                                    model = "http://192.168.13.101:2020${userProfile.image}",
+                                    model = "http://192.168.237.101:2020${userProfile.image}",
                                     contentDescription = "Profile Image",
                                     modifier = Modifier
                                         .size(24.dp)
