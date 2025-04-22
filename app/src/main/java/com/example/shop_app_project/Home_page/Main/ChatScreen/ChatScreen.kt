@@ -32,6 +32,10 @@ import com.example.shop_app_project.R
 import com.example.shop_app_project.data.utils.UtilsRetrofit
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import com.example.shop_app_project.utils.NotificationHelper
+import com.example.shop_app_project.utils.WebSocketClient
+import com.example.shop_app_project.utils.ChatWebSocketListener
+
 
 data class MessageModel(
     val id: Int? = null,
@@ -60,49 +64,56 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
         NotificationHelper.createNotificationChannel(context)
     }
 
-    val webSocketListener = ChatWebSocketListener { message ->
-        val json = JSONObject(message)
-        val id = json.optInt("id", -1).takeIf { it != -1 }
-        val text = json.getString("message")
-        val sender = json.getString("sender")
-        val timestamp = json.getString("timestamp")
-        val statusStr = json.optString("status", "SENT").uppercase()
-        val status = try {
-            MessageStatus.valueOf(statusStr)
-        } catch (e: IllegalArgumentException) {
-            MessageStatus.SENT
-        }
-        val replyToJson = json.optJSONObject("reply_to")
-        val replyTo = replyToJson?.let {
-            val replyId = it.optInt("id", -1).takeIf { it != -1 }
-            val replyText = it.getString("message")
-            val replySender = it.getString("sender")
-            messages.find { m -> m.id == replyId } ?: MessageModel(
-                null,
-                replyText,
-                replySender == phone
-            )
-        }
+    val webSocketListener = object : ChatWebSocketListener {
+        override fun onOpen() {}
+        override fun onClosed() {}
+        override fun onFailure(t: Throwable) {}
 
-        val existingMessageIndex = messages.indexOfFirst { it.id == id }
-        if (existingMessageIndex != -1) {
-            messages[existingMessageIndex] = messages[existingMessageIndex].copy(status = status)
-        } else {
-            messages.add(MessageModel(id, text, sender == phone, replyTo, status, timestamp))
-            messages.sortBy { it.timestamp }
-            if (sender != phone) {
-                NotificationHelper.showNotification(
-                    context = context,
-                    title = "پیام جدید از $sender",
-                    message = text,
-                    phone = phone,
-                    receiver = receiver
+        override fun onMessage(message: String) {
+            val json = JSONObject(message)
+            val id = json.optInt("id", -1).takeIf { it != -1 }
+            val text = json.getString("message")
+            val sender = json.getString("sender")
+            val timestamp = json.getString("timestamp")
+            val statusStr = json.optString("status", "SENT").uppercase()
+            val status = try {
+                MessageStatus.valueOf(statusStr)
+            } catch (e: IllegalArgumentException) {
+                MessageStatus.SENT
+            }
+            val replyToJson = json.optJSONObject("reply_to")
+            val replyTo = replyToJson?.let {
+                val replyId = it.optInt("id", -1).takeIf { it != -1 }
+                val replyText = it.getString("message")
+                val replySender = it.getString("sender")
+                messages.find { m -> m.id == replyId } ?: MessageModel(
+                    null,
+                    replyText,
+                    replySender == phone
                 )
             }
-        }
-        coroutineScope.launch {
-            if (messages.isNotEmpty()) {
-                listState.animateScrollToItem(messages.size - 1)
+
+            val existingMessageIndex = messages.indexOfFirst { it.id == id }
+            if (existingMessageIndex != -1) {
+                messages[existingMessageIndex] =
+                    messages[existingMessageIndex].copy(status = status)
+            } else {
+                messages.add(MessageModel(id, text, sender == phone, replyTo, status, timestamp))
+                messages.sortBy { it.timestamp }
+                if (sender != phone) {
+                    NotificationHelper.showNotification(
+                        context = context,
+                        title = "پیام جدید از $sender",
+                        message = text,
+                        phone = phone,
+                        receiver = receiver
+                    )
+                }
+            }
+            coroutineScope.launch {
+                if (messages.isNotEmpty()) {
+                    listState.animateScrollToItem(messages.size - 1)
+                }
             }
         }
     }
