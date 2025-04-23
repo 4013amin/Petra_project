@@ -406,7 +406,7 @@ fun ImageSlider(images: List<String>, modifier: Modifier) {
                 .padding(15.dp)
         ) { page ->
             AsyncImage(
-                model = "http://192.168.237.101:2020${images[page]}",
+                model = "https://petshopdjango.liara.run${images[page]}",
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -414,7 +414,7 @@ fun ImageSlider(images: List<String>, modifier: Modifier) {
                     .height(400.dp)
                     .clip(RoundedCornerShape(5.dp))
                     .clickable {
-                        selectedImage.value = "http://192.168.237.101:2020${images[page]}"
+                        selectedImage.value = "https://petshopdjango.liara.run${images[page]}"
                         openDialog.value = true
                     },
                 onError = {
@@ -1005,7 +1005,7 @@ fun FavoritesPage(
                             ) {
                                 if (product.images.isNotEmpty()) {
                                     AsyncImage(
-                                        model = "http://192.168.237.101:2020${product.images.first()}",
+                                        model = "https://petshopdjango.liara.run${product.images.first()}",
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier.fillMaxSize()
@@ -1225,7 +1225,7 @@ fun ProductItem(
             ) {
                 if (product.images.isNotEmpty()) {
                     AsyncImage(
-                        model = "http://192.168.237.101:2020${product.images.first()}",
+                        model = "https://petshopdjango.liara.run${product.images.first()}",
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
@@ -1313,7 +1313,7 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                 val imageUrl = if (userProfile.image.startsWith("http")) {
                     userProfile.image
                 } else {
-                    "http://192.168.237.101:2020${userProfile.image}"
+                    "https://petshopdjango.liara.run${userProfile.image}"
                 }
 
                 AsyncImage(
@@ -1430,7 +1430,7 @@ fun UserProfileDetailScreen(
                         val imageUrl = if (userProfile?.image?.startsWith("http") == true) {
                             userProfile!!.image
                         } else {
-                            "http://192.168.237.101:2020${userProfile?.image}"
+                            "https://petshopdjango.liara.run${userProfile?.image}"
                         }
 
                         AsyncImage(
@@ -1679,7 +1679,7 @@ fun EditProfileScreen(
                         val currentImageUrl = if (userProfile?.image?.startsWith("http") == true) {
                             userProfile.image
                         } else {
-                            "http://192.168.237.101:2020${userProfile?.image ?: ""}"
+                            "https://petshopdjango.liara.run${userProfile?.image ?: ""}"
                         }
 
                         AsyncImage(
