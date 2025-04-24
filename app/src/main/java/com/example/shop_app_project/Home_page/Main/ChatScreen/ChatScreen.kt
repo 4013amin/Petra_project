@@ -58,7 +58,7 @@ fun ChatScreen(navController: NavController, phone: String, receiver: String) {
     val listState = rememberLazyListState()
     val context = LocalContext.current
 
-    val chatUrl = "ws://petshopdjango.liara.run/ws/chat/$phone/$receiver/"
+    val chatUrl = "wss://petshopdjango.liara.run/ws/chat/$phone/$receiver/"
 
     LaunchedEffect(Unit) {
         NotificationHelper.createNotificationChannel(context)
