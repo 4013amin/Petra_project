@@ -494,6 +494,8 @@ fun AddProductForm(navController: NavController) {
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
     var isFormSubmitted by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
 
     Scaffold(
         topBar = {
@@ -549,7 +551,8 @@ fun AddProductForm(navController: NavController) {
                     var name by remember { mutableStateOf("") }
                     var description by remember { mutableStateOf("") }
                     var price by remember { mutableStateOf("") }
-                    var phone by remember { mutableStateOf("") }
+                    val userPreferences = UserPreferences.getInstance(context)
+                    var phone by remember { mutableStateOf(userPreferences.getUserPhone() ?: "") }
                     var userName by remember { mutableStateOf("") }
                     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
                     var selectedCity by remember { mutableStateOf("تهران") }
@@ -667,6 +670,7 @@ fun AddProductForm(navController: NavController) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .background(color = Color.White)
                             .padding(vertical = 8.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -853,7 +857,6 @@ fun AddProductForm(navController: NavController) {
     }
 }
 
-// Reusable Form Field Composable
 @Composable
 fun FormField(
     label: String,
@@ -869,14 +872,14 @@ fun FormField(
             text = label,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF212121),
+            color = Color.Black,
             modifier = Modifier.padding(bottom = 4.dp)
         )
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            textStyle = TextStyle(color = Color(0xFF212121)),
+            textStyle = TextStyle(color = Color.Black),
             isError = isError,
             maxLines = maxLines,
             keyboardOptions = keyboardOptions,
@@ -885,7 +888,14 @@ fun FormField(
                 focusedIndicatorColor = Color(0xFF1976D2),
                 unfocusedIndicatorColor = Color(0xFF757575),
                 cursorColor = Color(0xFF1976D2),
-                errorIndicatorColor = Color.Red
+                errorIndicatorColor = Color.Red,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color.White,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                disabledTextColor = Color.Black,
+                errorContainerColor = Color.White
             )
         )
         if (isError) {
@@ -1278,6 +1288,7 @@ fun ProductItem(
     }
 }
 
+
 @Composable
 fun ProfileSection(userProfile: UserProfile, navController: NavController) {
     Card(
@@ -1287,7 +1298,7 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
             .clickable { navController.navigate("profileDetail") }
             .shadow(6.dp, shape = RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = Color.White), // تنظیم پس‌زمینه سفید برای کارت
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -1334,18 +1345,16 @@ fun ProfileSection(userProfile: UserProfile, navController: NavController) {
                     text = userProfile.name,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF212121)
+                    color = Color.Black,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "مشاهده جزئیات",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF757575)
+                    color = Color.Black
                 )
             }
-
-
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = "جزئیات بیشتر",
@@ -1406,6 +1415,7 @@ fun UserProfileDetailScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(Color.White) 
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -1413,7 +1423,6 @@ fun UserProfileDetailScreen(
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Profile Image with Modern Effects
                     Box(
                         modifier = Modifier
                             .size(160.dp)
@@ -1445,13 +1454,12 @@ fun UserProfileDetailScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // User Name
                     userProfile?.let {
                         Text(
                             text = it.name,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF212121),
+                            color = Color.Black,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -1466,7 +1474,9 @@ fun UserProfileDetailScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            shape = RoundedCornerShape(16.dp)
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp),
@@ -1512,7 +1522,6 @@ fun UserProfileDetailScreen(
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Edit Profile Button
                     Button(
                         onClick = { navController.navigate("EditProfileScreen") },
                         modifier = Modifier
@@ -1561,13 +1570,13 @@ fun ProfileInfoRow(
             Text(
                 text = label,
                 fontSize = 14.sp,
-                color = Color(0xFF757575),
+                color = Color.Black,
                 fontWeight = FontWeight.Medium
             )
             Text(
                 text = value,
                 fontSize = 16.sp,
-                color = Color(0xFF212121),
+                color = Color.Black,
                 fontWeight = FontWeight.Normal
             )
         }
@@ -1653,6 +1662,7 @@ fun EditProfileScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(Color.White)
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -1689,7 +1699,6 @@ fun EditProfileScreen(
                             modifier = Modifier.fillMaxSize()
                         )
 
-                        // Overlay Icon for Edit
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
@@ -1709,7 +1718,6 @@ fun EditProfileScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Input Fields Card
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1725,50 +1733,70 @@ fun EditProfileScreen(
                             OutlinedTextField(
                                 value = name,
                                 onValueChange = { name = it },
-                                label = { Text("نام") },
+                                label = { Text("نام", color = Color.Black) },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                                 shape = RoundedCornerShape(12.dp),
                                 colors = TextFieldDefaults.colors(
                                     focusedIndicatorColor = Color(0xFF1976D2),
+                                    unfocusedIndicatorColor = Color(0xFF757575),
                                     cursorColor = Color(0xFF1976D2),
-                                    unfocusedIndicatorColor = Color(0xFF757575)
-                                )
+                                    focusedContainerColor = Color.White,
+                                    unfocusedContainerColor = Color.White,
+                                    disabledContainerColor = Color.White,
+                                    focusedTextColor = Color.Black,
+                                    unfocusedTextColor = Color.Black,
+                                    disabledTextColor = Color.Black
+                                ),
+                                textStyle = TextStyle(color = Color.Black)
                             )
 
                             OutlinedTextField(
                                 value = bio,
                                 onValueChange = { bio = it },
-                                label = { Text("بیوگرافی") },
+                                label = { Text("بیوگرافی", color = Color.Black) },
                                 modifier = Modifier.fillMaxWidth(),
                                 maxLines = 3,
                                 shape = RoundedCornerShape(12.dp),
                                 colors = TextFieldDefaults.colors(
                                     focusedIndicatorColor = Color(0xFF1976D2),
+                                    unfocusedIndicatorColor = Color(0xFF757575),
                                     cursorColor = Color(0xFF1976D2),
-                                    unfocusedIndicatorColor = Color(0xFF757575)
-                                )
+                                    focusedContainerColor = Color.White,
+                                    unfocusedContainerColor = Color.White,
+                                    disabledContainerColor = Color.White,
+                                    focusedTextColor = Color.Black,
+                                    unfocusedTextColor = Color.Black,
+                                    disabledTextColor = Color.Black
+                                ),
+                                textStyle = TextStyle(color = Color.Black)
                             )
 
                             OutlinedTextField(
                                 value = address,
                                 onValueChange = { address = it },
-                                label = { Text("آدرس") },
+                                label = { Text("آدرس", color = Color.Black) },
                                 modifier = Modifier.fillMaxWidth(),
                                 maxLines = 2,
                                 shape = RoundedCornerShape(12.dp),
                                 colors = TextFieldDefaults.colors(
                                     focusedIndicatorColor = Color(0xFF1976D2),
+                                    unfocusedIndicatorColor = Color(0xFF757575),
                                     cursorColor = Color(0xFF1976D2),
-                                    unfocusedIndicatorColor = Color(0xFF757575)
-                                )
+                                    focusedContainerColor = Color.White,
+                                    unfocusedContainerColor = Color.White,
+                                    disabledContainerColor = Color.White,
+                                    focusedTextColor = Color.Black,
+                                    unfocusedTextColor = Color.Black,
+                                    disabledTextColor = Color.Black
+                                ),
+                                textStyle = TextStyle(color = Color.Black)
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Save Button
                     Button(
                         onClick = {
                             scope.launch {
