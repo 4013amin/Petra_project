@@ -373,7 +373,7 @@ fun ProductItem(
             // Product Image
             if (images.isNotEmpty()) {
                 AsyncImage(
-                    model = "https://petshopdjango.liara.run${images.first()}",
+                    model = "https://petshopdjango.liara.run/${images.first()}",
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
