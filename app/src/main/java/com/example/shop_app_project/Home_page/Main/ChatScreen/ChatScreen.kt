@@ -491,11 +491,7 @@ private fun ShowChatScreen() {
                 .fillMaxSize()
                 .padding(it)
         ) {
-            UserItem(
-                phone = "09362629118",
-                onClick = {},
-                onDeleteChat = {}
-            )
+            ChatUsersScreen(navController, "09362629118")
         }
     }
 }
