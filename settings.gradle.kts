@@ -1,18 +1,19 @@
 pluginManagement {
     repositories {
-        google()
         gradlePluginPortal()
+        google() // 🟢 ریپازیتوری Google
         mavenCentral()
     }
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
+        google() // 🟢 ریپازیتوری Google
         mavenCentral()
     }
 }
+
 
 rootProject.name = "Shop_App_project"
 include(":app")
