@@ -89,6 +89,7 @@ fun forgetpasswordScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(color = Color.White)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.rectangle),
@@ -124,7 +125,9 @@ fun forgetpasswordScreen(navController: NavController) {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
+                        .weight(1f)
+                        .background(color = Color.White)
+                    ,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
                     color = Color.White
                 ) {
@@ -132,7 +135,9 @@ fun forgetpasswordScreen(navController: NavController) {
                         modifier = Modifier
                             .fillMaxSize()
                             .background(color = Color.White)
-                            .padding(16.dp),
+                            .padding(16.dp)
+                            .background(color = Color.White)
+                        ,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
 
@@ -311,6 +316,12 @@ fun forgetpasswordScreen(navController: NavController) {
     }
 }
 
+@Preview
+@Composable
+private fun ShowForgetScreen() {
+    val navController = rememberNavController()
+    forgetpasswordScreen(navController)
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
