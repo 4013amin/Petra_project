@@ -287,7 +287,7 @@ fun ProductDetailScreen(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            painter = painterResource(id = R.drawable.chat),
+                            painter = painterResource(id = R.drawable.comment),
                             contentDescription = "چت",
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
@@ -948,6 +948,7 @@ fun FavoritesPage(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
+                    .background(color = Color.White)
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {

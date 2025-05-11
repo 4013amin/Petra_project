@@ -95,7 +95,7 @@ fun getNavItems(): List<NavigationItem> {
         NavigationItem(
             "chat_users",
             "پیام ها",
-            painterResource(id = R.drawable.chaticon),
+            painterResource(id = R.drawable.comment),
             modifier = Modifier.size(37.dp)
         ),
         NavigationItem(
@@ -172,7 +172,7 @@ fun BottomNavigationBar(
                         icon = {
                             if (item.route == "profile" && userProfile?.image != null) {
                                 AsyncImage(
-                                    model = "http://192.168.237.101:2020${userProfile.image}",
+                                    model = "https://petshopdjango.liara.run/${userProfile.image}",
                                     contentDescription = "Profile Image",
                                     modifier = Modifier
                                         .size(24.dp)
