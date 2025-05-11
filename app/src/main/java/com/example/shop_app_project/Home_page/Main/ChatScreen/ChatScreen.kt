@@ -379,7 +379,9 @@ fun ChatUsersScreen(navController: NavController, phone: String) {
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(color = Color.White)) {
         TopAppBar(
             title = { Text("Messages From Users") },
             navigationIcon = {
